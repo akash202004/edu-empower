@@ -1,4 +1,3 @@
-Here's a more polished and professional version of your Markdown documentation:
 
 ```markdown
 # Edu-Empower Frontend
@@ -116,7 +115,4 @@ It is designed with Tailwind CSS for styling and includes features such as:
 ## License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
-```
-
----
 
