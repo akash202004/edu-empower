@@ -1,99 +1,16 @@
-"use client"
+import React from 'react';
 
-import {
-    motion,
-    useScroll,
-    useSpring
-} from "framer-motion"
+const Hero = () => {
+  return (
+    <div className='poppins pt-50 text-center shadow-[0px_4px_6px_rgba(0,0,0,0.1)] mb-8 max-w-6xl mx-auto'>
+      <div className='font-extralight text-2xl'>
+        Innovative Solution for Student
+      </div>
+      <div className='font-bold text-3xl pb-15 pt-5'>
+        Connecting Students & Support
+      </div>
+    </div>
+  );
+};
 
-export default function Parallax() {
-    const { scrollYProgress } = useScroll()
-    const scaleX = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001,
-    })
-
-    const headlines = [
-        <b>"Empowering Dreams, One Student at a Time"</b>,
-        <b>"Bridging the Gap Between Potential and Opportunity"</b>,
-        <b>"Your Partner in Breaking Financial Barriers to Education"</b>,
-        <b>"Fueling Futures, Transforming Lives"</b>,
-        <b>"Where Education Meets Possibility"</b>
-    ]
-
-    return (
-        <div id="example">
-            {headlines.map((text, index) => (
-                <Headline key={index} text={text} />
-            ))}
-            <motion.div className="progress" style={{ scaleX }} />
-            <StyleSheet />
-        </div>
-    )
-}
-
-function Headline({ text }) {
-    return (
-        <section className="headline-container">
-            <motion.h1
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-            >
-                {text}
-            </motion.h1>
-        </section>
-    )
-}
-
-function StyleSheet() {
-    return (
-        <style>{`
-            html {
-                scroll-snap-type: y mandatory;
-            }
-
-            body {
-                margin: 0;
-                font-family: Arial, sans-serif;
-                background-color: #121212;
-                color: #fff;
-            }
-
-            .headline-container {
-                height: 100vh;
-                scroll-snap-align: start;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                padding: 20px;
-            }
-
-            .headline-container h1 {
-                font-size: 4rem;
-                font-weight: bold;
-                color: #4ff0b7;
-                margin: 0;
-                line-height: 1.2;
-            }
-
-            @media (max-width: 500px) {
-                .headline-container h1 {
-                    font-size: 2rem;
-                }
-            }
-
-            .progress {
-                position: fixed;
-                left: 0;
-                right: 0;
-                height: 5px;
-                background: #4ff0b7;
-                bottom: 50px;
-                transform: scaleX(0);
-            }
-        `}</style>
-    )
-}
+export default Hero;
