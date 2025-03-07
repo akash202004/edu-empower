@@ -1,69 +1,75 @@
 import os
 import re
+import requests
 import pytesseract
-from pdf2image import convert_from_path
+import cloudinary
+import cloudinary.uploader
+from pdf2image import convert_from_bytes
 import cv2
-import pandas as pd
-import numpy as np
+import json
+import prisma
 
-# ✅ Set the Tesseract-OCR path
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# Cloudinary Config
+cloudinary.config(
+    cloud_name="your_cloud_name",
+    api_key="your_api_key",
+    api_secret="your_api_secret"
+)
 
-# ✅ Define paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # One level up from 'script/'
-UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")  # Locate 'uploads' folder
-OUTPUT_DIR = os.path.join(BASE_DIR, "output")  # Output folder
+# Fetch PDF URL from Prisma
+def fetch_pdf_url(user_id):
+    response = requests.get(f"http://localhost:8000/api/get_pdf/{user_id}")
+    if response.status_code == 200:
+        return response.json()["documentUrl"]
+    return None
 
-# Ensure output directory exists
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+# Download PDF and convert it to images
+def fetch_pdf_from_cloudinary(pdf_url):
+    response = requests.get(pdf_url)
+    if response.status_code == 200:
+        images = convert_from_bytes(response.content)
+        return images
+    return None
 
-# ✅ Define PDF file path
-PDF_PATH = os.path.join(UPLOADS_DIR, "income_demo.pdf")
+# Preprocess image for better OCR
+def preprocess_image(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, binary = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    return binary
 
-# ✅ Define Poppler path
-POPPLER_PATH = r"C:\Users\lifeo\poppler\Library\bin"  # Update with actual path
-
-# ✅ Convert PDF to images
-images = convert_from_path(PDF_PATH, poppler_path=POPPLER_PATH)
-
-# ✅ Function to preprocess image
-def preprocess_image(img_path):
-    image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)  # Convert to grayscale
-    _, thresh = cv2.threshold(image, 150, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # Apply thresholding
-    return thresh
-
-# ✅ Process each image
-name = "Unknown"
-income_amount = "Not Found"
-
-for i, image in enumerate(images):
-    img_filename = os.path.join(OUTPUT_DIR, f"page_{i}.jpg")
-    image.save(img_filename, "JPEG")
-
-    # Preprocess image before OCR
-    processed_img = preprocess_image(img_filename)
-
-    # Convert image to text using Tesseract
-    text = pytesseract.image_to_string(processed_img)
-
-    # ✅ Extract Name (First Uppercase words after "This is to certify that")
+# Extract name and income from text
+def extract_info(text):
     name_match = re.search(r"certify that\s+([A-Z\s]+)", text, re.IGNORECASE)
-    if name_match:
-        name = name_match.group(1).strip()
+    name = name_match.group(1).strip() if name_match else "Unknown"
 
-    # ✅ Extract All Numeric Values
-    numbers = re.findall(r"\b\d{5,6}\b", text)  # Find 5-6 digit numbers (income values)
-    numbers = [int(num) for num in numbers]
+    numbers = re.findall(r"\b\d{5,6}\b", text)
+    income_amount = max(map(int, numbers)) if numbers else "Not Found"
 
-    # ✅ Find Highest Income
-    if numbers:
-        income_amount = max(numbers)
+    return {"name": name, "income": income_amount}
 
-# ✅ Save extracted data to Excel
-data = {"Name": [name], "Income Amount": [income_amount]}
-df = pd.DataFrame(data)
+# Process the PDF
+def process_pdf(user_id):
+    pdf_url = fetch_pdf_url(user_id)
+    if not pdf_url:
+        return {"error": "PDF URL not found"}
 
-excel_path = os.path.join(OUTPUT_DIR, "extracted_data.xlsx")
-df.to_excel(excel_path, index=False)
+    images = fetch_pdf_from_cloudinary(pdf_url)
+    if not images:
+        return {"error": "Could not download PDF"}
 
-print("✅ Sheet extracted successfully.")
+    extracted_data = {"name": "Unknown", "income": "Not Found"}
+    
+    for image in images:
+        text = pytesseract.image_to_string(preprocess_image(image))
+        extracted_data = extract_info(text)
+    
+    # Store extracted data in Prisma
+    requests.post("http://localhost:5000/api/store_data", json=extracted_data)
+    
+    return extracted_data
+
+# Run script
+if __name__ == "__main__":
+    user_id = input("Enter User ID: ")
+    result = process_pdf(user_id)
+    print("Extracted Data:", result)
