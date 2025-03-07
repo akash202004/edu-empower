@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password      String
+  income        Int
+  scholarships  Scholarship[]
+  createdAt     DateTime @default(now())
+}
+
+model Scholarship {
+  id          String  @id @default(uuid())
+  name        String
+  description String
+  eligibility Int
+  userId      String?
+  user        User?   @relation(fields: [userId], references: [id])
+}
