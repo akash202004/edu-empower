@@ -1,35 +1,57 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-export const registerUser = async (req: Request, res: Response) => {
-  const { name, email, password, income } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await prisma.user.create({
-      data: { name, email, password: hashedPassword, income },
-    });
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(500).json({ error: "User registration failed" });
-  }
-};
+interface User {
+  name: string;
+  email: string;
+  income?: number;
+  userId: string;
+}
 
-export const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+// Register or update a user
+export const registerOrUpdateUser = async (req: Request, res: Response) => {
+  const { name, email, income, userId }: User = req.body;
+
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-        res.status(401).json({ error: "Invalid credentials" });
+    let user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (user) {
+      user = await prisma.user.update({
+        where: { id: userId },
+        data: { name, email, income },
+      });
+    } else {
+      user = await prisma.user.create({
+        data: { id: userId, name, email, income },
+      });
     }
-    res.json({ message: "Login successful", user });
+
+    res.status(200).json({ id: user.id, name: user.name, email: user.email });
   } catch (error) {
-    res.status(500).json({ error: "Login failed" });
+    res.status(500).json({ error: "User registration or update failed" });
   }
 };
 
+// Fetch a single user by ID
+export const getUser = async (req: Request, res: Response) => {
+  const { userId } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ id: user.id, name: user.name, email: user.email });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch user" });
+  }
+};
+
+// Fetch all users
 export const getAllUsers = async (_: Request, res: Response) => {
   try {
     const users = await prisma.user.findMany();

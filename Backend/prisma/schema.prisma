@@ -8,11 +8,10 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id            String         @id @default(uuid()) // Clerk User ID
   name          String
   email         String   @unique
-  password      String
-  income        Int
+  income        Int? // Optional
   scholarships  Scholarship[]
   createdAt     DateTime @default(now())
 }
@@ -21,7 +20,8 @@ model Scholarship {
   id          String  @id @default(uuid())
   name        String
   description String
-  eligibility Int
-  userId      String?
-  user        User?   @relation(fields: [userId], references: [id])
+  eligibility Float // Changed from Int to Float
+  userId      String  // Required Foreign Key
+  user        User   @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
 }
