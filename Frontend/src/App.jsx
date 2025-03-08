@@ -19,6 +19,7 @@ const App = () => {
           <Footer />
         </>} />
         <Route path="/student" element={<Student />} />
+        <Route path="/crowdfunding" element={<Crowedfunding />} />
       </Routes>
     </div>
   );

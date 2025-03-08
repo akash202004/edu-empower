@@ -7,9 +7,10 @@ import {
 } from "@clerk/clerk-react";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Link } from "react-router-dom";
 
 const navigation = [
-  { name: "Crowd Funding", href: "#", current: true },
+  { name: "Crowd Funding", href: "/crowdfunding", current: true },
   { name: "Scholarship", href: "#", current: false },
   { name: "Donation", href: "#", current: false },
 ];
@@ -41,7 +42,7 @@ export default function Navbar() {
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
                 {navigation.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
                     href={item.href}
                     aria-current={item.current ? "page" : undefined}
@@ -51,7 +52,7 @@ export default function Navbar() {
                     )}
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
