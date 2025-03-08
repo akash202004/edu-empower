@@ -7,18 +7,14 @@ import {
   useClerk,
   useUser,
 } from "@clerk/clerk-react";
-import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-} from "@headlessui/react";
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import Student from "../Student_Basic_Details_Form/Student";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 const navigation = [
-  { name: "Crowd Funding", href: "#", current: true },
-  { name: "Scholarship", href: "#", current: false },
-  { name: "Donation", href: "#", current: false },
+  { name: "Crowd Funding", path: "/crowdfunding", current: true },
+  { name: "Scholarship", path: "/Scholarship", current: false },
+  { name: "Donation", path: "/donation", current: false },
 ];
 
 function classNames(...classes) {
@@ -27,30 +23,26 @@ function classNames(...classes) {
 
 export default function Navbar() {
   const { signIn } = useClerk();
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn } = useUser();
   const navigate = useNavigate();
+
   useEffect(() => {
     if (isSignedIn) {
       navigate("/student");
     }
   }, [isSignedIn, navigate]);
+
   return (
     <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-        <div className="relative flex h-22 items-center justify-between">
+        <div className="relative flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-100 focus:ring-2 focus:ring-black focus:outline-none focus:ring-inset">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              <Bars3Icon
-                aria-hidden="true"
-                className="block size-6 group-data-open:hidden"
-              />
-              <XMarkIcon
-                aria-hidden="true"
-                className="hidden size-6 group-data-open:block"
-              />
+              <Bars3Icon aria-hidden="true" className="block size-6 group-data-open:hidden" />
+              <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
             </DisclosureButton>
           </div>
 
@@ -62,19 +54,16 @@ export default function Navbar() {
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
                 {navigation.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
-                    href={item.href}
-                    aria-current={item.current ? "page" : undefined}
+                    to={item.path} // <-- Changed from href to to
                     className={classNames(
-                      item.current
-                        ? "bg-gray-100 text-black"
-                        : "text-black hover:bg-gray-200",
+                      item.current ? "bg-gray-100 text-black" : "text-black hover:bg-gray-200",
                       "rounded-md px-3 py-2 text-sm font-medium"
                     )}
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -82,16 +71,15 @@ export default function Navbar() {
 
           {/* Authentication Buttons */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 space-x-4">
-            {/* If user is signed out, show two login buttons */}
             <SignedOut>
               <div className="flex space-x-3">
-                <SignInButton mode="modal">
+                <SignInButton mode="modal" afterSignInUrl="/student">
                   <button className="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     Login as Student
                   </button>
                 </SignInButton>
 
-                <SignInButton mode="modal">
+                <SignInButton mode="modal" afterSignInUrl="/student">
                   <button className="bg-green-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
                     Login as Organization
                   </button>
@@ -99,7 +87,6 @@ export default function Navbar() {
               </div>
             </SignedOut>
 
-            {/* If user is signed in, show user profile & logout option */}
             <SignedIn>
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
@@ -113,13 +100,10 @@ export default function Navbar() {
           {navigation.map((item) => (
             <DisclosureButton
               key={item.name}
-              as="a"
-              href={item.href}
-              aria-current={item.current ? "page" : undefined}
+              as={Link}
+              to={item.path}
               className={classNames(
-                item.current
-                  ? "bg-gray-100 text-black"
-                  : "text-black hover:bg-gray-200",
+                item.current ? "bg-gray-100 text-black" : "text-black hover:bg-gray-200",
                 "block rounded-md px-3 py-2 text-base font-medium"
               )}
             >
