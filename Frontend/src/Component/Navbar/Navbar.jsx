@@ -1,12 +1,19 @@
-import { 
-  SignUpButton, 
-  SignInButton, 
-  SignedIn, 
-  SignedOut, 
-  UserButton 
+import React, { useState, useEffect } from "react";
+import {
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useClerk,
+  useUser,
 } from "@clerk/clerk-react";
-import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const navigation = [
@@ -20,6 +27,22 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
+  const { signIn } = useClerk();
+  const { isSignedIn, user } = useUser();
+  const navigate = useNavigate();
+
+  //track selected login type
+  const [loginType, setLoginType] = useState("");
+
+  useEffect(() => {
+    if (isSignedIn) {
+      if (loginType === "student") {
+        navigate("/student");
+      } else if (loginType === "organization") {
+        navigate("/organization");
+      }
+    }
+  }, [isSignedIn, navigate, loginType]);
   return (
     <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -29,8 +52,14 @@ export default function Navbar() {
             <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-100 focus:ring-2 focus:ring-black focus:outline-none focus:ring-inset">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              <Bars3Icon aria-hidden="true" className="block size-6 group-data-open:hidden" />
-              <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
+              <Bars3Icon
+                aria-hidden="true"
+                className="block size-6 group-data-open:hidden"
+              />
+              <XMarkIcon
+                aria-hidden="true"
+                className="hidden size-6 group-data-open:block"
+              />
             </DisclosureButton>
           </div>
 
@@ -47,7 +76,9 @@ export default function Navbar() {
                     href={item.href}
                     aria-current={item.current ? "page" : undefined}
                     className={classNames(
-                      item.current ? "bg-gray-100 text-black" : "text-black hover:bg-gray-200",
+                      item.current
+                        ? "bg-gray-100 text-black"
+                        : "text-black hover:bg-gray-200",
                       "rounded-md px-3 py-2 text-sm font-medium"
                     )}
                   >
@@ -63,13 +94,14 @@ export default function Navbar() {
             {/* If user is signed out, show two login buttons */}
             <SignedOut>
               <div className="flex space-x-3">
-                <SignInButton mode="modal" afterSignInUrl="/student">
+                <SignInButton mode="modal" onClick={() => setLoginType("student")}>
                   <button className="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     Login as Student
                   </button>
                 </SignInButton>
 
-                <SignInButton mode="modal" afterSignInUrl="/organization">
+                <SignInButton mode="modal"
+                 onClick={() => setShowOrganizationModal(true)}>
                   <button className="bg-green-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
                     Login as Organization
                   </button>
@@ -95,7 +127,9 @@ export default function Navbar() {
               href={item.href}
               aria-current={item.current ? "page" : undefined}
               className={classNames(
-                item.current ? "bg-gray-100 text-black" : "text-black hover:bg-gray-200",
+                item.current
+                  ? "bg-gray-100 text-black"
+                  : "text-black hover:bg-gray-200",
                 "block rounded-md px-3 py-2 text-base font-medium"
               )}
             >
