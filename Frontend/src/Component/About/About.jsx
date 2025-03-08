@@ -17,14 +17,7 @@ const EducationFunding = () => {
             Get Started
           </button>
         </div>
-        <div className="absolute top-8 right-8">
-          {/* Custom hand icon - simplified version */}
-          <img 
-            src={handshake} 
-            alt="Handshake Icon" 
-            className="max-w-full h-auto w-24 md:w-32 lg:w-40 transform shadow-xl" 
-          />
-        </div>
+      
       </div>
 
       {/* Features Grid */}
