@@ -1,0 +1,157 @@
+[
+    {
+      "id": 1,
+      "title": "Future Leaders Scholarship",
+      "fundedBy": "GlobalEd Foundation",
+      "amount": "$10,000",
+      "educationLevel": "Undergraduate",
+      "scholarshipsAwarded": "3 winners",
+      "deadline": "May 15, 2025",
+      "description": "For students demonstrating exceptional leadership skills in their communities.",
+      "sponsored": true
+    },
+    {
+      "id": 2,
+      "title": "Women in Tech Scholarship",
+      "fundedBy": "Tech4Her Initiative",
+      "amount": "$8,000",
+      "educationLevel": "Graduate",
+      "scholarshipsAwarded": "5 winners",
+      "deadline": "April 30, 2025",
+      "description": "Supports women pursuing careers in technology and computer science.",
+      "sponsored": true
+    },
+    {
+      "id": 3,
+      "title": "STEM Excellence Grant",
+      "fundedBy": "TechAdvance",
+      "amount": "$10,000",
+      "educationLevel": "Graduate",
+      "scholarshipsAwarded": "2 winners",
+      "deadline": "June 10, 2025",
+      "description": "Aimed at students pursuing careers in STEM, the TechAdvance grant provides financial assistance to outstanding applicants.",
+      "sponsored": false
+    },
+    {
+      "id": 4,
+      "title": "Medical Scholars Fund",
+      "fundedBy": "HealthCare Trust",
+      "amount": "$12,000",
+      "educationLevel": "Medical School",
+      "scholarshipsAwarded": "3 winners",
+      "deadline": "July 1, 2025",
+      "description": "Supports students in medical school with financial needs.",
+      "sponsored": true
+    },
+    {
+      "id": 5,
+      "title": "Creative Arts Fellowship",
+      "fundedBy": "Artisan Collective",
+      "amount": "$7,500",
+      "educationLevel": "Any",
+      "scholarshipsAwarded": "5 winners",
+      "deadline": "September 15, 2025",
+      "description": "Grants for students excelling in fine arts, music, and performing arts.",
+      "sponsored": false
+    },
+    {
+      "id": 6,
+      "title": "AI Innovators Award",
+      "fundedBy": "AI Future Fund",
+      "amount": "$15,000",
+      "educationLevel": "Graduate",
+      "scholarshipsAwarded": "1 winner",
+      "deadline": "August 20, 2025",
+      "description": "Encourages research and innovation in artificial intelligence.",
+      "sponsored": true
+    },
+    {
+      "id": 7,
+      "title": "Social Impact Scholarship",
+      "fundedBy": "ChangeMakers Foundation",
+      "amount": "$6,000",
+      "educationLevel": "Undergraduate",
+      "scholarshipsAwarded": "10 winners",
+      "deadline": "October 5, 2025",
+      "description": "For students actively working on social impact projects.",
+      "sponsored": false
+    },
+    {
+      "id": 8,
+      "title": "Business Leaders Award",
+      "fundedBy": "Corporate Success Initiative",
+      "amount": "$9,000",
+      "educationLevel": "MBA",
+      "scholarshipsAwarded": "4 winners",
+      "deadline": "November 12, 2025",
+      "description": "For aspiring business leaders enrolled in MBA programs.",
+      "sponsored": true
+    },
+    {
+      "id": 9,
+      "title": "Green Future Grant",
+      "fundedBy": "EcoConscious Foundation",
+      "amount": "$4,000",
+      "educationLevel": "Any",
+      "scholarshipsAwarded": "8 winners",
+      "deadline": "March 1, 2025",
+      "description": "Supports students passionate about environmental conservation.",
+      "sponsored": false
+    },
+    {
+      "id": 10,
+      "title": "Coding for Change",
+      "fundedBy": "CodeImpact",
+      "amount": "$7,000",
+      "educationLevel": "Undergraduate",
+      "scholarshipsAwarded": "6 winners",
+      "deadline": "May 20, 2025",
+      "description": "For students using coding skills to drive social change.",
+      "sponsored": true
+    },
+    {
+      "id": 11,
+      "title": "First-Gen College Fund",
+      "fundedBy": "BrightPath Foundation",
+      "amount": "$5,500",
+      "educationLevel": "Undergraduate",
+      "scholarshipsAwarded": "10 winners",
+      "deadline": "June 30, 2025",
+      "description": "For first-generation college students needing financial aid.",
+      "sponsored": false
+    },
+    {
+      "id": 12,
+      "title": "AI Ethics Research Grant",
+      "fundedBy": "AI Ethics Alliance",
+      "amount": "$12,000",
+      "educationLevel": "Graduate",
+      "scholarshipsAwarded": "3 winners",
+      "deadline": "December 1, 2025",
+      "description": "Supports research on the ethical implications of AI.",
+      "sponsored": true
+    },
+    {
+      "id": 13,
+      "title": "Women in Business Fund",
+      "fundedBy": "SheLeads Initiative",
+      "amount": "$8,500",
+      "educationLevel": "MBA",
+      "scholarshipsAwarded": "5 winners",
+      "deadline": "July 10, 2025",
+      "description": "Financial aid for women in business schools.",
+      "sponsored": true
+    },
+    {
+      "id": 14,
+      "title": "Future Engineers Scholarship",
+      "fundedBy": "Engineering Futures Fund",
+      "amount": "$6,500",
+      "educationLevel": "Undergraduate",
+      "scholarshipsAwarded": "4 winners",
+      "deadline": "September 25, 2025",
+      "description": "For students pursuing engineering degrees.",
+      "sponsored": false
+    }
+  ]
+  
