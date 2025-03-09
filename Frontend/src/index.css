@@ -1,1 +1,69 @@
 @import "tailwindcss";
+
+
+
+/* General Styling */
+body {
+    background-color: #fff;
+    color: #000;
+    font-family: "Arial", sans-serif;
+    height: 100vh;
+  }
+  
+  /* Center Clerk Login Page */
+  .cl-rootBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff; /* White background */
+    border-radius: 12px;
+  }
+  
+  /* Clerk Card */
+  .cl-card {
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+    background: #fff;
+    border: 1px solid #000;
+  }
+  
+  /* Clerk Buttons */
+  .cl-button {
+    background-color: transparent;
+    color: black !important;
+    font-weight: bold;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    transition: background 0.3s;
+  }
+  
+  .cl-button:hover {
+    background-color: #333 !important; /* Slightly lighter black */
+  }
+  
+  /* Clerk Input Fields */
+  .cl-formFieldInput {
+    border-radius: 6px !important;
+    border: 1px solid #000 !important;
+    padding: 12px !important;
+    background: #fff;
+    color: #000;
+  }
+  
+  /* Clerk Footer Links */
+  .cl-footerActionLink {
+    color: #000 !important;
+    font-weight: bold;
+  }
+  
+  /* Responsive Login Container */
+  .clerk-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    background: #fff;
+  }
+  
