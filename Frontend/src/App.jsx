@@ -6,6 +6,7 @@ import About from "./Component/About/About";
 import Feature from "./Component/Feature/Feature";
 import Footer from "./Component/Footer/Footer";
 import Student from "./Component/Student_Basic_Details_Form/Student";
+import Organization from "./Component/Organization_Basic_details/Organization";
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
           }
         />
         <Route path="/student" element={<Student />} />
+        <Route path="/organization" element={<Organization />} />
         {/* <Route path="/crowdfunding" element={<Crowedfunding />} /> */}
       </Routes>
     </div>
