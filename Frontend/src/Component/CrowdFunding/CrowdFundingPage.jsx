@@ -7,15 +7,7 @@ import {
   useUser,
 } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import {
-  FiSearch,
-  FiUser,
-  FiInfo,
-  FiDollarSign,
-  FiCalendar,
-  FiAward,
-  FiFilter,
-} from "react-icons/fi";
+
 
 const navigation = [
   { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
