@@ -94,7 +94,7 @@ model Disbursement {
   scholarshipId  String
   scholarship    Scholarship @relation("ScholarshipDisbursements", fields: [scholarshipId], references: [id])
   studentId      String
-  student        User @relation("UserDisbursements", fields: [studentId], references: [id]) // ✅ Fix here
+  student        User @relation("UserDisbursements", fields: [studentId], references: [id])
   amount         Float
   status         DisbursementStatus @default(PENDING)
   createdAt      DateTime @default(now())
