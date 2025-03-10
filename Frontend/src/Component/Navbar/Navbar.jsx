@@ -1,11 +1,5 @@
-import { useEffect, useState } from "react";
-import {
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-  useUser,
-} from "@clerk/clerk-react";
+import { useEffect } from "react";
+import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const navigation = [
   { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
   { name: "Scholarship", path: "/scholarship", authRequired: true },
-  { name: "Donation", path: "/donation", authRequired: false },
+  { name: "Donation", path: "/donation", authRequired: true },
 ];
 
 function classNames(...classes) {
@@ -36,15 +30,12 @@ export default function Navbar() {
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
-              {/* Mobile menu button */}
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 <DisclosureButton className="relative inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-100 focus:ring-2 focus:ring-black focus:outline-none">
                   <Bars3Icon aria-hidden="true" className={`${open ? "hidden" : "block"} size-6`} />
                   <XMarkIcon aria-hidden="true" className={`${open ? "block" : "hidden"} size-6`} />
                 </DisclosureButton>
               </div>
-
-              {/* Logo & Navigation Links */}
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex shrink-0 items-center">
                   <h1 className="text-black text-lg font-bold">Edu-Empower</h1>
@@ -69,8 +60,6 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-
-              {/* Authentication Dropdown */}
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 <SignedOut>
                   <Menu as="div" className="relative">
@@ -89,11 +78,12 @@ export default function Navbar() {
                       </MenuItem>
                       <MenuItem>
                         {({ active }) => (
-                          <SignInButton mode="modal" redirectUrl="/organization">
-                            <button className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 w-full text-left")}>
-                              Login as Organization
-                            </button>
-                          </SignInButton>
+                          <button
+                            onClick={() => navigate("/donar")}
+                            className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 w-full text-left")}
+                          >
+                            Login as Donor
+                          </button>
                         )}
                       </MenuItem>
                     </MenuItems>
@@ -105,8 +95,6 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-
-          {/* Mobile Menu Panel */}
           <DisclosurePanel className="sm:hidden">
             <div className="space-y-1 px-2 pb-3 pt-2">
               {navigation.map((item) => (
