@@ -15,7 +15,7 @@ const EduEmpowerCrowdfunding = () => {
       daysLeft: 45,
       studentsToSupport: 15,
       description: "Supporting underrepresented students pursuing engineering degrees at top universities.",
-      image: "/api/placeholder/400/250"
+      image: "https://www.prototypesforhumanity.com/wp-content/uploads/2022/10/1-4-600x338.jpg"
     },
     {
       id: 2,
@@ -27,7 +27,7 @@ const EduEmpowerCrowdfunding = () => {
       daysLeft: 60,
       studentsToSupport: 20,
       description: "Funding future healthcare professionals from low-income communities across the country.",
-      image: "/api/placeholder/400/250"
+      image: "ff"
     },
     {
       id: 3,
@@ -39,7 +39,7 @@ const EduEmpowerCrowdfunding = () => {
       daysLeft: 30,
       studentsToSupport: 10,
       description: "Ensuring talented arts students can pursue their education regardless of financial barriers.",
-      image: "/api/placeholder/400/250"
+      image: "https://ung.edu/news/_uploads/images/articles/2021/10/rise-banner.jpg"
     }
   ];
 

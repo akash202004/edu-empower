@@ -1,21 +1,32 @@
 import React, { useState, useEffect } from "react";
 import {
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
+} from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import {
   FiSearch,
-  FiMenu,
-  FiX,
   FiUser,
   FiInfo,
   FiDollarSign,
   FiCalendar,
   FiAward,
-  FiFilter
+  FiFilter,
 } from "react-icons/fi";
-import { useUser, UserButton } from "@clerk/clerk-react";
 
-const ScholarshipSearchInterface = () => {
+const navigation = [
+  { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
+  { name: "Scholarship", path: "/scholarship", authRequired: true },
+  { name: "Donation", path: "/donation", authRequired: false },
+];
+
+export default function ScholarshipSearchInterface() {
   const { isSignedIn, user } = useUser();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ educationLevel: "", amount: "", gender: "" });
@@ -38,51 +49,18 @@ const ScholarshipSearchInterface = () => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
-  const filteredScholarships = scholarships.filter((scholarship) =>
-    scholarship.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (filters.educationLevel ? scholarship.educationLevel === filters.educationLevel : true) &&
-    (filters.amount ? scholarship.amount === filters.amount : true) &&
-    (filters.gender ? scholarship.gender === filters.gender : true)
+  const filteredScholarships = scholarships.filter(
+    (scholarship) =>
+      scholarship.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (filters.educationLevel ? scholarship.educationLevel === filters.educationLevel : true) &&
+      (filters.amount ? scholarship.amount === filters.amount : true) &&
+      (filters.gender ? scholarship.gender === filters.gender : true)
   );
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="bg-white shadow-md py-4 sticky top-0 z-50">
-        <div className="container mx-auto px-4 flex items-center justify-between">
-          <div className="text-black font-bold text-xl flex items-center">
-            <div className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center mr-2">
-              <span className="text-sm">E</span>
-            </div>
-            <span>Edu-Empower</span>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-6">
-            {isSignedIn ? (
-              <div className="flex items-center space-x-4">
-                <div className="text-gray-800 flex items-center">
-                  <FiUser className="mr-2" /> {user.fullName}
-                </div>
-                <UserButton afterSignOutUrl="/" />
-              </div>
-            ) : (
-              <a href="/sign-in" className="text-gray-800 font-medium hover:text-black">
-                Sign In
-              </a>
-            )}
-          </div>
-
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-gray-800 p-2 rounded-md"
-          >
-            {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-          </button>
-        </div>
-      </nav>
-
       {/* Search & Filters */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-20">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
           <div className="relative flex-grow">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -114,7 +92,7 @@ const ScholarshipSearchInterface = () => {
       </div>
 
       {/* Scholarship List */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 ">
         {loading ? (
           <div className="text-center py-16 text-gray-500">Loading scholarships...</div>
         ) : filteredScholarships.length === 0 ? (
@@ -149,6 +127,4 @@ const ScholarshipSearchInterface = () => {
       </div>
     </div>
   );
-};
-
-export default ScholarshipSearchInterface;
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   SignInButton,
   SignedIn,
@@ -23,8 +23,8 @@ function classNames(...classes) {
 export default function Navbar() {
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
+  // Redirect to /student only if user logs in while on the homepage
   useEffect(() => {
     if (isSignedIn && window.location.pathname === "/") {
       navigate("/student");
@@ -37,6 +37,7 @@ export default function Navbar() {
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
+              {/* Mobile menu button */}
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 <DisclosureButton className="relative inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-100 focus:ring-2 focus:ring-black focus:outline-none">
                   <Bars3Icon aria-hidden="true" className={`${open ? "hidden" : "block"} size-6`} />
@@ -44,12 +45,10 @@ export default function Navbar() {
                 </DisclosureButton>
               </div>
 
+              {/* Logo & Navigation Links */}
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                <div className="flex shrink-0 items-center cursor-pointer" onClick={() => navigate("/")}> 
-                  <div className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center mr-2">
-                    <span className="text-sm">E</span>
-                  </div>
-                  <span className="text-black text-lg font-bold">Edu-Empower</span>
+                <div className="flex shrink-0 items-center">
+                  <h1 className="text-black text-lg font-bold">Edu-Empower</h1>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
@@ -58,12 +57,15 @@ export default function Navbar() {
                         key={item.name}
                         onClick={() => {
                           if (item.authRequired && !isSignedIn) {
-                            navigate("/sign-in");
+                            navigate("/sign-in"); // Redirect to Sign-in if not logged in
                           } else {
                             navigate(item.path);
                           }
                         }}
-                        className={classNames("rounded-md px-3 py-2 text-sm font-medium", "text-black hover:bg-gray-200")}
+                        className={classNames(
+                          "rounded-md px-3 py-2 text-sm font-medium",
+                          "text-black hover:bg-gray-200"
+                        )}
                       >
                         {item.name}
                       </button>
@@ -72,29 +74,24 @@ export default function Navbar() {
                 </div>
               </div>
 
-              <div className="relative">
+              {/* Authentication Buttons */}
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 space-x-4">
                 <SignedOut>
-                  <button
-                    onClick={() => setIsLoginOpen(!isLoginOpen)}
-                    className="bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Login
-                  </button>
-                  {isLoginOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2">
-                      <SignInButton mode="modal" redirectUrl="/student">
-                        <button className="block w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-200">
-                          Login as Student
-                        </button>
-                      </SignInButton>
-                      <SignInButton mode="modal" redirectUrl="/student">
-                        <button className="block w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-200">
-                          Login as Organization
-                        </button>
-                      </SignInButton>
-                    </div>
-                  )}
+                  <div className="flex space-x-3">
+                    <SignInButton mode="modal" redirectUrl="/student">
+                      <button className="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Login as Student
+                      </button>
+                    </SignInButton>
+
+                    <SignInButton mode="modal" redirectUrl="/student">
+                      <button className="bg-green-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        Login as Organization
+                      </button>
+                    </SignInButton>
+                  </div>
                 </SignedOut>
+
                 <SignedIn>
                   <UserButton afterSignOutUrl="/" />
                 </SignedIn>
@@ -102,6 +99,7 @@ export default function Navbar() {
             </div>
           </div>
 
+          {/* Mobile Menu Panel */}
           <DisclosurePanel className="sm:hidden">
             <div className="space-y-1 px-2 pb-3 pt-2">
               {navigation.map((item) => (
@@ -109,7 +107,7 @@ export default function Navbar() {
                   key={item.name}
                   onClick={() => {
                     if (item.authRequired && !isSignedIn) {
-                      navigate("/sign-in");
+                      navigate("/sign-in"); // Redirect to Sign-in if not logged in
                     } else {
                       navigate(item.path);
                     }
