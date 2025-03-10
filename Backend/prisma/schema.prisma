@@ -8,20 +8,100 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(uuid()) // Clerk User ID
+  id            String   @id @default(uuid())
   name          String
   email         String   @unique
-  income        Int? // Optional
-  scholarships  Scholarship[]
-  createdAt     DateTime @default(now())
+  role          Role
+  verified      Boolean  @default(false)
+  fundraisers   Fundraiser[]  @relation("UserFundraisers")
+  donations     Donation[]    @relation("UserDonations")
+  scholarships  Scholarship[] @relation("UserScholarships")
+  applications  Application[] @relation("UserApplications")
+  disbursements Disbursement[] @relation("UserDisbursements")
+}
+
+enum Role {
+  STUDENT
+  ORGANIZATION
+  DONOR
+  ADMIN
+}
+
+model Fundraiser {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  goalAmount   Float
+  raisedAmount Float    @default(0)
+  deadline     DateTime
+  status       FundraiserStatus @default(PENDING)
+  organizationId String
+  organization  User   @relation("UserFundraisers", fields: [organizationId], references: [id])
+  donations     Donation[]  @relation("FundraiserDonations")
+  scholarships  Scholarship[] @relation("FundraiserScholarships")
+  createdAt    DateTime @default(now())
+}
+
+enum FundraiserStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+}
+
+model Donation {
+  id           String   @id @default(uuid())
+  donorId      String
+  donor        User     @relation("UserDonations", fields: [donorId], references: [id])
+  fundraiserId String
+  fundraiser   Fundraiser @relation("FundraiserDonations", fields: [fundraiserId], references: [id])
+  amount       Float
+  createdAt    DateTime @default(now())
 }
 
 model Scholarship {
-  id          String  @id @default(uuid())
-  name        String
-  description String
-  eligibility Float // Changed from Int to Float
-  userId      String  // Required Foreign Key
-  user        User   @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  totalAmount   Float
+  allocatedAmount Float @default(0)
+  fundraiserId  String
+  fundraiser    Fundraiser @relation("FundraiserScholarships", fields: [fundraiserId], references: [id])
+  organizationId String
+  organization  User @relation("UserScholarships", fields: [organizationId], references: [id])
+  applications  Application[] @relation("ScholarshipApplications")
+  disbursements Disbursement[] @relation("ScholarshipDisbursements")
+  createdAt     DateTime @default(now())
+}
+
+model Application {
+  id           String   @id @default(uuid())
+  studentId    String
+  student      User     @relation("UserApplications", fields: [studentId], references: [id])
+  scholarshipId String
+  scholarship  Scholarship @relation("ScholarshipApplications", fields: [scholarshipId], references: [id])
+  status       ApplicationStatus @default(PENDING)
+  createdAt    DateTime @default(now())
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Disbursement {
+  id             String   @id @default(uuid())
+  scholarshipId  String
+  scholarship    Scholarship @relation("ScholarshipDisbursements", fields: [scholarshipId], references: [id])
+  studentId      String
+  student        User @relation("UserDisbursements", fields: [studentId], references: [id]) // ✅ Fix here
+  amount         Float
+  status         DisbursementStatus @default(PENDING)
+  createdAt      DateTime @default(now())
+}
+
+enum DisbursementStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
