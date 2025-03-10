@@ -80,7 +80,7 @@ const EduEmpowerCrowdfunding = () => {
           </div>
           <div className="hidden md:flex space-x-6">
             <button className="hover:underline font-medium" onClick={() => setActiveTab('scholarships')}>Scholarship Programs</button>
-            <button className="hover:underline font-medium" onClick={() => setActiveTab('organizations')}>Partner Organizations</button>
+            <button className="hover:underline font-medium" onClick={() => setActiveTab('organizations')}>Partner Organizations sumyaditya </button>
             <button className="hover:underline font-medium" onClick={() => setActiveTab('impact')}>Our Impact</button>
             <button className="hover:underline font-medium" onClick={() => setActiveTab('apply')}>Apply</button>
           </div>
