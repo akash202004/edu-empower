@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   SignInButton,
   SignedIn,
@@ -6,7 +6,7 @@ import {
   UserButton,
   useUser,
 } from "@clerk/clerk-react";
-import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +24,6 @@ export default function Navbar() {
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
 
-  // Redirect to /student only if user logs in while on the homepage
   useEffect(() => {
     if (isSignedIn && window.location.pathname === "/") {
       navigate("/student");
@@ -57,15 +56,12 @@ export default function Navbar() {
                         key={item.name}
                         onClick={() => {
                           if (item.authRequired && !isSignedIn) {
-                            navigate("/sign-in"); // Redirect to Sign-in if not logged in
+                            navigate("/sign-in");
                           } else {
                             navigate(item.path);
                           }
                         }}
-                        className={classNames(
-                          "rounded-md px-3 py-2 text-sm font-medium",
-                          "text-black hover:bg-gray-200"
-                        )}
+                        className="rounded-md px-3 py-2 text-sm font-medium text-black hover:bg-gray-200"
                       >
                         {item.name}
                       </button>
@@ -74,24 +70,35 @@ export default function Navbar() {
                 </div>
               </div>
 
-              {/* Authentication Buttons */}
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 space-x-4">
+              {/* Authentication Dropdown */}
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 <SignedOut>
-                  <div className="flex space-x-3">
-                    <SignInButton mode="modal" redirectUrl="/student">
-                      <button className="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Login as Student
-                      </button>
-                    </SignInButton>
-
-                    <SignInButton mode="modal" redirectUrl="/student">
-                      <button className="bg-green-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                        Login as Organization
-                      </button>
-                    </SignInButton>
-                  </div>
+                  <Menu as="div" className="relative">
+                    <MenuButton className="bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white-500">
+                      Login
+                    </MenuButton>
+                    <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white border rounded-md shadow-lg focus:outline-none">
+                      <MenuItem>
+                        {({ active }) => (
+                          <SignInButton mode="modal" redirectUrl="/student">
+                            <button className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 w-full text-left")}>
+                              Login as Student
+                            </button>
+                          </SignInButton>
+                        )}
+                      </MenuItem>
+                      <MenuItem>
+                        {({ active }) => (
+                          <SignInButton mode="modal" redirectUrl="/organization">
+                            <button className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 w-full text-left")}>
+                              Login as Organization
+                            </button>
+                          </SignInButton>
+                        )}
+                      </MenuItem>
+                    </MenuItems>
+                  </Menu>
                 </SignedOut>
-
                 <SignedIn>
                   <UserButton afterSignOutUrl="/" />
                 </SignedIn>
@@ -107,7 +114,7 @@ export default function Navbar() {
                   key={item.name}
                   onClick={() => {
                     if (item.authRequired && !isSignedIn) {
-                      navigate("/sign-in"); // Redirect to Sign-in if not logged in
+                      navigate("/sign-in");
                     } else {
                       navigate(item.path);
                     }
