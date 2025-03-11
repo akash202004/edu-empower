@@ -11,13 +11,10 @@ import CrowdFundingPage from "./Component/CrowdFunding/CrowdFundingPage";
 import ScholarshipPage from "./Component/Scholarship/ScholarshipPage";
 import Donar from "./Component/Donar/Donar"; // Donor Page
 import Organizationdashboard from "./Component/Organizationdashboard/Organizationdashboard";
-<<<<<<< HEAD
 import CrowdFundingPage2 from "./Component/CrowdFunding/CrowdFundingPage2";
 import CrowdFundingPage3 from "./Component/CrowdFunding/CrowdFundingPage3";
 import CrowdFundingPage4 from "./Component/CrowdFunding/CrowdFundingPage4";
-=======
 
->>>>>>> f843371d00307c7b02e70d51f046031e0026a157
 const ProtectedRoute = ({ children }) => {
   return (
     <>
