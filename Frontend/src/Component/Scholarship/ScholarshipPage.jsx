@@ -6,7 +6,7 @@ import {
   UserButton,
   useUser,
 } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import {
   FiSearch,
   FiUser,
@@ -14,22 +14,20 @@ import {
   FiDollarSign,
   FiCalendar,
   FiAward,
-  FiFilter,
 } from "react-icons/fi";
 
-const navigation = [
-  { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
-  { name: "Scholarship", path: "/scholarship", authRequired: true },
-  { name: "Donation", path: "/donation", authRequired: false },
-];
-
-export default function ScholarshipSearchInterface() {
-  const { isSignedIn, user } = useUser();
+const ScholarshipSearchInterface = () => {
+  const { isSignedIn } = useUser();
   const navigate = useNavigate();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ educationLevel: "", amount: "", gender: "" });
+  const [filters, setFilters] = useState({
+    educationLevel: "",
+    amount: "",
+    gender: "",
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -49,10 +47,20 @@ export default function ScholarshipSearchInterface() {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
+  const handleApplyNow = () => {
+    if (isSignedIn) {
+      navigate("/student"); // Redirect to Student Form if signed in
+    } else {
+      navigate("/sign-in"); // Redirect to Sign-in page if not signed in
+    }
+  };
+
   const filteredScholarships = scholarships.filter(
     (scholarship) =>
       scholarship.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (filters.educationLevel ? scholarship.educationLevel === filters.educationLevel : true) &&
+      (filters.educationLevel
+        ? scholarship.educationLevel === filters.educationLevel
+        : true) &&
       (filters.amount ? scholarship.amount === filters.amount : true) &&
       (filters.gender ? scholarship.gender === filters.gender : true)
   );
@@ -72,18 +80,30 @@ export default function ScholarshipSearchInterface() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <select name="educationLevel" className="border p-2 rounded-md" onChange={handleFilterChange}>
+          <select
+            name="educationLevel"
+            className="border p-2 rounded-md"
+            onChange={handleFilterChange}
+          >
             <option value="">All Education Levels</option>
             <option value="Undergraduate">Undergraduate</option>
             <option value="Graduate">Graduate</option>
           </select>
-          <select name="amount" className="border p-2 rounded-md" onChange={handleFilterChange}>
+          <select
+            name="amount"
+            className="border p-2 rounded-md"
+            onChange={handleFilterChange}
+          >
             <option value="">All Amounts</option>
             <option value="$1,000">$1,000</option>
             <option value="$5,000">$5,000</option>
             <option value="$10,000">$10,000</option>
           </select>
-          <select name="gender" className="border p-2 rounded-md" onChange={handleFilterChange}>
+          <select
+            name="gender"
+            className="border p-2 rounded-md"
+            onChange={handleFilterChange}
+          >
             <option value="">All Genders</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
@@ -94,7 +114,9 @@ export default function ScholarshipSearchInterface() {
       {/* Scholarship List */}
       <div className="container mx-auto px-4 ">
         {loading ? (
-          <div className="text-center py-16 text-gray-500">Loading scholarships...</div>
+          <div className="text-center py-16 text-gray-500">
+            Loading scholarships...
+          </div>
         ) : filteredScholarships.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg border">
             <FiInfo className="mx-auto h-12 w-12 text-gray-400" />
@@ -104,22 +126,36 @@ export default function ScholarshipSearchInterface() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredScholarships.map((scholarship) => (
-              <div key={scholarship.id} className="bg-white rounded-lg shadow p-5 border">
+              <div
+                key={scholarship.id}
+                className="bg-white rounded-lg shadow p-5 border"
+              >
                 <h2 className="text-lg font-semibold">{scholarship.title}</h2>
-                <p className="text-sm text-gray-600 mt-1">{scholarship.description}</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {scholarship.description}
+                </p>
                 <div className="mt-4 flex items-center space-x-2">
                   <FiDollarSign className="text-gray-500" />
                   <span className="font-medium">{scholarship.amount}</span>
                 </div>
                 <div className="mt-2 flex items-center space-x-2">
                   <FiAward className="text-gray-500" />
-                  <span className="text-sm">{scholarship.scholarshipsAwarded}</span>
+                  <span className="text-sm">
+                    {scholarship.scholarshipsAwarded}
+                  </span>
                 </div>
                 <div className="mt-2 flex items-center space-x-2">
                   <FiCalendar className="text-gray-500" />
-                  <span className="text-sm">Deadline: {scholarship.deadline}</span>
+                  <span className="text-sm">
+                    Deadline: {scholarship.deadline}
+                  </span>
                 </div>
-                <button className="mt-4 bg-black text-white px-4 py-2 rounded">Apply Now</button>
+                <button
+  className="mt-4 bg-black text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105 hover:shadow-[0_0_15px_#ffffffaa] hover:bg-gray-900"
+  onClick={handleApplyNow}
+>
+  Apply Now
+</button>
               </div>
             ))}
           </div>
@@ -127,4 +163,6 @@ export default function ScholarshipSearchInterface() {
       </div>
     </div>
   );
-}
+};
+
+export default ScholarshipSearchInterface;
