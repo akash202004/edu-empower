@@ -18,98 +18,99 @@ const BoldOrgLandingPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-white font-sans">
       {/* Main content */}
-      <main className="flex-grow">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
-          <div className="flex flex-col lg:flex-row items-center gap-8">
-            {/* Left content */}
-            <div className="flex-1 space-y-8 text-center lg:text-left">
-              <div className="space-y-4">
-                <h1 className="text-4xl md:text-5xl font-bold">
-                  <span className="text-indigo-500">Change</span> Someone's<br className="hidden md:block" /> 
-                  <span className="text-indigo-500">Life</span> Today
-                </h1>
-                <p className="text-lg md:text-xl text-gray-700 lg:max-w-xl">
-                  Create scholarships and funds for the people and causes you care most about.
-                </p>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
-                {/* Start a scholarship button with authentication */}
-                <SignedOut>
-                  <SignInButton mode="modal" redirectUrl="/organizationdashboard"> 
-                    <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-base font-medium shadow-sm">
-                      Start a scholarship
-                    </button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <button 
-                    onClick={() => navigate("/organizationdashboard")}
-                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-base font-medium shadow-sm"
-                  >
-                    Start a scholarship
-                  </button>
-                </SignedIn>
-                
-                <button className="px-6 py-3 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border border-indigo-300 rounded-md text-base font-medium">
-                  How it Works
-                </button>
-              </div>
-              
-              <div className="flex flex-wrap justify-center lg:justify-start gap-x-8 gap-y-2 text-gray-600 text-sm md:text-base">
-                <div className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>100% Goes To Deserving Recipients</span>
-                </div>
-                <div className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>100% Tax Deductible</span>
-                </div>
-              </div>
-              
-              <div className="pt-6 border-t border-gray-200">
-                <p className="text-xs text-gray-500 font-semibold uppercase mb-4">SCHOLARSHIPS FEATURED BY:</p>
-                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 opacity-70">
-                  <img src="https://i.pinimg.com/736x/9a/fc/6d/9afc6d04fc8fbf361e25261b83c8cb84.jpg" alt="Princeton University" className="h-20 w-20 object-contain" />
-                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXTHxjibjLvPaPJSKRAFk2Oxyr_yxfcXeDYg6BF4jWJ5AERnOPn8NgeeMy&s=10" alt="University of Michigan" className="h-12 object-contain" />
-                </div>
-              </div>
-            </div>
-            
-            {/* Right side with image and quote */}
-            <div className="flex-1 w-full max-w-md mx-auto">
-              <div className="rounded-lg overflow-hidden bg-amber-100 shadow-lg">
-                <img 
-                  src="https://img.freepik.com/premium-photo/graduate-boy-hd-8k-vector-illustration-wallpaper-stock-image_915071-37074.jpg" 
-                  alt="Edu-Empower Grant Winner" 
-                  className="w-full h-80 object-cover object-center"
-                />
-                
-                <div className="relative">
-                  <div className="bg-indigo-900 text-white p-6 pt-8 relative">
-                    <p className="text-lg">
-                      I started my own business to help my community and be a symbol of hope, 
-                      rather than only individually embodying Black excellence.
-                    </p>
-                    
-                    <div className="mt-4 flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-indigo-700 flex items-center justify-center text-xs font-bold">AL</div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium">AKASH LAHA</p>
-                        <p className="text-xs text-indigo-300">Class of 2022</p>
-                      </div>
-                    </div>
-                  </div>
+      <main className="flex-grow mt-24 md:mt-32">
+  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
+    <div className="flex flex-col lg:flex-row items-center gap-8">
+      {/* Left content */}
+      <div className="flex-1 space-y-8 text-center lg:text-left">
+        <div className="space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold">
+            <span className="text-indigo-500">Change</span> Someone's<br className="hidden md:block" />
+            <span className="text-indigo-500">Life</span> Today
+          </h1>
+          <p className="text-lg md:text-xl text-gray-700 lg:max-w-xl">
+            Create scholarships and funds for the people and causes you care most about.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
+          {/* Start a scholarship button with authentication */}
+          <SignedOut>
+            <SignInButton mode="modal" redirectUrl="/organizationdashboard">
+              <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-base font-medium shadow-sm">
+                Start a scholarship
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <button
+              onClick={() => navigate("/organizationdashboard")}
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-base font-medium shadow-sm"
+            >
+              Start a scholarship
+            </button>
+          </SignedIn>
+
+          <button className="px-6 py-3 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border border-indigo-300 rounded-md text-base font-medium">
+            How it Works
+          </button>
+        </div>
+
+        <div className="flex flex-wrap justify-center lg:justify-start gap-x-8 gap-y-2 text-gray-600 text-sm md:text-base">
+          <div className="flex items-center">
+            <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span>100% Goes To Deserving Recipients</span>
+          </div>
+          <div className="flex items-center">
+            <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span>100% Tax Deductible</span>
+          </div>
+        </div>
+
+        <div className="pt-6 border-t border-gray-200">
+          <p className="text-xs text-gray-500 font-semibold uppercase mb-4">SCHOLARSHIPS FEATURED BY:</p>
+          <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 opacity-70">
+            <img src="https://i.pinimg.com/736x/9a/fc/6d/9afc6d04fc8fbf361e25261b83c8cb84.jpg" alt="Princeton University" className="h-20 w-20 object-contain" />
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXTHxjibjLvPaPJSKRAFk2Oxyr_yxfcXeDYg6BF4jWJ5AERnOPn8NgeeMy&s=10" alt="University of Michigan" className="h-12 object-contain" />
+          </div>
+        </div>
+      </div>
+
+      {/* Right side with image and quote */}
+      <div className="flex-1 w-full max-w-md mx-auto">
+        <div className="rounded-lg overflow-hidden bg-amber-100 shadow-lg">
+          <img
+            src="https://img.freepik.com/premium-photo/graduate-boy-hd-8k-vector-illustration-wallpaper-stock-image_915071-37074.jpg"
+            alt="Edu-Empower Grant Winner"
+            className="w-full h-80 object-cover object-center"
+          />
+
+          <div className="relative">
+            <div className="bg-indigo-900 text-white p-6 pt-8 relative">
+              <p className="text-lg">
+                I started my own business to help my community and be a symbol of hope, 
+                rather than only individually embodying Black excellence.
+              </p>
+
+              <div className="mt-4 flex items-center">
+                <div className="h-8 w-8 rounded-full bg-indigo-700 flex items-center justify-center text-xs font-bold">AL</div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium">AKASH LAHA</p>
+                  <p className="text-xs text-indigo-300">Class of 2022</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
+    </div>
+  </div>
+</main>
+
       <section className="bg-gray-50 py-16 px-6 text-center">
       {/* Donation Message */}
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg flex flex-col items-center">
@@ -248,7 +249,76 @@ const BoldOrgLandingPage = () => {
     </section>
 
 
+    <section className="flex flex-col items-center px-6 py-12 space-y-12">
+      {/* Create a Grant Button */}
+      <button className="bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-medium shadow-md hover:bg-indigo-700 transition">
+        Create a Grant
+      </button>
 
+      {/* Scholarship Fund Section */}
+      <div className="bg-gray-100 p-8 rounded-lg shadow-lg w-full max-w-3xl text-center relative">
+        <h2 className="text-2xl font-semibold text-gray-900">
+          Create a Fund to Launch Scholarships with Your Community
+        </h2>
+        <p className="text-gray-600 mt-3 text-base leading-relaxed">
+          Create a scholarship fund to engage your community around a common
+          cause. All contributions are tax-deductible.
+        </p>
+        <button className="mt-5 bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-medium shadow-md hover:bg-indigo-700 transition">
+          Learn more →
+        </button>
+      </div>
+
+      {/* Donors Network Section */}
+      <div className="text-center w-full max-w-4xl">
+        <h2 className="text-3xl font-bold text-gray-900">
+          Meet the Bold.org Donors Network
+        </h2>
+        <p className="text-gray-600 text-base mt-2 max-w-xl mx-auto">
+          Join entrepreneurs, investors, philanthropists, and brands in growing
+          your impact and legacy.
+        </p>
+
+        {/* Featured Donors - Responsive Grid */}
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
+          {[
+            {
+              name: "Imagine Dragons",
+              image:
+                "https://static.bold.org/profilePictures/1582869654161-small.jpeg",
+              title: "Grammy Winning Rock Band",
+            },
+            {
+              name: "Anonymous Donor",
+              image:
+                "https://static.bold.org/profilePictures/1590443956339-small.jpeg",
+              title: "Tech Philanthropist",
+            },
+            {
+              name: "Jane Doe",
+              image:
+                "https://static.bold.org/profilePictures/1580925955192-small.jpeg",
+              title: "Impact Investor",
+            },
+          ].map((donor, index) => (
+            <div
+              key={index}
+              className="flex flex-col items-center bg-gray-100 p-4 rounded-lg shadow-md transition hover:shadow-lg"
+            >
+              <img
+                src={donor.image}
+                alt={donor.name}
+                className="w-16 h-16 rounded-full border-2 border-indigo-600"
+              />
+              <span className="mt-3 font-semibold text-lg text-gray-800">
+                {donor.name}
+              </span>
+              <span className="text-sm text-gray-500">{donor.title}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
 
 
 
