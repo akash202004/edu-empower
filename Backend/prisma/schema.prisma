@@ -13,11 +13,14 @@ model User {
   email         String   @unique
   role          Role
   verified      Boolean  @default(false)
+  organizationDetails OrganizationDetails?
+  studentDetails      StudentDetails?
   fundraisers   Fundraiser[]  @relation("UserFundraisers")
   donations     Donation[]    @relation("UserDonations")
   scholarships  Scholarship[] @relation("UserScholarships")
   applications  Application[] @relation("UserApplications")
   disbursements Disbursement[] @relation("UserDisbursements")
+  createdAt     DateTime @default(now())
 }
 
 enum Role {
@@ -25,6 +28,23 @@ enum Role {
   ORGANIZATION
   DONOR
   ADMIN
+}
+
+model OrganizationDetails {
+  id            String @id @default(uuid())
+  userId        String @unique
+  user          User   @relation(fields: [userId], references: [id])
+  documentURL   String // URL for verification documents
+  verified      Boolean @default(false)
+}
+
+model StudentDetails {
+  id            String @id @default(uuid())
+  userId        String @unique
+  user          User   @relation(fields: [userId], references: [id])
+  tenthResult   String // URL for 10th grade result
+  twelfthResult String // URL for 12th grade result
+  incomeCert    String // URL for income certificate
 }
 
 model Fundraiser {
