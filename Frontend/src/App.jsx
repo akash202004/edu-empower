@@ -43,7 +43,7 @@ const App = () => {
             </>
           }
         />
-        <Route path="/donar" element={<ProtectedRoute><Donar/></ProtectedRoute> } /> {/* Public Donor page */}
+        <Route path="/donar" element={<Donar/> } /> {/* Public Donor page */}
         <Route path="/student" element={<Student />} /> {/* Student page is now public */}
 
         {/* Protected Routes */}
