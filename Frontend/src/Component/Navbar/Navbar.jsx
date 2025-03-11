@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/react";
+import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 
@@ -9,10 +9,6 @@ const navigation = [
   { name: "Scholarship", path: "/scholarship", authRequired: true },
   { name: "Donation", path: "/donation", authRequired: true },
 ];
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function Navbar() {
   const { isSignedIn } = useUser();
@@ -23,29 +19,37 @@ export default function Navbar() {
       navigate("/"); // ✅ Redirect to home instead of /student
     }
   }, [isSignedIn, navigate]);
-  
 
   return (
     <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-            <div className="relative flex h-16 items-center justify-between">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex h-16 items-center justify-between">
 
               {/* Edu-Empower (Left Side) */}
               <div
                 className="flex items-center cursor-pointer"
                 onClick={() => (window.location.href = "/")}
               >
-                <h1
-                  className="text-black text-lg font-bold hover:text-blue-500 transition-all duration-300"
-                >
+                <h1 className="text-black text-lg font-bold hover:text-blue-500 transition-all duration-300">
                   Edu-Empower
                 </h1>
               </div>
 
-              {/* Navigation Links + Profile (Right Side) */}
-              <div className="flex items-center space-x-4">
+              {/* Mobile Menu Button */}
+              <div className="flex md:hidden">
+                <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+                  {open ? (
+                    <XMarkIcon className="h-6 w-6" />
+                  ) : (
+                    <Bars3Icon className="h-6 w-6" />
+                  )}
+                </Disclosure.Button>
+              </div>
+
+              {/* Desktop Links (Hidden in Small Screens) */}
+              <div className="hidden md:flex items-center space-x-4">
                 {navigation.map((item) => (
                   <button
                     key={item.name}
@@ -78,6 +82,43 @@ export default function Navbar() {
               </div>
             </div>
           </div>
+
+          {/* Mobile Menu (Visible in Small Screens) */}
+          <Disclosure.Panel className="md:hidden">
+            <div className="space-y-1 px-2 pb-3 pt-2">
+              {navigation.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => {
+                    if (item.authRequired && !isSignedIn) {
+                      navigate("/sign-in");
+                    } else {
+                      navigate(item.path);
+                    }
+                  }}
+                  className="block w-full text-left rounded-md px-3 py-2 text-sm font-medium text-black hover:bg-gray-200"
+                >
+                  {item.name}
+                </button>
+              ))}
+
+              {/* Mobile Login/Profile */}
+              <SignedOut>
+                <button
+                  onClick={() => navigate("/sign-in")}
+                  className="w-full bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white"
+                >
+                  Login
+                </button>
+              </SignedOut>
+
+              <SignedIn>
+                <div className="px-3">
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              </SignedIn>
+            </div>
+          </Disclosure.Panel>
         </>
       )}
     </Disclosure>
