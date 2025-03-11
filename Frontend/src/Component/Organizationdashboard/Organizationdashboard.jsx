@@ -101,9 +101,9 @@ const ScholarshipDashboard = () => {
   ];
   
   return (
-    <div className="bg-gray-100 p-2 md:p-4 w-full min-h-screen mt-16">
+    <div className="bg-gray-100 p-2 md:p-4 w-full min-h-screen">
       {/* First Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
+      <div className="grid grid-cols-1 mt-16 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
         {/* Calendar Section */}
         <div className="bg-white shadow rounded-md overflow-hidden">
           <div className="bg-gray-700 text-white p-2 md:p-4 flex justify-between items-center">
