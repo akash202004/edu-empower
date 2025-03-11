@@ -33,12 +33,13 @@ export default function CrowedFunding() {
           <h1 className="text-4xl text-center w-100 font-semibold">Make a Difference With Your Donation</h1>
         </div>
         <div className="flex mt-12 justify-center items-center">
-          <button class="bg-black text-white font-bold py-2 px-4 shadow-md transition duration-300">
+          <button class="bg-black text-white font-bold py-2 px-4 shadow-md transition duration-300 cursor-pointer"
+          onClick={() => navigate('/crowdfunding2')}>
             Get involved
           </button>
         </div>
       </div>
-      <div className="bg-blue-400 mx-auto px-4 py-20">
+      <div className="bg-gray-200 mx-auto px-4 py-20">
         <div className="w-full flex justify-between px-8 space-x-1">
           <div className="w-1/3 flex justify-between">
             <div className="w-1/4 flex items-center pl-5">
@@ -98,7 +99,7 @@ export default function CrowedFunding() {
         <h1 className="font-semibold text-2xl">Select Your Contribution</h1>
       </div>
       <div className="flex items-center mt-10 justify-between space-x-4 px-10 h-auto">
-        <div className="w-1/3 h-64 bg-blue-400 rounded-3xl">
+        <div className="w-1/3 h-64 bg-gray-200 rounded-3xl">
           <div className="flex justify-between items-center px-5 mt-5">
             <h1 className="font-bold text-xl">Basic</h1>
             <FiSmile className="h-7 w-7" />
@@ -115,7 +116,7 @@ export default function CrowedFunding() {
             Donate Now
           </button>
         </div>
-        <div className="w-1/3 h-64 bg-blue-400 rounded-3xl">
+        <div className="w-1/3 h-64 bg-gray-200 rounded-3xl">
           <div className="flex justify-between items-center px-5 mt-5">
             <h1 className="font-bold text-xl">Basic</h1>
             <FiSmile className="h-7 w-7" />
@@ -132,7 +133,7 @@ export default function CrowedFunding() {
           Donate Now
           </button>
         </div>
-        <div className="w-1/3 h-64 bg-blue-400 rounded-3xl">
+        <div className="w-1/3 h-64 bg-gray-200 rounded-3xl">
           <div className="flex justify-between items-center px-5 mt-5">
             <h1 className="font-bold text-xl">Basic</h1>
             <FiSmile className="h-7 w-7" />
@@ -150,9 +151,23 @@ export default function CrowedFunding() {
           </button>
         </div>
       </div>
-      <div className="bg-black text-white mt-20 mx-auto px-4 py-20">
-
-      </div>
+      <footer className="bg-black text-white mt-16 py-10 px-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h2 className="font-bold text-lg mb-2">Contact Us</h2>
+            <p>Email: info@scholarshipdonor.org</p>
+            <p>Phone: +1 234 567 890</p>
+          </div>
+          <div>
+            <h2 className="font-bold text-lg mb-2">Follow Us</h2>
+            <p>Social icons here</p>
+          </div>
+          <div>
+            <h2 className="font-bold text-lg mb-2">Resources</h2>
+            <p>FAQ</p>
+            <p>Terms & Conditions</p>
+            <p>Privacy Policy</p>
+          </div>
+        </footer>
     </div>
 
 
