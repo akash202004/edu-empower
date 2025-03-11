@@ -10,28 +10,38 @@ const navigation = [
   { name: "Donation", path: "/donation", authRequired: true },
 ];
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
 export default function Navbar() {
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isSignedIn && window.location.pathname === "/") {
+      navigate("/student");
+    }
+  }, [isSignedIn, navigate]);
 
   return (
     <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="relative flex h-16 items-center justify-between flex-wrap">
+            <div className="relative flex h-16 items-center justify-between sm:justify-center">
               {/* Mobile Menu Button */}
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-100 focus:ring-2 focus:ring-black focus:outline-none">
+                <DisclosureButton className="relative inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-100 focus:ring-2 focus:ring-black focus:outline-none">
                   <Bars3Icon aria-hidden="true" className={`${open ? "hidden" : "block"} size-6`} />
                   <XMarkIcon aria-hidden="true" className={`${open ? "block" : "hidden"} size-6`} />
                 </DisclosureButton>
               </div>
 
-              {/* Logo - Clickable to Landing Page */}
-              <div className="flex flex-1 justify-center sm:justify-start">
+              {/* Logo - Centered on Mobile */}
+              <div className="flex items-center justify-center w-full sm:w-auto">
                 <button
-                  onClick={() => navigate("/")} 
+                  onClick={() => navigate("/")}
                   className="text-black text-lg font-bold transition-all duration-300 hover:text-blue-600"
                 >
                   Edu-Empower
@@ -39,38 +49,38 @@ export default function Navbar() {
               </div>
 
               {/* Desktop Navigation Links */}
-              <div className="hidden sm:flex sm:ml-auto space-x-4">
-                {navigation.map((item) => (
-                  <button
-                    key={item.name}
-                    onClick={() => {
-                      if (item.authRequired && !isSignedIn) {
-                        navigate("/sign-in");
-                      } else {
-                        navigate(item.path);
-                      }
-                    }}
-                    className="rounded-md px-3 py-2 text-sm font-medium text-black hover:bg-gray-200"
-                  >
-                    {item.name}
-                  </button>
-                ))}
+              <div className="hidden sm:flex sm:items-center sm:ml-auto">
+                <div className="flex space-x-4">
+                  {navigation.map((item) => (
+                    <button
+                      key={item.name}
+                      onClick={() => {
+                        if (item.authRequired && !isSignedIn) {
+                          navigate("/sign-in");
+                        } else {
+                          navigate(item.path);
+                        }
+                      }}
+                      className="rounded-md px-3 py-2 text-sm font-medium text-black transition-all duration-300 hover:text-blue-600 hover:bg-gray-200"
+                    >
+                      {item.name}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* User Auth Section */}
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 <SignedOut>
                   <Menu as="div" className="relative">
-                    <MenuButton className="bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white-500">
+                    <MenuButton className="bg-black text-white rounded-md px-4 py-2 text-sm font-medium transition-all duration-300 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white-500">
                       Login
                     </MenuButton>
                     <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white border rounded-md shadow-lg focus:outline-none">
                       <MenuItem>
                         {({ active }) => (
-                          <SignInButton mode="modal" redirectUrl="/">
-                            <button className={`${active ? "bg-gray-100" : ""} block px-4 py-2 text-sm text-gray-700 w-full text-left`}>
-                              Login as Student
-                            </button>
+                          <SignInButton mode="modal" redirectUrl="/student">
+                            <button className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 w-full text-left")}>Login as Student</button>
                           </SignInButton>
                         )}
                       </MenuItem>
@@ -78,7 +88,7 @@ export default function Navbar() {
                         {({ active }) => (
                           <button
                             onClick={() => navigate("/donar")}
-                            className={`${active ? "bg-gray-100" : ""} block px-4 py-2 text-sm text-gray-700 w-full text-left`}
+                            className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 w-full text-left")}
                           >
                             Login as Donor
                           </button>
@@ -107,7 +117,7 @@ export default function Navbar() {
                       navigate(item.path);
                     }
                   }}
-                  className="block w-full text-left rounded-md px-3 py-2 text-base font-medium text-black hover:bg-gray-200"
+                  className="block w-full text-left rounded-md px-3 py-2 text-base font-medium text-black transition-all duration-300 hover:text-blue-600 hover:bg-gray-200"
                 >
                   {item.name}
                 </button>
