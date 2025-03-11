@@ -1,5 +1,11 @@
 import { useEffect } from "react";
-import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
+import {
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
+} from "@clerk/clerk-react";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +22,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (isSignedIn && window.location.pathname === "/sign-in") {
-      navigate("/"); // ✅ Redirect to home instead of /student
+      navigate("/");
     }
   }, [isSignedIn, navigate]);
 
@@ -24,31 +30,20 @@ export default function Navbar() {
     <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between">
-
-              {/* Edu-Empower (Left Side) */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              
+              {/* Logo */}
               <div
                 className="flex items-center cursor-pointer"
-                onClick={() => (window.location.href = "/")}
+                onClick={() => navigate("/")}
               >
                 <h1 className="text-black text-lg font-bold hover:text-blue-500 transition-all duration-300">
                   Edu-Empower
                 </h1>
               </div>
 
-              {/* Mobile Menu Button */}
-              <div className="flex md:hidden">
-                <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
-                  {open ? (
-                    <XMarkIcon className="h-6 w-6" />
-                  ) : (
-                    <Bars3Icon className="h-6 w-6" />
-                  )}
-                </Disclosure.Button>
-              </div>
-
-              {/* Desktop Links (Hidden in Small Screens) */}
+              {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-4">
                 {navigation.map((item) => (
                   <button
@@ -68,24 +63,44 @@ export default function Navbar() {
 
                 {/* Login/Profile */}
                 <SignedOut>
-                  <button
-                    onClick={() => navigate("/sign-in")}
-                    className="bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white"
-                  >
-                    Login
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => navigate("/sign-in?role=student")}
+                      className="bg-green-500 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-600"
+                    >
+                      Login as Student
+                    </button>
+
+                    <button
+                      onClick={() => navigate("/sign-in?role=donor")}
+                      className="bg-red-500 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-red-600"
+                    >
+                      Login as Donor
+                    </button>
+                  </div>
                 </SignedOut>
 
                 <SignedIn>
                   <UserButton afterSignOutUrl="/" />
                 </SignedIn>
               </div>
+
+              {/* Mobile Menu Button */}
+              <div className="-mr-2 flex md:hidden">
+                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:bg-gray-200">
+                  {open ? (
+                    <XMarkIcon className="h-6 w-6" />
+                  ) : (
+                    <Bars3Icon className="h-6 w-6" />
+                  )}
+                </Disclosure.Button>
+              </div>
             </div>
           </div>
 
-          {/* Mobile Menu (Visible in Small Screens) */}
+          {/* Mobile Menu Panel */}
           <Disclosure.Panel className="md:hidden">
-            <div className="space-y-1 px-2 pb-3 pt-2">
+            <div className="space-y-1 px-2 pt-2 pb-3">
               {navigation.map((item) => (
                 <button
                   key={item.name}
@@ -102,18 +117,27 @@ export default function Navbar() {
                 </button>
               ))}
 
-              {/* Mobile Login/Profile */}
+              {/* Mobile Login Options */}
               <SignedOut>
-                <button
-                  onClick={() => navigate("/sign-in")}
-                  className="w-full bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white"
-                >
-                  Login
-                </button>
+                <div className="space-y-2 pt-3">
+                  <button
+                    onClick={() => navigate("/sign-in?role=student")}
+                    className="block w-full text-center bg-green-500 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-600"
+                  >
+                    Login as Student
+                  </button>
+
+                  <button
+                    onClick={() => navigate("/sign-in?role=donor")}
+                    className="block w-full text-center bg-red-500 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-red-600"
+                  >
+                    Login as Donor
+                  </button>
+                </div>
               </SignedOut>
 
               <SignedIn>
-                <div className="px-3">
+                <div className="pt-3">
                   <UserButton afterSignOutUrl="/" />
                 </div>
               </SignedIn>
