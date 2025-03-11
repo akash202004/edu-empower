@@ -9,8 +9,9 @@ import Footer from "./Component/Footer/Footer";
 import Student from "./Component/Student_Basic_Details_Form/Student";
 import CrowdFundingPage from "./Component/CrowdFunding/CrowdFundingPage";
 import ScholarshipPage from "./Component/Scholarship/ScholarshipPage";
-import Donar from "./Component/Donar/Donar";  // Donor Page
+import Donar from "./Component/Donar/Donar"; // Donor Page
 import Organizationdashboard from "./Component/Organizationdashboard/Organizationdashboard";
+
 const ProtectedRoute = ({ children }) => {
   return (
     <>
@@ -39,23 +40,14 @@ const App = () => {
             </>
           }
         />
-        <Route path="/donar" element={<Donar />} />  {/* Publicly accessible Donor page */}
+        <Route path="/donar" element={<ProtectedRoute><Donar/></ProtectedRoute> } /> {/* Public Donor page */}
+        <Route path="/student" element={<Student />} /> {/* Student page is now public */}
 
         {/* Protected Routes */}
-        <Route path="/student" element={<ProtectedRoute><Student /></ProtectedRoute>} />
         <Route path="/crowdfunding" element={<ProtectedRoute><CrowdFundingPage /></ProtectedRoute>} />
         <Route path="/scholarship" element={<ProtectedRoute><ScholarshipPage /></ProtectedRoute>} />
-        <Route path="/organizationdashboard" element={<ProtectedRoute>
-          <Organizationdashboard />
-          </ProtectedRoute>} />
-
-
-
-        <Route
-          path="/donation"
-          element={<ProtectedRoute><h1 className="text-center text-3xl font-bold mt-10">Donation Page</h1></ProtectedRoute>}
-        />
-        
+        <Route path="/organizationdashboard" element={<ProtectedRoute><Organizationdashboard /></ProtectedRoute>} />
+        <Route path="/donation" element={<ProtectedRoute><h1 className="text-center text-3xl font-bold mt-10">Donation Page</h1></ProtectedRoute>} />
 
         {/* Centered Clerk Sign-In Page */}
         <Route path="/sign-in" element={<div className="clerk-login-container"><SignIn /></div>} />

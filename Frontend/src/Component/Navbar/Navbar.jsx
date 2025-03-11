@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
@@ -79,9 +79,12 @@ export default function Navbar() {
                     <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white border rounded-md shadow-lg focus:outline-none">
                       <MenuItem>
                         {({ active }) => (
-                          <SignInButton mode="modal" redirectUrl="/student">
-                            <button className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 w-full text-left")}>Login as Student</button>
-                          </SignInButton>
+                          <button
+                            onClick={() => navigate("/student")}
+                            className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700 w-full text-left")}
+                          >
+                            Login as Student
+                          </button>
                         )}
                       </MenuItem>
                       <MenuItem>
