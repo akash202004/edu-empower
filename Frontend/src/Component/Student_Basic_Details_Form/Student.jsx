@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 
 const Student = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,27 @@ const Student = () => {
     pin: "",
     about: ""
   });
+  const indianStates = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
+    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", 
+    "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", 
+    "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", 
+    "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", 
+    "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", 
+    "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Lakshadweep", 
+    "Puducherry"
+  ];
+  const stateDistrictData = {
+    "Andhra Pradesh": ["Anantapur", "Chittoor", "Guntur", "Kadapa", "Krishna"],
+    "Assam": ["Baksa", "Barpeta", "Biswanath", "Bongaigaon", "Cachar"],
+    "Bihar": ["Araria", "Arwal", "Aurangabad", "Banka", "Begusarai"],
+    "Delhi": ["Central Delhi", "East Delhi", "New Delhi", "North Delhi", "South Delhi"],
+    "Goa": ["North Goa", "South Goa"],
+    "Maharashtra": ["Ahmednagar", "Akola", "Amravati", "Aurangabad", "Beed"],
+    "West Bengal": ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Darjeeling"],
+  };
+  
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -130,7 +151,53 @@ const Student = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
+            <div>
+          <label htmlFor="state" className="block text-sm font-medium text-gray-700">State*</label>
+          <select
+            id="state"
+            name="state"
+            value={formData.state}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded-md"
+            required
+          >
+            <option value="">Select a State</option>
+            {Object.keys(stateDistrictData).map((state) => (
+              <option key={state} value={state}>
+                {state}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* District Dropdown */}
+        <div>
+          <label htmlFor="district" className="block text-sm font-medium text-gray-700">District*</label>
+          <select
+            id="district"
+            name="district"
+            value={formData.district}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded-md"
+            required
+            disabled={!formData.state}
+          >
+            <option value="">Select a District</option>
+            {formData.state &&
+              stateDistrictData[formData.state]?.map((district) => (
+                <option key={district} value={district}>
+                  {district}
+                </option>
+              ))}
+          </select>
+        </div>
+              
+             
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+           
+            <div>
                 <label htmlFor="village" className="block text-sm font-medium text-gray-700 mb-1">Village/Town*</label>
                 <input 
                   type="text" 
@@ -138,35 +205,6 @@ const Student = () => {
                   name="village" 
                   placeholder="Enter village or town" 
                   value={formData.village} 
-                  onChange={handleChange} 
-                  className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
-                  required 
-                />
-              </div>
-              <div>
-                <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">District*</label>
-                <input 
-                  type="text" 
-                  id="district"
-                  name="district" 
-                  placeholder="Enter district" 
-                  value={formData.district} 
-                  onChange={handleChange} 
-                  className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
-                  required 
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">State*</label>
-                <input 
-                  type="text" 
-                  id="state"
-                  name="state" 
-                  placeholder="Enter state" 
-                  value={formData.state} 
                   onChange={handleChange} 
                   className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
                   required 
