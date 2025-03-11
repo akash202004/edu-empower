@@ -15,15 +15,15 @@ const Student = () => {
     about: ""
   });
   const indianStates = [
-    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
-    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", 
-    "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", 
-    "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", 
-    "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", 
-    "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", 
-    "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Lakshadweep", 
-    "Puducherry"
-  ];
+    "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", 
+    "Assam", "Bihar", "Chandigarh", "Chhattisgarh", 
+    "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Goa", "Gujarat", 
+    "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", 
+    "Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", 
+    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", 
+    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", 
+    "Uttar Pradesh", "Uttarakhand", "West Bengal"
+];
   const stateDistrictData = {
     "Andhra Pradesh": ["Anantapur", "Chittoor", "Guntur", "Kadapa", "Krishna"],
     "Assam": ["Baksa", "Barpeta", "Biswanath", "Bongaigaon", "Cachar"],
@@ -161,8 +161,8 @@ const Student = () => {
             className="w-full border border-gray-300 p-2 rounded-md"
             required
           >
-            <option value="">Select a State</option>
-            {Object.keys(stateDistrictData).map((state) => (
+            <option value="disabled">Select a State</option>
+            {indianStates.map((state) => (
               <option key={state} value={state}>
                 {state}
               </option>
