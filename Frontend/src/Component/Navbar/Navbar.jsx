@@ -1,6 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
-  SignInButton,
   SignedIn,
   SignedOut,
   UserButton,
@@ -22,24 +21,35 @@ const navigation = [
   { name: "Donation", path: "/donation", authRequired: true },
 ];
 
+const NavLink = ({ name, path, authRequired, isSignedIn, navigate }) => (
+  <button
+    onClick={() => {
+      if (authRequired && !isSignedIn) {
+        navigate("/sign-in");
+      } else {
+        navigate(path);
+      }
+    }}
+    className="rounded-md px-3 py-2 text-sm font-medium text-black hover:bg-gray-200"
+  >
+    {name}
+  </button>
+);
+
 export default function Navbar() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, isLoaded } = useUser();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isSignedIn && window.location.pathname === "/sign-in") {
-      navigate("/");
-    }
-  }, [isSignedIn, navigate]);
+  // Loading state handling
+  if (!isLoaded) return null;
 
   return (
     <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
-
-              {/* Edu-Empower (Left Side) */}
+              {/* Brand Logo */}
               <div
                 className="flex items-center cursor-pointer"
                 onClick={() => navigate("/")}
@@ -49,124 +59,99 @@ export default function Navbar() {
                 </h1>
               </div>
 
-              {/* Mobile Menu Button */}
-              <div className="flex md:hidden">
-                <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
-                  {open ? (
-                    <XMarkIcon className="h-6 w-6" />
-                  ) : (
-                    <Bars3Icon className="h-6 w-6" />
-                  )}
-                </Disclosure.Button>
-              </div>
-
-              {/* Desktop Links (Hidden in Small Screens) */}
+              {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-4">
                 {navigation.map((item) => (
-                  <button
+                  <NavLink
                     key={item.name}
-                    onClick={() => {
-                      if (item.authRequired && !isSignedIn) {
-                        navigate("/sign-in");
-                      } else {
-                        navigate(item.path);
-                      }
-                    }}
-                    className="rounded-md px-3 py-2 text-sm font-medium text-black hover:bg-gray-200"
-                  >
-                    {item.name}
-                  </button>
+                    {...item}
+                    isSignedIn={isSignedIn}
+                    navigate={navigate}
+                  />
                 ))}
 
                 {/* Login/Profile Section */}
-                <SignedOut>
+                {isSignedIn ? (
+                  <UserButton afterSignOutUrl="/" />
+                ) : (
                   <Menu as="div" className="relative">
-                    <MenuButton className="bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white">
+                    <MenuButton
+                      className="bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white"
+                      aria-label="Login Menu"
+                    >
                       Login
                     </MenuButton>
 
                     <MenuItems className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg">
-                      <MenuItem>
-                        {({ active }) => (
-                          <button
-                            onClick={() => navigate("/sign-in?role=student")}
-                            className={`${
-                              active ? "bg-blue-100" : ""
-                            } w-full text-left px-4 py-2 text-sm text-black`}
-                          >
-                            Login as Student
-                          </button>
-                        )}
-                      </MenuItem>
-
-                      <MenuItem>
-                        {({ active }) => (
-                          <button
-                            onClick={() => navigate("/donor")}
-                            className={`${
-                              active ? "bg-blue-100" : ""
-                            } w-full text-left px-4 py-2 text-sm text-black`}
-                          >
-                            Login as Donor
-                          </button>
-                        )}
-                      </MenuItem>
+                      {[
+                        { label: "Login as Student", path: "/sign-in?role=student" },
+                        { label: "Login as Donor", path: "/Donar" }, // FIXED Route Path
+                      ].map(({ label, path }) => (
+                        <MenuItem key={label}>
+                          {({ active }) => (
+                            <button
+                              onClick={() => navigate(path)}
+                              className={`${
+                                active ? "bg-blue-100" : ""
+                              } w-full text-left px-4 py-2 text-sm text-black`}
+                            >
+                              {label}
+                            </button>
+                          )}
+                        </MenuItem>
+                      ))}
                     </MenuItems>
                   </Menu>
-                </SignedOut>
+                )}
+              </div>
 
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/" />
-                </SignedIn>
+              {/* Mobile Menu Button */}
+              <div className="flex md:hidden">
+                <Disclosure.Button
+                  className="inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                  aria-label={open ? "Close menu" : "Open menu"}
+                >
+                  {open ? (
+                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+                  )}
+                </Disclosure.Button>
               </div>
             </div>
+
+            {/* Mobile Navigation Menu */}
+            <Disclosure.Panel className="md:hidden">
+              <div className="space-y-1 px-2 pt-2 pb-3">
+                {navigation.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    {...item}
+                    isSignedIn={isSignedIn}
+                    navigate={navigate}
+                  />
+                ))}
+
+                {/* Mobile Login Section */}
+                {!isSignedIn && (
+                  <>
+                    <button
+                      onClick={() => navigate("/sign-in?role=student")}
+                      className="block w-full text-left px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-200"
+                    >
+                      Login as Student
+                    </button>
+                    <button
+                      onClick={() => navigate("/Donar")}  // FIXED Route Path
+                      className="block w-full text-left px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-200"
+                    >
+                      Login as Donor
+                    </button>
+                  </>
+                )}
+              </div>
+            </Disclosure.Panel>
           </div>
-
-          {/* Mobile Menu (Visible in Small Screens) */}
-          <Disclosure.Panel className="md:hidden">
-            <div className="space-y-1 px-2 pb-3 pt-2">
-              {navigation.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => {
-                    if (item.authRequired && !isSignedIn) {
-                      navigate("/sign-in");
-                    } else {
-                      navigate(item.path);
-                    }
-                  }}
-                  className="block w-full text-left rounded-md px-3 py-2 text-sm font-medium text-black hover:bg-gray-200"
-                >
-                  {item.name}
-                </button>
-              ))}
-
-              {/* Mobile Login Options */}
-              <SignedOut>
-                <div className="flex flex-col gap-2 px-2">
-                  <button
-                    onClick={() => navigate("/sign-in?role=student")}
-                    className="w-full bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700"
-                  >
-                    Login as Student
-                  </button>
-
-                  <button
-                    onClick={() => navigate("/donor")}
-                    className="w-full bg-black text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700"
-                  >
-                    Login as Donor
-                  </button>
-                </div>
-              </SignedOut>
-
-              <SignedIn>
-                <div className="px-3">
-                  <UserButton afterSignOutUrl="/" />
-                </div>
-              </SignedIn>
-            </div>
-          </Disclosure.Panel>
         </>
       )}
     </Disclosure>
