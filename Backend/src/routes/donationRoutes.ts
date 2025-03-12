@@ -6,10 +6,11 @@ import {
   getDonationsByFundraiser,
   deleteDonation,
 } from "../controllers/donationController";
+import { verifyUser } from "../middlewares/verifyUser";
 
 const router = express.Router();
 
-router.post("/", createDonation);
+router.post("/", verifyUser, createDonation);
 router.get("/", getAllDonations);
 router.get("/:id", getDonationById);
 router.get("/fundraiser/:fundraiserId", getDonationsByFundraiser);
