@@ -95,9 +95,10 @@ export const deleteScholarship = async (req: Request, res: Response) => {
 
   try {
     await prisma.scholarship.delete({ where: { id } });
-    res.status(204).send();
+    res.status(200).json({ id: id, message: "Scholarship deleted successfully" });
   } catch (error) {
     console.error("Error deleting scholarship:", error);
     res.status(500).json({ error: "Failed to delete scholarship" });
   }
 };
+

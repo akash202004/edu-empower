@@ -86,8 +86,8 @@ model Scholarship {
   description   String
   totalAmount   Float
   allocatedAmount Float @default(0)
-  fundraiserId  String
-  fundraiser    Fundraiser @relation("FundraiserScholarships", fields: [fundraiserId], references: [id])
+  fundraiserId  String?
+  fundraiser    Fundraiser? @relation("FundraiserScholarships", fields: [fundraiserId], references: [id])
   organizationId String
   organization  User @relation("UserScholarships", fields: [organizationId], references: [id])
   applications  Application[] @relation("ScholarshipApplications")
