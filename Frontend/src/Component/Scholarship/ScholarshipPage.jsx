@@ -49,7 +49,7 @@ const ScholarshipSearchInterface = () => {
 
   const handleApplyNow = () => {
     if (isSignedIn) {
-      navigate("/student"); // Redirect to Student Form if signed in
+      navigate("/organizationdashboard"); // Redirect to Organization dashboard
     } else {
       navigate("/sign-in"); // Redirect to Sign-in page if not signed in
     }

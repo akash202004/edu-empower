@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SignInButton, SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,52 +6,45 @@ const BoldOrgLandingPage = () => {
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
 
-  const handleStartScholarshipClick = () => {
-    if (!isSignedIn) {
-      // If not signed in, the SignInButton will handle displaying the sign-in modal
-    } else {
-      // If already signed in, navigate to the scholarship creation page
-      navigate("/organizationdashboard");
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate("/organizationdashboard"); // Redirect if already signed in
     }
-  };
+  }, [isSignedIn, navigate]);
 
   return (
     <div className="flex flex-col min-h-screen bg-white font-sans">
-      {/* Main content */}
       <main className="flex-grow mt-24 md:mt-32">
-  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
-    <div className="flex flex-col lg:flex-row items-center gap-8">
-      {/* Left content */}
-      <div className="flex-1 space-y-8 text-center lg:text-left">
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold">
-            <span className="text-indigo-500">Change</span> Someone's<br className="hidden md:block" />
-            <span className="text-indigo-500">Life</span> Today
-          </h1>
-          <p className="text-lg md:text-xl text-gray-700 lg:max-w-xl">
-            Create scholarships and funds for the people and causes you care most about.
-          </p>
-        </div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
+          <div className="flex flex-col lg:flex-row items-center gap-8">
+            {/* Left content */}
+            <div className="flex-1 space-y-8 text-center lg:text-left">
+              <h1 className="text-4xl md:text-5xl font-bold">
+                <span className="text-indigo-500">Change</span> Someone's<br className="hidden md:block" />
+                <span className="text-indigo-500">Life</span> Today
+              </h1>
+              <p className="text-lg md:text-xl text-gray-700 lg:max-w-xl">
+                Create scholarships and funds for the people and causes you care most about.
+              </p>
 
-        <div className="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
-          {/* Start a scholarship button with authentication */}
-          <SignedOut>
-            <SignInButton mode="modal" redirectUrl="/organizationdashboard">
-              <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-base font-medium shadow-sm">
-                Start a scholarship
-              </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <button
-              onClick={() => navigate("/organizationdashboard")}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-base font-medium shadow-sm"
-            >
-              Start a scholarship
-            </button>
-          </SignedIn>
-
-          <button className="px-6 py-3 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border border-indigo-300 rounded-md text-base font-medium">
+              <div className="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
+                <SignedOut>
+                  <SignInButton mode="modal" redirectUrl="/organizationdashboard">
+                    <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-base font-medium shadow-sm">
+                      Start a scholarship
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <button
+                    onClick={() => navigate("/organizationdashboard")}
+                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-base font-medium shadow-sm"
+                  >
+                    Start a scholarship
+                  </button>
+                </SignedIn>
+                
+                <button className="px-6 py-3 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border border-indigo-300 rounded-md text-base font-medium">
             How it Works
           </button>
         </div>
