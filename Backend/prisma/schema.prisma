@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id            String   @id
   name          String
   email         String   @unique
   role          Role
@@ -34,7 +34,7 @@ model OrganizationDetails {
   id            String @id @default(uuid())
   userId        String @unique
   user          User   @relation(fields: [userId], references: [id])
-  documentURL   String // URL for verification documents
+  documentURL   String 
   verified      Boolean @default(false)
 }
 
@@ -42,9 +42,11 @@ model StudentDetails {
   id            String @id @default(uuid())
   userId        String @unique
   user          User   @relation(fields: [userId], references: [id])
-  tenthResult   String // URL for 10th grade result
-  twelfthResult String // URL for 12th grade result
-  incomeCert    String // URL for income certificate
+  fatherName    String
+  motherName    String
+  tenthResult   String 
+  twelfthResult String 
+  incomeCert    String 
 }
 
 model Fundraiser {
