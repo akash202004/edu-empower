@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import userRoutes from "./routes/userRoutes";
 import scholarshipRoutes from "./routes/scholarshipRoutes";
 import fileUploadRoutes from "./routes/fileUploadRoutes";
@@ -14,10 +13,14 @@ import express from "express";
 
 dotenv.config();
 const app = express();
-const prisma = new PrismaClient();
 
-app.use(cors({ origin: "http://localhost:3000" }));
-app.use(express.json());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}))
+
+app.use(express.urlencoded({ extended: true, limit: "16KB" }))
+app.use(express.json({ limit: "16KB" }))
 
 app.use("/api/users", userRoutes);
 app.use("/api/scholarships", scholarshipRoutes);
