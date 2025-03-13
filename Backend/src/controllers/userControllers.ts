@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { PrismaClient, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { validationResult } from "express-validator";
-
-const prisma = new PrismaClient();
+import { prisma } from "../config/prismaClient";
 
 // Register or update a user
 export const registerOrUpdateUser = async (req: Request, res: Response) => {
@@ -17,8 +16,8 @@ export const registerOrUpdateUser = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.upsert({
       where: { id: userId },
-      update: { name, email, role, verified },
-      create: { id: userId, name, email, role, verified: verified ?? false },
+      update: { name, email, role },
+      create: { id: userId, name, email, role },
     });
 
     res.status(200).json(user);

@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../config/prismaClient";
 
 // Create a new donation
 export const createDonation = async (req: Request, res: Response): Promise<void> => {
