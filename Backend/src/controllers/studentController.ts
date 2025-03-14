@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
 
+const normalizePath = (path: string) => path.replace(/\\/g, "/");
+
 // Create Student Details
 export const createStudentDetails = async (req: Request, res: Response) => {
   try {
@@ -26,12 +28,14 @@ export const createStudentDetails = async (req: Request, res: Response) => {
     }
 
     const tenthResult = files["tenthResult"]
-      ? files["tenthResult"][0].path
+      ? normalizePath(files["tenthResult"][0].path)
       : "";
     const twelfthResult = files["twelfthResult"]
-      ? files["twelfthResult"][0].path
+      ? normalizePath(files["twelfthResult"][0].path)
       : "";
-    const incomeCert = files["incomeCert"] ? files["incomeCert"][0].path : "";
+    const incomeCert = files["incomeCert"]
+      ? normalizePath(files["incomeCert"][0].path)
+      : "";
 
     const student = await prisma.studentDetails.create({
       data: {
@@ -59,37 +63,37 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
     const { userId } = req.params;
     const { fatherName, motherName } = req.body;
 
-    const files = req.files as
-      | { [fieldname: string]: Express.Multer.File[] }
-      | undefined;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
 
-    const tenthResult = files?.["tenthResult"]
-      ? files["tenthResult"][0].path
+    const tenthResult = files?.["tenthResult"]?.[0]?.path
+      ? normalizePath(files["tenthResult"][0].path)
       : undefined;
-    const twelfthResult = files?.["twelfthResult"]
-      ? files["twelfthResult"][0].path
+    const twelfthResult = files?.["twelfthResult"]?.[0]?.path
+      ? normalizePath(files["twelfthResult"][0].path)
       : undefined;
-    const incomeCert = files?.["incomeCert"]
-      ? files["incomeCert"][0].path
+    const incomeCert = files?.["incomeCert"]?.[0]?.path
+      ? normalizePath(files["incomeCert"][0].path)
       : undefined;
 
     const existingStudent = await prisma.studentDetails.findUnique({
-      where: { userId },
+      where: { id: userId },
     });
 
     if (!existingStudent) {
-      return res.status(404).json({ error: "Student details not found" });
-    }
+       res.status(404).json({ error: "Student details not found" });
+       return;
+      }
+
+    const updateData: any = {};
+    if (fatherName) updateData.fatherName = fatherName;
+    if (motherName) updateData.motherName = motherName;
+    if (tenthResult) updateData.tenthResult = tenthResult;
+    if (twelfthResult) updateData.twelfthResult = twelfthResult;
+    if (incomeCert) updateData.incomeCert = incomeCert;
 
     const updatedStudent = await prisma.studentDetails.update({
-      where: { userId },
-      data: {
-        fatherName,
-        motherName,
-        ...(tenthResult && { tenthResult }),
-        ...(twelfthResult && { twelfthResult }),
-        ...(incomeCert && { incomeCert }),
-      },
+      where: { id: userId },
+      data: updateData,
     });
 
     res.status(200).json({
@@ -102,13 +106,14 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
   }
 };
 
+
 // Get Student Details by userId
 export const getStudentDetails = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
     const student = await prisma.studentDetails.findUnique({
-      where: { userId },
+      where: { id: userId },
     });
 
     if (!student) {
@@ -129,7 +134,7 @@ export const deleteStudentDetails = async (req: Request, res: Response) => {
     const { userId } = req.params;
 
     const existingStudent = await prisma.studentDetails.findUnique({
-      where: { userId },
+      where: { id: userId },
     });
 
     if (!existingStudent) {
@@ -138,7 +143,7 @@ export const deleteStudentDetails = async (req: Request, res: Response) => {
     }
 
     await prisma.studentDetails.delete({
-      where: { userId },
+      where: { id: userId },
     });
 
     res.status(200).json({ message: "Student details deleted successfully" });

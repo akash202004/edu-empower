@@ -5,7 +5,7 @@ import { Request } from 'express';
 // Storage configuration
 const storage: StorageEngine = multer.diskStorage({
     destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
-        cb(null, 'backend/src/uploads/'); 
+        cb(null, './src/uploads'); 
     },
     filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
         cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
