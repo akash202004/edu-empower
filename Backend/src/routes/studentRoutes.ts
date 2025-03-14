@@ -1,16 +1,35 @@
 import { Router } from "express";
-import { 
-  createStudentDetails, 
-  getStudentDetails, 
-  updateStudentDetails, 
-  deleteStudentDetails 
+import upload from "../middlewares/multerConfig";
+import {
+  createStudentDetails,
+  getStudentDetails,
+  updateStudentDetails,
+  deleteStudentDetails,
 } from "../controllers/studentController";
 
 const router = Router();
 
-router.post("/", createStudentDetails); 
-router.get("/:userId", getStudentDetails); 
-router.put("/:userId", updateStudentDetails); 
-router.delete("/:userId", deleteStudentDetails); 
+router.post(
+  "/",
+  upload.fields([
+    { name: "tenthResult", maxCount: 1 },
+    { name: "twelfthResult", maxCount: 1 },
+    { name: "incomeCert", maxCount: 1 },
+  ]),
+  createStudentDetails
+);
+
+router.get("/:userId", getStudentDetails);
+router.put(
+  "/:userId",
+  upload.fields([
+    { name: "tenthResult", maxCount: 1 },
+    { name: "twelfthResult", maxCount: 1 },
+    { name: "incomeCert", maxCount: 1 },
+  ]),
+  updateStudentDetails
+);
+
+router.delete("/:userId", deleteStudentDetails);
 
 export default router;

@@ -4,14 +4,8 @@ import { prisma } from "../config/prismaClient";
 // Create Student Details
 export const createStudentDetails = async (req: Request, res: Response) => {
   try {
-    const {
-      userId,
-      fatherName,
-      motherName,
-      tenthResult,
-      twelfthResult,
-      incomeCert,
-    } = req.body;
+    const { userId, fatherName, motherName } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -30,6 +24,14 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       res.status(400).json({ error: "Student details already exist" });
       return;
     }
+
+    const tenthResult = files["tenthResult"]
+      ? files["tenthResult"][0].path
+      : "";
+    const twelfthResult = files["twelfthResult"]
+      ? files["twelfthResult"][0].path
+      : "";
+    const incomeCert = files["incomeCert"] ? files["incomeCert"][0].path : "";
 
     const student = await prisma.studentDetails.create({
       data: {
@@ -51,6 +53,55 @@ export const createStudentDetails = async (req: Request, res: Response) => {
   }
 };
 
+// Update Student Details
+export const updateStudentDetails = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { fatherName, motherName } = req.body;
+
+    const files = req.files as
+      | { [fieldname: string]: Express.Multer.File[] }
+      | undefined;
+
+    const tenthResult = files?.["tenthResult"]
+      ? files["tenthResult"][0].path
+      : undefined;
+    const twelfthResult = files?.["twelfthResult"]
+      ? files["twelfthResult"][0].path
+      : undefined;
+    const incomeCert = files?.["incomeCert"]
+      ? files["incomeCert"][0].path
+      : undefined;
+
+    const existingStudent = await prisma.studentDetails.findUnique({
+      where: { userId },
+    });
+
+    if (!existingStudent) {
+      return res.status(404).json({ error: "Student details not found" });
+    }
+
+    const updatedStudent = await prisma.studentDetails.update({
+      where: { userId },
+      data: {
+        fatherName,
+        motherName,
+        ...(tenthResult && { tenthResult }),
+        ...(twelfthResult && { twelfthResult }),
+        ...(incomeCert && { incomeCert }),
+      },
+    });
+
+    res.status(200).json({
+      message: "Student details updated successfully",
+      updatedStudent,
+    });
+  } catch (error) {
+    console.error("Error updating student details:", error);
+    res.status(500).json({ error: "Failed to update student details" });
+  }
+};
+
 // Get Student Details by userId
 export const getStudentDetails = async (req: Request, res: Response) => {
   try {
@@ -69,43 +120,6 @@ export const getStudentDetails = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching student details:", error);
     res.status(500).json({ error: "Failed to retrieve student details" });
-  }
-};
-
-// Update Student Details
-export const updateStudentDetails = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const { fatherName, motherName, tenthResult, twelfthResult, incomeCert } =
-      req.body;
-
-    const existingStudent = await prisma.studentDetails.findUnique({
-      where: { userId },
-    });
-
-    if (!existingStudent) {
-      res.status(404).json({ error: "Student details not found" });
-      return;
-    }
-
-    const updatedStudent = await prisma.studentDetails.update({
-      where: { userId },
-      data: {
-        fatherName,
-        motherName,
-        tenthResult,
-        twelfthResult,
-        incomeCert,
-      },
-    });
-
-    res.status(200).json({
-      message: "Student details updated successfully",
-      updatedStudent,
-    });
-  } catch (error) {
-    console.error("Error updating student details:", error);
-    res.status(500).json({ error: "Failed to update student details" });
   }
 };
 
