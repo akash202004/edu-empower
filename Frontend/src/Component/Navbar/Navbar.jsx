@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const navigation = [
   { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
   { name: "Scholarship", path: "/scholarship", authRequired: true },
-  { name: "Donation", path: "/donation", authRequired: true },
+  { name: "Donation", path: "/donar", authRequired: true },
 ];
 
 function classNames(...classes) {

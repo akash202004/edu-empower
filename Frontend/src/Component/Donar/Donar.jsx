@@ -1,14 +1,26 @@
-import React, { useEffect } from 'react';
-import { SignInButton, SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
+import React, { useState, useEffect } from "react";
+import {
+    SignInButton,
+    SignedIn,
+    SignedOut,
+    UserButton,
+    useUser,
+} from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 
-const BoldOrgLandingPage = () => {
+
+const navigation = [
+    { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
+    { name: "Scholarship", path: "/scholarship", authRequired: true },
+    { name: "Donation", path: "/donation", authRequired: false },
+];
+const DonarPage = () => {
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isSignedIn) {
-      navigate("/organizationdashboard"); // Redirect if already signed in
+      navigate("/donar"); // Redirect if already signed in
     }
   }, [isSignedIn, navigate]);
 
@@ -346,4 +358,4 @@ const BoldOrgLandingPage = () => {
   );
 };
 
-export default BoldOrgLandingPage;
+export default DonarPage;

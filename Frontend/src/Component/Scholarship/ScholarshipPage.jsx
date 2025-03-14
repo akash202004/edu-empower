@@ -47,11 +47,11 @@ const ScholarshipSearchInterface = () => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
-  const handleApplyNow = () => {
+  const handleApplyNow = (scholarship) => {
     if (isSignedIn) {
-      navigate("/organizationdashboard"); // Redirect to Organization dashboard
+      navigate("/scholarship/apply", { state: { scholarship } }); // Pass data
     } else {
-      navigate("/sign-in"); // Redirect to Sign-in page if not signed in
+      navigate("/sign-in");
     }
   };
 
@@ -151,11 +151,11 @@ const ScholarshipSearchInterface = () => {
                   </span>
                 </div>
                 <button
-  className="mt-4 bg-black text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105 hover:shadow-[0_0_15px_#ffffffaa] hover:bg-gray-900"
-  onClick={handleApplyNow}
->
-  Apply Now
-</button>
+                  className="mt-4 bg-black cursor-pointer text-white px-4 py-2 rounded transition-transform duration-300 transform hover:scale-105 hover:shadow-[0_0_15px_#ffffffaa] hover:bg-gray-900"
+                  onClick={() => handleApplyNow(scholarship)} // Pass scholarship data
+                >
+                  Apply Now
+                </button>
               </div>
             ))}
           </div>
