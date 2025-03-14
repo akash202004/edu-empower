@@ -10,7 +10,7 @@ import { verifyUser } from "../middlewares/verifyUser";
 
 const router = express.Router();
 
-router.post("/", verifyUser, createDonation);
+router.post("/", createDonation);
 router.get("/", getAllDonations);
 router.get("/:id", getDonationById);
 router.get("/fundraiser/:fundraiserId", getDonationsByFundraiser);
