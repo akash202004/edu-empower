@@ -15,14 +15,42 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
 
+  // Sync Clerk user data with the backend
   useEffect(() => {
-    if (isSignedIn && window.location.pathname === "/") {
-      navigate("/student");
-    }
-  }, [isSignedIn, navigate]);
+    const syncUserWithBackend = async () => {
+      if (isSignedIn && user) {
+        try {
+          const response = await fetch(`localhost:3000/api/users/registerorupdate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              clerkId: user.id,
+              name: user.fullName,
+              email: user.primaryEmailAddress?.emailAddress,
+              verified: user.primaryEmailAddress?.verification?.status === "verified",
+              role: user.publicMetadata.role || "student", // Default role
+            }),
+          });
+
+          if (!response.ok) throw new Error("Failed to sync user data");
+
+          const userData = await response.json();
+          
+          // Redirect based on role
+          if (window.location.pathname === "/") {
+            navigate(userData.role === "organization" ? "/organization" : "/student");
+          }
+        } catch (error) {
+          console.error("Error syncing user data:", error);
+        }
+      }
+    };
+
+    syncUserWithBackend();
+  }, [isSignedIn, user, navigate]);
 
   return (
     <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
@@ -40,10 +68,7 @@ export default function Navbar() {
 
               {/* Logo - Centered on Mobile */}
               <div className="flex items-center justify-center w-full sm:w-auto">
-                <button
-                  onClick={() => navigate("/")}
-                  className="text-black text-lg font-bold transition-all duration-300 hover:text-blue-600"
-                >
+                <button onClick={() => navigate("/")} className="text-black text-lg font-bold transition-all duration-300 hover:text-blue-600">
                   Edu-Empower
                 </button>
               </div>
