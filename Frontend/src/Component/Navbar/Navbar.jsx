@@ -27,11 +27,10 @@ export default function Navbar() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              clerkId: user.id,
+              id: user.id,
               name: user.fullName,
               email: user.primaryEmailAddress?.emailAddress,
-              verified: user.primaryEmailAddress?.verification?.status === "verified",
-              role: user.publicMetadata.role || "student", // Default role
+              role: user.publicMetadata.role || "STUDENT", // Default role
             }),
           });
 
