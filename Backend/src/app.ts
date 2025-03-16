@@ -22,6 +22,10 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true, limit: "16KB" }))
 app.use(express.json({ limit: "16KB" }))
 
+app.get("/", (_, res) => {
+    res.send("🚀 Welcome to our API! The server is running successfully.");
+});
+
 app.use("/api/users", userRoutes);
 app.use("/api/scholarships", scholarshipRoutes);
 app.use("/api/upload", fileUploadRoutes);
