@@ -23,7 +23,7 @@ export default function Navbar() {
     const syncUserWithBackend = async () => {
       if (isSignedIn && user) {
         try {
-          const response = await fetch(`localhost:3000/api/users/registerorupdate`, {
+          const response = await fetch(`http://localhost:3000/api/users/registerorupdate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
