@@ -40,7 +40,7 @@ const ScholarshipapplyForm = () => {
         </div>
 
         <div>
-          <label className="block font-medium">Mother's Name</label>
+          <label className="block font-medium">Mother Name</label>
           <input
             type="text"
             name="motherName"

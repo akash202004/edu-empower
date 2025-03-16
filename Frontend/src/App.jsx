@@ -15,7 +15,7 @@ import CrowdFundingPage3 from "./Component/CrowdFunding/CrowdFundingPage3";
 import CrowdFundingPage4 from "./Component/CrowdFunding/CrowdFundingPage4";
 import DonarPage from "./Component/Donar/Donar";
 import Scholarshipapply from "./Component/Scholarship/Scholarshipapply";
-import ScholarshipapplyForm from "./Component/Scholarship/scholarshipapplyForm";
+import ScholarshipapplyForm from "./Component/Scholarship/ScholarshipapplyForm";
 
 const ProtectedRoute = ({ children }) => {
   return (
