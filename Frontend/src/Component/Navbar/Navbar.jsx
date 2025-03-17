@@ -11,6 +11,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const navigation = [
   { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
@@ -31,42 +32,24 @@ export default function Navbar() {
     const syncUserWithBackend = async () => {
       if (isSignedIn && user) {
         try {
-          const response = await fetch(
-            `http://localhost:3000/api/users/registerorupdate`,
+          const { data } = await axios.post(
+            "http://localhost:3000/api/users/registerorupdate",
             {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId: user.id,
-                name: user.fullName,
-                email: user.primaryEmailAddress
-                  ? user.primaryEmailAddress.emailAddress
-                  : null,
-                role: user.publicMetadata.role || "STUDENT", // Default role
-              }),
+              userId: user.id,
+              name: user.fullName,
+              email: user.primaryEmailAddress?.emailAddress || null,
+              role: user.publicMetadata.role || "STUDENT",
             }
           );
 
-          console.log("Sending user data:", {
-            id: user.id,
-            name: user.fullName,
-            email: user.primaryEmailAddress?.emailAddress,
-            role: user.publicMetadata.role || "STUDENT",
-          });
-          
-
-          if (!response.ok) throw new Error("Failed to sync user data");
-
-          const userData = await response.json();
+          console.log("User synced:", data);
 
           // Redirect based on role
           if (window.location.pathname === "/") {
-            navigate(
-              userData.role === "organization" ? "/organization" : "/student"
-            );
+            navigate(data.role === "organization" ? "/organization" : "/student");
           }
         } catch (error) {
-          console.error("Error syncing user data:", error);
+          console.error("Error syncing user data:", error.response?.data || error.message);
         }
       }
     };
@@ -83,14 +66,8 @@ export default function Navbar() {
               {/* Mobile Menu Button */}
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 <DisclosureButton className="relative inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-gray-100 focus:ring-2 focus:ring-black focus:outline-none">
-                  <Bars3Icon
-                    aria-hidden="true"
-                    className={`${open ? "hidden" : "block"} size-6`}
-                  />
-                  <XMarkIcon
-                    aria-hidden="true"
-                    className={`${open ? "block" : "hidden"} size-6`}
-                  />
+                  <Bars3Icon aria-hidden="true" className={`${open ? "hidden" : "block"} size-6`} />
+                  <XMarkIcon aria-hidden="true" className={`${open ? "block" : "hidden"} size-6`} />
                 </DisclosureButton>
               </div>
 
