@@ -1,0 +1,147 @@
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+  }
+  
+  .crowdfunding-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Header */
+  .crowdfunding-header {
+    text-align: center;
+    padding: 50px 20px;
+  }
+  
+  .primary-btn {
+    padding: 12px 24px;
+    font-size: 18px;
+    background: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  /* Benefits Section */
+  .benefits-section {
+    display: flex;
+    justify-content: space-between;
+    background: #e6e6e6;
+    padding: 40px 20px;
+    text-align: center;
+    border-radius: 10px;
+  }
+  
+  .benefit {
+    width: 30%;
+  }
+  
+  .icon {
+    font-size: 40px;
+    color: black;
+    margin-bottom: 10px;
+  }
+  
+  /* Testimonials */
+  .testimonials-section {
+    padding: 50px 20px;
+    text-align: center;
+  }
+  
+  .testimonials {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .testimonial {
+    flex: 1;
+    min-width: 220px;
+    background: black;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  /* Contribution Plans */
+  .plans-section {
+    padding: 50px 20px;
+    text-align: center;
+  }
+  
+  .plans {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .plan {
+    flex: 1;
+    min-width: 250px;
+    background: #f0f0f0;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .featured {
+    background: #d9d9d9;
+  }
+  
+  .donate-btn {
+    background: black;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  /* Footer */
+  .crowdfunding-footer {
+    background: black;
+    color: white;
+    padding: 40px;
+    text-align: center;
+  }
+  
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .footer-bottom {
+    margin-top: 20px;
+  }
+  
+  /* 📱 Responsive Styles */
+  @media (max-width: 1024px) {
+    .benefits-section {
+      flex-direction: column;
+      align-items: center;
+    }
+    .benefit {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .testimonials, .plans, .footer-content {
+      flex-direction: column;
+      align-items: center;
+    }
+    .testimonial, .plan {
+      width: 80%;
+      max-width: 400px;
+    }
+  }
+  
