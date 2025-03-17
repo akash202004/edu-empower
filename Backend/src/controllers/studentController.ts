@@ -7,10 +7,14 @@ const normalizePath = (path: string) => path.replace(/\\/g, "/");
 export const createStudentDetails = async (req: Request, res: Response) => {
   try {
     const { userId, fatherName, motherName } = req.body;
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (!userId || !fatherName || !motherName) {
+      res.status(400).json({ error: "Missing required fields" });
+      return;
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
+      select: { email: true },
     });
 
     if (!existingUser) {
@@ -27,13 +31,14 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
-    const tenthResult = files["tenthResult"]
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const tenthResult = files?.["tenthResult"]?.[0]?.path
       ? normalizePath(files["tenthResult"][0].path)
       : "";
-    const twelfthResult = files["twelfthResult"]
+    const twelfthResult = files?.["twelfthResult"]?.[0]?.path
       ? normalizePath(files["twelfthResult"][0].path)
       : "";
-    const incomeCert = files["incomeCert"]
+    const incomeCert = files?.["incomeCert"]?.[0]?.path
       ? normalizePath(files["incomeCert"][0].path)
       : "";
 
@@ -63,36 +68,36 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
     const { userId } = req.params;
     const { fatherName, motherName } = req.body;
 
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-
-    const tenthResult = files?.["tenthResult"]?.[0]?.path
-      ? normalizePath(files["tenthResult"][0].path)
-      : undefined;
-    const twelfthResult = files?.["twelfthResult"]?.[0]?.path
-      ? normalizePath(files["twelfthResult"][0].path)
-      : undefined;
-    const incomeCert = files?.["incomeCert"]?.[0]?.path
-      ? normalizePath(files["incomeCert"][0].path)
-      : undefined;
+    if (!userId) {
+      res.status(400).json({ error: "User ID is required" });
+      return;
+    }
 
     const existingStudent = await prisma.studentDetails.findUnique({
-      where: { id: userId },
+      where: { userId },
     });
 
     if (!existingStudent) {
-       res.status(404).json({ error: "Student details not found" });
-       return;
-      }
+      res.status(404).json({ error: "Student details not found" });
+      return;
+    }
 
-    const updateData: any = {};
+    const files = req.files as
+      | { [fieldname: string]: Express.Multer.File[] }
+      | undefined;
+    const updateData: Record<string, any> = {};
+
     if (fatherName) updateData.fatherName = fatherName;
     if (motherName) updateData.motherName = motherName;
-    if (tenthResult) updateData.tenthResult = tenthResult;
-    if (twelfthResult) updateData.twelfthResult = twelfthResult;
-    if (incomeCert) updateData.incomeCert = incomeCert;
+    if (files?.["tenthResult"]?.[0])
+      updateData.tenthResult = normalizePath(files["tenthResult"][0].path);
+    if (files?.["twelfthResult"]?.[0])
+      updateData.twelfthResult = normalizePath(files["twelfthResult"][0].path);
+    if (files?.["incomeCert"]?.[0])
+      updateData.incomeCert = normalizePath(files["incomeCert"][0].path);
 
     const updatedStudent = await prisma.studentDetails.update({
-      where: { id: userId },
+      where: { userId },
       data: updateData,
     });
 
@@ -106,14 +111,19 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
   }
 };
 
-
 // Get Student Details by userId
 export const getStudentDetails = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
+    if (!userId) {
+      res.status(400).json({ error: "User ID is required" });
+      return;
+    }
+
     const student = await prisma.studentDetails.findUnique({
-      where: { id: userId },
+      where: { userId },
+      include: { user: { select: { email: true } } },
     });
 
     if (!student) {
@@ -133,8 +143,13 @@ export const deleteStudentDetails = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
+    if (!userId) {
+      res.status(400).json({ error: "User ID is required" });
+      return;
+    }
+
     const existingStudent = await prisma.studentDetails.findUnique({
-      where: { id: userId },
+      where: { userId },
     });
 
     if (!existingStudent) {
@@ -142,9 +157,7 @@ export const deleteStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
-    await prisma.studentDetails.delete({
-      where: { id: userId },
-    });
+    await prisma.studentDetails.delete({ where: { userId } });
 
     res.status(200).json({ message: "Student details deleted successfully" });
   } catch (error) {

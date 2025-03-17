@@ -38,16 +38,30 @@ model OrganizationDetails {
 }
 
 model StudentDetails {
-  id            String @id @default(uuid())
-  userId        String @unique
-  user          User   @relation(fields: [userId], references: [id])
-  fatherName    String
-  motherName    String
-  tenthResult   String 
-  twelfthResult String 
-  incomeCert    String 
-  verified      Boolean @default(false)
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+
+  fullName          String   @default("")
+  dateOfBirth       DateTime @default(now())
+  gender            String   @default("Not Specified")
+  nationality       String   @default("Not Specified")
+  contactNumber     String   @default("")
+  address           String   @default("")
+  fatherName        String
+  motherName        String
+  scholarshipReason String   @default("")
+  careerGoals       String   @default("")
+  otherScholarships Boolean  @default(false)
+  tenthResult       String
+  twelfthResult     String
+  incomeCert        String
+  verified          Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
+
 
 
 model Fundraiser {
