@@ -1,31 +1,20 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
-import { z } from "zod";
+import { validateStudentData, validateStudentDataForUpdate } from "../utils/validation";
 import fs from "fs";
 import path from "path";
 
 const normalizePath = (path: string) => path.replace(/\\/g, "/");
 
-// Validation Schema
-const StudentDetailsSchema = z.object({
-  userId: z.string(),
-  fatherName: z.string().min(1),
-  motherName: z.string().min(1),
-  fullName: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  gender: z.string().optional(),
-  nationality: z.string().optional(),
-  contactNumber: z.string().optional(),
-  address: z.string().optional(),
-  scholarshipReason: z.string().optional(),
-  careerGoals: z.string().optional(),
-  otherScholarships: z.boolean().optional(),
-  verified: z.boolean().optional(),
-});
-
+// Create student details
 export const createStudentDetails = async (req: Request, res: Response) => {
   try {
-    console.log("Incoming request body:", req.body);
+    const validationResult = validateStudentData(req.body);
+    if (!validationResult.success) {
+      res.status(400).json({ errors: validationResult.error.format() });
+      return;
+    }
+
     const {
       userId,
       fullName,
@@ -39,37 +28,16 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       scholarshipReason,
       careerGoals,
       otherScholarships,
-    } = req.body;
+    } = validationResult.data;
 
-    // Validate input
-    const validation = StudentDetailsSchema.safeParse(req.body);
-    if (!validation.success) {
-      res.status(400).json({ error: validation.error.errors });
-      return;
-    }
-
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true },
     });
-
     if (!existingUser) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
-    // Check if student details already exist
-    const existingStudent = await prisma.studentDetails.findUnique({
-      where: { userId },
-    });
-
-    if (existingStudent) {
-      res.status(400).json({ error: "Student details already exist" });
-      return;
-    }
-
-    // Handle file uploads
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const tenthResult = files?.["tenthResult"]?.[0]?.path
       ? normalizePath(files["tenthResult"][0].path)
@@ -81,29 +49,25 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       ? normalizePath(files["incomeCert"][0].path)
       : "";
 
-    // Check what is being inserted
     const studentData = {
       userId,
       fullName,
-      dateOfBirth: new Date(dateOfBirth), // Ensure it's a valid Date object
+      dateOfBirth: new Date(dateOfBirth),
       gender,
-      nationality,
+      nationality: nationality ?? "",
       contactNumber,
       address,
-      fatherName,
-      motherName,
-      scholarshipReason,
-      careerGoals,
+      fatherName: fatherName ?? "",
+      motherName: motherName ?? "",
+      scholarshipReason: scholarshipReason ?? "",
+      careerGoals: careerGoals ?? "",
       otherScholarships,
       tenthResult,
       twelfthResult,
       incomeCert,
-      verified: false,
+      verified: true,
     };
 
-    console.log("Data being inserted into Prisma:", studentData);
-
-    // Insert into the database
     const student = await prisma.studentDetails.create({
       data: studentData,
     });
@@ -114,14 +78,14 @@ export const createStudentDetails = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error creating student details:", error);
     res.status(500).json({ error: "Failed to create student details" });
+    return;
   }
 };
 
-// Update Student Details
+// update students details
 export const updateStudentDetails = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    const { fatherName, motherName } = req.body;
+    const userId = req.params.userId;
 
     if (!userId) {
       res.status(400).json({ error: "User ID is required" });
@@ -137,19 +101,63 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
+    const validationResult = validateStudentDataForUpdate(req.body);
+    if (!validationResult.success) {
+      res.status(400).json({ errors: validationResult.error.format() });
+      return;
+    }
+
+    const {
+      fullName,
+      dateOfBirth,
+      gender,
+      nationality,
+      contactNumber,
+      address,
+      fatherName,
+      motherName,
+      scholarshipReason,
+      careerGoals,
+      otherScholarships,
+      verified,
+    } = validationResult.data;
+
     const files = req.files as
       | { [fieldname: string]: Express.Multer.File[] }
       | undefined;
+
     const updateData: Record<string, any> = {};
 
-    if (fatherName) updateData.fatherName = fatherName;
-    if (motherName) updateData.motherName = motherName;
-    if (files?.["tenthResult"]?.[0])
+    if (fullName !== undefined) updateData.fullName = fullName;
+    if (dateOfBirth !== undefined)
+      updateData.dateOfBirth = new Date(dateOfBirth);
+    if (gender !== undefined) updateData.gender = gender;
+    if (nationality !== undefined) updateData.nationality = nationality;
+    if (contactNumber !== undefined) updateData.contactNumber = contactNumber;
+    if (address !== undefined) updateData.address = address;
+    if (fatherName !== undefined) updateData.fatherName = fatherName;
+    if (motherName !== undefined) updateData.motherName = motherName;
+    if (scholarshipReason !== undefined)
+      updateData.scholarshipReason = scholarshipReason;
+    if (careerGoals !== undefined) updateData.careerGoals = careerGoals;
+    if (otherScholarships !== undefined)
+      updateData.otherScholarships = otherScholarships;
+    if (verified !== undefined) updateData.verified = verified;
+
+    if (files?.["tenthResult"]?.[0]) {
       updateData.tenthResult = normalizePath(files["tenthResult"][0].path);
-    if (files?.["twelfthResult"]?.[0])
+    }
+    if (files?.["twelfthResult"]?.[0]) {
       updateData.twelfthResult = normalizePath(files["twelfthResult"][0].path);
-    if (files?.["incomeCert"]?.[0])
+    }
+    if (files?.["incomeCert"]?.[0]) {
       updateData.incomeCert = normalizePath(files["incomeCert"][0].path);
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      res.status(400).json({ error: "No valid fields provided for update" });
+      return;
+    }
 
     const updatedStudent = await prisma.studentDetails.update({
       where: { userId },
@@ -163,6 +171,7 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error updating student details:", error);
     res.status(500).json({ error: "Failed to update student details" });
+    return;
   }
 };
 
@@ -212,7 +221,6 @@ export const deleteStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
-    // Delete associated files
     if (existingStudent.tenthResult) {
       fs.unlinkSync(path.join(__dirname, "..", existingStudent.tenthResult));
     }
