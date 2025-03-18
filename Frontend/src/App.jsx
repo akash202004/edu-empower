@@ -47,8 +47,9 @@ const App = () => {
           }
         />
         <Route path="/donar" element={<DonarPage/> } /> {/* Public Donor page */}
-        <Route path="/student" element={<Student />} /> {}
-        <Route path="/organization" element={<Organization />} /> {}
+        <Route path="/student" element={<Student />} />
+        <Route path="/Organization" element={<Organization />} />
+        
         {/* Protected Routes */}
         <Route path="/crowdfunding" element={<ProtectedRoute><CrowdFundingPage /></ProtectedRoute>} />
         <Route path="/crowdfunding2" element={<ProtectedRoute><CrowdFundingPage2 /></ProtectedRoute>} />
