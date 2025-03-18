@@ -14,6 +14,7 @@ import CrowdFundingPage2 from "./Component/CrowdFunding/CrowdFundingPage2";
 import CrowdFundingPage3 from "./Component/CrowdFunding/CrowdFundingPage3";
 import CrowdFundingPage4 from "./Component/CrowdFunding/CrowdFundingPage4";
 import DonarPage from "./Component/Donar/Donar";
+import Organization from "./Component/Organization/Organization";
 import Scholarshipapply from "./Component/Scholarship/Scholarshipapply";
 import ScholarshipapplyForm from "./Component/Scholarship/ScholarshipapplyForm";
 
@@ -46,8 +47,8 @@ const App = () => {
           }
         />
         <Route path="/donar" element={<DonarPage/> } /> {/* Public Donor page */}
-        <Route path="/student" element={<Student />} /> {/* Student page is now public */}
-
+        <Route path="/student" element={<Student />} /> {}
+        <Route path="/organization" element={<Organization />} /> {}
         {/* Protected Routes */}
         <Route path="/crowdfunding" element={<ProtectedRoute><CrowdFundingPage /></ProtectedRoute>} />
         <Route path="/crowdfunding2" element={<ProtectedRoute><CrowdFundingPage2 /></ProtectedRoute>} />

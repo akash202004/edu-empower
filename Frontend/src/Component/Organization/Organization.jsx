@@ -88,7 +88,7 @@ export default function Navbar() {
                       <MenuItem>
                         {({ active }) => (
                           <button
-                            onClick={() => navigate("/donar")}
+                            onClick={() => navigate("/donor")}
                             className={classNames(
                               active ? "bg-gray-100" : "",
                               "block px-4 py-2 text-sm text-gray-700 w-full text-left"
