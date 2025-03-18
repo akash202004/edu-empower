@@ -1,14 +1,35 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
+import { z } from "zod";
+import fs from "fs";
+import path from "path";
 
 const normalizePath = (path: string) => path.replace(/\\/g, "/");
 
-// Create Student Details
+// Validation Schema
+const StudentDetailsSchema = z.object({
+  userId: z.string().uuid(),
+  fatherName: z.string().min(1),
+  motherName: z.string().min(1),
+  fullName: z.string().optional(),
+  dateOfBirth: z.date().optional(),
+  gender: z.string().optional(),
+  nationality: z.string().optional(),
+  contactNumber: z.string().optional(),
+  address: z.string().optional(),
+  scholarshipReason: z.string().optional(),
+  careerGoals: z.string().optional(),
+  otherScholarships: z.boolean().optional(),
+  verified: z.boolean().optional(),
+});
+
 export const createStudentDetails = async (req: Request, res: Response) => {
   try {
     const { userId, fatherName, motherName } = req.body;
-    if (!userId || !fatherName || !motherName) {
-      res.status(400).json({ error: "Missing required fields" });
+
+    const validation = StudentDetailsSchema.safeParse(req.body);
+    if (!validation.success) {
+      res.status(400).json({ error: validation.error.errors });
       return;
     }
 
@@ -155,6 +176,17 @@ export const deleteStudentDetails = async (req: Request, res: Response) => {
     if (!existingStudent) {
       res.status(404).json({ error: "Student details not found" });
       return;
+    }
+
+    // Delete associated files
+    if (existingStudent.tenthResult) {
+      fs.unlinkSync(path.join(__dirname, "..", existingStudent.tenthResult));
+    }
+    if (existingStudent.twelfthResult) {
+      fs.unlinkSync(path.join(__dirname, "..", existingStudent.twelfthResult));
+    }
+    if (existingStudent.incomeCert) {
+      fs.unlinkSync(path.join(__dirname, "..", existingStudent.incomeCert));
     }
 
     await prisma.studentDetails.delete({ where: { userId } });
