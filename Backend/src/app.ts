@@ -9,24 +9,26 @@ import applicationRoutes from "./routes/applicationRoutes";
 import studentRoutes from "./routes/studentRoutes";
 import cors from "cors";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
 import express from "express";
 
 dotenv.config();
 const app = express();
 
 app.use(
-    cors({
-      origin: process.env.CORS_ORIGIN, 
-      methods: "GET,POST,PUT,DELETE",
-      credentials: true,
-    })
-  );
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
 
-app.use(express.urlencoded({ extended: true, limit: "16KB" }))
-app.use(express.json({ limit: "16KB" }))
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.json());
 
 app.get("/", (_, res) => {
-    res.send("🚀 Welcome to our API! The server is running successfully.");
+  res.send("🚀 Welcome to our API! The server is running successfully.");
 });
 
 app.use("/api/users", userRoutes);

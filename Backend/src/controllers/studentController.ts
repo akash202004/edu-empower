@@ -8,11 +8,11 @@ const normalizePath = (path: string) => path.replace(/\\/g, "/");
 
 // Validation Schema
 const StudentDetailsSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string(),
   fatherName: z.string().min(1),
   motherName: z.string().min(1),
   fullName: z.string().optional(),
-  dateOfBirth: z.date().optional(),
+  dateOfBirth: z.string().optional(),
   gender: z.string().optional(),
   nationality: z.string().optional(),
   contactNumber: z.string().optional(),
@@ -25,14 +25,30 @@ const StudentDetailsSchema = z.object({
 
 export const createStudentDetails = async (req: Request, res: Response) => {
   try {
-    const { userId, fatherName, motherName } = req.body;
+    console.log("Incoming request body:", req.body);
+    const {
+      userId,
+      fullName,
+      dateOfBirth,
+      gender,
+      nationality,
+      contactNumber,
+      address,
+      fatherName,
+      motherName,
+      scholarshipReason,
+      careerGoals,
+      otherScholarships,
+    } = req.body;
 
+    // Validate input
     const validation = StudentDetailsSchema.safeParse(req.body);
     if (!validation.success) {
       res.status(400).json({ error: validation.error.errors });
       return;
     }
 
+    // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
       select: { email: true },
@@ -43,6 +59,7 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
+    // Check if student details already exist
     const existingStudent = await prisma.studentDetails.findUnique({
       where: { userId },
     });
@@ -52,6 +69,7 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
+    // Handle file uploads
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const tenthResult = files?.["tenthResult"]?.[0]?.path
       ? normalizePath(files["tenthResult"][0].path)
@@ -63,15 +81,31 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       ? normalizePath(files["incomeCert"][0].path)
       : "";
 
+    // Check what is being inserted
+    const studentData = {
+      userId,
+      fullName,
+      dateOfBirth: new Date(dateOfBirth), // Ensure it's a valid Date object
+      gender,
+      nationality,
+      contactNumber,
+      address,
+      fatherName,
+      motherName,
+      scholarshipReason,
+      careerGoals,
+      otherScholarships,
+      tenthResult,
+      twelfthResult,
+      incomeCert,
+      verified: false,
+    };
+
+    console.log("Data being inserted into Prisma:", studentData);
+
+    // Insert into the database
     const student = await prisma.studentDetails.create({
-      data: {
-        userId,
-        fatherName,
-        motherName,
-        tenthResult,
-        twelfthResult,
-        incomeCert,
-      },
+      data: studentData,
     });
 
     res
