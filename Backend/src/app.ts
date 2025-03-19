@@ -38,7 +38,7 @@ app.use("/api/fundraiser", fundraiserRoutes);
 app.use("/api/donations", donationRoutes);
 app.use("/api/disbursements", disbursementRoutes);
 app.use("/api/organizations", organizationRoutes);
-app.use("/applications", applicationRoutes);
+app.use("/api/applications", applicationRoutes);
 app.use("/api/students", studentRoutes);
 
 const PORT = process.env.PORT || 5000;
