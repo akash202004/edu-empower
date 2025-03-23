@@ -1,10 +1,10 @@
 import { useUser } from "@clerk/clerk-react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const ScholarshipApplyForm = () => {
   const { isSignedIn, user } = useUser();
-  
+
   const [formData, setFormData] = useState({
     fullName: "",
     dateOfBirth: "",
@@ -17,37 +17,37 @@ const ScholarshipApplyForm = () => {
     scholarshipReason: "",
     careerGoals: "",
     otherScholarships: false,
-    tenthResult: null,  // File
-    twelfthResult: null, // File
-    incomeCert: null, // File
+    tenthResult: null, 
+    twelfthResult: null, 
+    incomeCert: null, 
     verified: false,
   });
 
   // Handle Input Change
   const handleChange = (e) => {
-    const { name, type, checked, files } = e.target;
+    const { name, type, checked, files, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "file" ? files[0] : type === "checkbox" ? checked : e.target.value,
+      [name]: type === "file" ? files[0] : type === "checkbox" ? checked : value,
     });
   };
 
-  // Function to Upload File to Cloudinary
+  // Upload File to Cloudinary
   const uploadToCloudinary = async (file) => {
-    if (!file) return null; // Skip if no file selected
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "Eduempower"); // Set in Cloudinary
+    if (!file) return null;
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+    uploadData.append("upload_preset", "Eduempower");
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/pahari/raw/upload`, 
-        formData
+        "https://api.cloudinary.com/v1_1/pahari/raw/upload",
+        uploadData
       );
-      return response.data.secure_url; // URL of uploaded file
+      console.log(`Uploaded ${file.name}:`, response.data.secure_url);
+      return response.data.secure_url;
     } catch (error) {
-      console.error("Error uploading file to Cloudinary:", error);
+      console.error(`Error uploading ${file.name}:`, error.response?.data || error);
       return null;
     }
   };
@@ -62,32 +62,44 @@ const ScholarshipApplyForm = () => {
     }
 
     try {
-      // Upload files to Cloudinary
-      const tenthResultUrl = await uploadToCloudinary(formData.tenthResult);
-      const twelfthResultUrl = await uploadToCloudinary(formData.twelfthResult);
-      const incomeCertUrl = await uploadToCloudinary(formData.incomeCert);
+      console.log("Uploading files to Cloudinary...");
 
-      // Ensure all uploads succeeded
+      const [tenthResultUrl, twelfthResultUrl, incomeCertUrl] = await Promise.all([
+        uploadToCloudinary(formData.tenthResult),
+        uploadToCloudinary(formData.twelfthResult),
+        uploadToCloudinary(formData.incomeCert),
+      ]);
+
       if (!tenthResultUrl || !twelfthResultUrl || !incomeCertUrl) {
         alert("File upload failed. Please try again.");
         return;
       }
 
-      // Prepare Data for Submission
       const submissionData = {
-        ...formData,
+        fullName: formData.fullName,
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
+        nationality: formData.nationality,
+        contactNumber: String(formData.contactNumber),
+        address: formData.address,
+        fatherName: formData.fatherName,
+        motherName: formData.motherName,
+        scholarshipReason: formData.scholarshipReason,
+        careerGoals: formData.careerGoals,
+        otherScholarships: formData.otherScholarships,
         tenthResult: tenthResultUrl,
         twelfthResult: twelfthResultUrl,
         incomeCert: incomeCertUrl,
       };
 
-      // Send Data to Backend API
+      console.log("Submitting data to backend:", submissionData);
+
       const response = await axios.post("http://localhost:3000/api/students", submissionData);
       console.log("Form submitted successfully:", response.data);
 
       alert("Application submitted successfully!");
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error submitting form:", error.response?.data || error);
       alert("Failed to submit the application. Please try again.");
     }
   };
@@ -120,22 +132,22 @@ const ScholarshipApplyForm = () => {
           </select>
         </div>
 
+        {/* Nationality */}
+        <div>
+          <label className="block font-medium">Nationality</label>
+          <input type="text" name="nationality" value={formData.nationality} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"/>
+        </div>
+
+        {/* Contact */}
+        <div>
+          <label className="block font-medium">Mobile No</label>
+          <input type="number" name="contactNumber" value={formData.contactNumber} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"/>
+        </div>
+
         {/* Address */}
         <div className="col-span-2">
           <label className="block font-medium">Address</label>
           <textarea name="address" value={formData.address} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"/>
-        </div>
-
-        {/* Father's Name */}
-        <div>
-          <label className="block font-medium">Father's Name</label>
-          <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"/>
-        </div>
-
-        {/* Mother's Name */}
-        <div>
-          <label className="block font-medium">Mother's Name</label>
-          <input type="text" name="motherName" value={formData.motherName} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"/>
         </div>
 
         {/* File Uploads */}

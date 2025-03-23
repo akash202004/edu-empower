@@ -1,4 +1,19 @@
+import React, { useState, useEffect } from "react";
+import {
+    SignInButton,
+    SignedIn,
+    SignedOut,
+    UserButton,
+    useUser,
+} from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
+
+const navigation = [
+    { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
+    { name: "Scholarship", path: "/scholarship", authRequired: true },
+    { name: "Donation", path: "/donation", authRequired: false },
+];
 
 const scholarships = [
   {
@@ -26,6 +41,15 @@ const scholarships = [
 
 
 export default function ScholarshipHero() {
+  const { isSignedIn } = useUser();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isSignedIn) {
+          navigate("/scholarship/apply/form"); // Redirect if already signed in
+        }
+      }, [isSignedIn, navigate]);
+
   return (
     <div className="scholarship-hero-wrapper">
       <main className="flex flex-col lg:flex-row items-center justify-center max-w-6xl mx-auto px-6 py-16 lg:py-24 gap-12">
@@ -37,9 +61,14 @@ export default function ScholarshipHero() {
           <p className="mt-4 text-lg text-gray-600">
             New scholarships published daily and matched to you, increasing your chances of winning.
           </p>
-          <button className="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-lg">
+          <SignedOut>
+            <SignInButton mode="modal" redirectUrl="/">
+            <button className="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-lg">
             Apply for scholarships
           </button>
+            </SignInButton>
+          </SignedOut>
+          
           <p className="mt-2 text-sm text-gray-500">0% spam. 100% free.</p>
 
           {/* Universities Section */}

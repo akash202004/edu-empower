@@ -20,7 +20,7 @@ const DonarPage = () => {
 
   useEffect(() => {
     if (isSignedIn) {
-      navigate("/donar"); // Redirect if already signed in
+      navigate("/donation"); // Redirect if already signed in
     }
   }, [isSignedIn, navigate]);
 
