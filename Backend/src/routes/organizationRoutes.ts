@@ -1,12 +1,13 @@
-import express from "express";
-import {
-  getOrganizationDetails,
-  updateOrganizationVerification,
-} from "../controllers/organizationController";
+import express from "express"
+import { createOrganizationDetails, deleteOrganizationDetails, getOrganizationDetails, updateOrganizationDetails } from "../controllers/organizationController";
+
 
 const router = express.Router();
 
-router.get("/:userId", getOrganizationDetails);
-router.put("/:userId/verify", updateOrganizationVerification);
+// Routes
+router.post("/", createOrganizationDetails);
+router.get("/:id", getOrganizationDetails);
+router.put("/:id", updateOrganizationDetails);
+router.delete("/:id", deleteOrganizationDetails);
 
-export default router;
+module.exports = router;
