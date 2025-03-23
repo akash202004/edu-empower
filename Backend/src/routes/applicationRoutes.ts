@@ -10,7 +10,7 @@ import { verifyUser } from "../middlewares/verifyUser";
 
 const router = express.Router();
 
-router.post("/", createApplication);
+router.post("/", verifyUser, createApplication);
 router.get("/", getAllApplications);
 router.get("/:id", getApplicationById);
 router.patch("/:id", updateApplicationStatus);

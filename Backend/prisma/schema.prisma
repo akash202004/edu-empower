@@ -30,11 +30,22 @@ enum Role {
 }
 
 model OrganizationDetails {
-  id            String @id @default(uuid())
-  userId        String @unique  
-  user          User   @relation(fields: [userId], references: [id])
-  documentURL   String 
-  verified      Boolean @default(false)
+  id             String  @id @default(uuid())
+  userId         String  @unique  
+  user           User    @relation(fields: [userId], references: [id])
+  
+  organizationName String
+  registrationNumber String
+  contactPerson  String
+  contactEmail   String
+  contactNumber  String
+  address        String
+  websiteURL     String?
+  
+  documentURL    String  
+  verified       Boolean @default(false)  
+  verifiedAt     DateTime?  
+  createdAt      DateTime @default(now())
 }
 
 model StudentDetails {

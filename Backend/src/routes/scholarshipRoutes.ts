@@ -12,8 +12,8 @@ const router = express.Router();
 
 router.get("/", getScholarships);
 router.get("/:id", getScholarshipById);
-router.post("/", verifyUser, createScholarship); 
-router.put("/:id", updateScholarship);
+router.post("/", createScholarship); 
+router.put("/:id",verifyUser, updateScholarship);
 router.delete("/:id", deleteScholarship);
 
 export default router;

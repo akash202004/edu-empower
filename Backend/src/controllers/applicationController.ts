@@ -18,7 +18,11 @@ export const createApplication = async (req: Request, res: Response) => {
 // Get All Applications
 export const getAllApplications = async (_req: Request, res: Response) => {
   try {
-    const applications = await prisma.application.findMany();
+    const applications = await prisma.application.findMany({
+      include: {
+        student: true
+      }
+    });
     res.status(200).json(applications);
   } catch (error) {
     console.error("Error fetching applications:", error);
