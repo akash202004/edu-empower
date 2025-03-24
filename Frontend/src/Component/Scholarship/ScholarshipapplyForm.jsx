@@ -3,10 +3,17 @@ import axios from "axios";
 import { useState } from "react";
 import { FiUpload, FiCheck, FiInfo, FiCalendar, FiUser, FiPhone, FiHome, FiUsers, FiFileText, FiMail } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+// Add these imports at the top of the file
+import { useLocation } from "react-router-dom";
 
 const ScholarshipApplyForm = () => {
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get scholarship info from location state
+  const scholarshipId = location.state?.scholarshipId;
+  const scholarshipTitle = location.state?.scholarshipTitle || "Scholarship";
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -181,13 +188,14 @@ const ScholarshipApplyForm = () => {
     </div>
   );
 
+  // Update the form header to include scholarship title
   return (
     <div className="min-h-screen bg-gray-50 py-16 px-4 sm:px-8 lg:px-12">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 py-8 px-10">
-          <h1 className="text-3xl font-bold text-white">Scholarship Application Form</h1>
+          <h1 className="text-3xl font-bold text-white">Application for {scholarshipTitle}</h1>
           <p className="text-indigo-100 mt-3 text-lg">
-            Complete the form below to apply for our scholarship program
+            Complete the form below to apply for this scholarship program
           </p>
         </div>
 
@@ -307,7 +315,7 @@ const ScholarshipApplyForm = () => {
                   placeholder="Enter your complete address"
                 ></textarea>
               </div>
-              
+               
               <div className="md:col-span-2">
                 <label className="block text-gray-700 font-medium mb-3 flex items-center">
                   <FiUser className="mr-2 text-indigo-600" />

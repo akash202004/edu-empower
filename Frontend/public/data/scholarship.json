@@ -1,157 +1,174 @@
 [
-    {
-      "id": 1,
-      "title": "Future Leaders Scholarship",
-      "fundedBy": "GlobalEd Foundation",
-      "amount": "$10,000",
-      "educationLevel": "Undergraduate",
-      "scholarshipsAwarded": "3 winners",
-      "deadline": "May 15, 2025",
-      "description": "For students demonstrating exceptional leadership skills in their communities.",
-      "sponsored": true
-    },
-    {
-      "id": 2,
-      "title": "Women in Tech Scholarship",
-      "fundedBy": "Tech4Her Initiative",
-      "amount": "$8,000",
-      "educationLevel": "Graduate",
-      "scholarshipsAwarded": "5 winners",
-      "deadline": "April 30, 2025",
-      "description": "Supports women pursuing careers in technology and computer science.",
-      "sponsored": true
-    },
-    {
-      "id": 3,
-      "title": "STEM Excellence Grant",
-      "fundedBy": "TechAdvance",
-      "amount": "$10,000",
-      "educationLevel": "Graduate",
-      "scholarshipsAwarded": "2 winners",
-      "deadline": "June 10, 2025",
-      "description": "Aimed at students pursuing careers in STEM, the TechAdvance grant provides financial assistance to outstanding applicants.",
-      "sponsored": false
-    },
-    {
-      "id": 4,
-      "title": "Medical Scholars Fund",
-      "fundedBy": "HealthCare Trust",
-      "amount": "$12,000",
-      "educationLevel": "Medical School",
-      "scholarshipsAwarded": "3 winners",
-      "deadline": "July 1, 2025",
-      "description": "Supports students in medical school with financial needs.",
-      "sponsored": true
-    },
-    {
-      "id": 5,
-      "title": "Creative Arts Fellowship",
-      "fundedBy": "Artisan Collective",
-      "amount": "$7,500",
-      "educationLevel": "Any",
-      "scholarshipsAwarded": "5 winners",
-      "deadline": "September 15, 2025",
-      "description": "Grants for students excelling in fine arts, music, and performing arts.",
-      "sponsored": false
-    },
-    {
-      "id": 6,
-      "title": "AI Innovators Award",
-      "fundedBy": "AI Future Fund",
-      "amount": "$15,000",
-      "educationLevel": "Graduate",
-      "scholarshipsAwarded": "1 winner",
-      "deadline": "August 20, 2025",
-      "description": "Encourages research and innovation in artificial intelligence.",
-      "sponsored": true
-    },
-    {
-      "id": 7,
-      "title": "Social Impact Scholarship",
-      "fundedBy": "ChangeMakers Foundation",
-      "amount": "$6,000",
-      "educationLevel": "Undergraduate",
-      "scholarshipsAwarded": "10 winners",
-      "deadline": "October 5, 2025",
-      "description": "For students actively working on social impact projects.",
-      "sponsored": false
-    },
-    {
-      "id": 8,
-      "title": "Business Leaders Award",
-      "fundedBy": "Corporate Success Initiative",
-      "amount": "$9,000",
-      "educationLevel": "MBA",
-      "scholarshipsAwarded": "4 winners",
-      "deadline": "November 12, 2025",
-      "description": "For aspiring business leaders enrolled in MBA programs.",
-      "sponsored": true
-    },
-    {
-      "id": 9,
-      "title": "Green Future Grant",
-      "fundedBy": "EcoConscious Foundation",
-      "amount": "$4,000",
-      "educationLevel": "Any",
-      "scholarshipsAwarded": "8 winners",
-      "deadline": "March 1, 2025",
-      "description": "Supports students passionate about environmental conservation.",
-      "sponsored": false
-    },
-    {
-      "id": 10,
-      "title": "Coding for Change",
-      "fundedBy": "CodeImpact",
-      "amount": "$7,000",
-      "educationLevel": "Undergraduate",
-      "scholarshipsAwarded": "6 winners",
-      "deadline": "May 20, 2025",
-      "description": "For students using coding skills to drive social change.",
-      "sponsored": true
-    },
-    {
-      "id": 11,
-      "title": "First-Gen College Fund",
-      "fundedBy": "BrightPath Foundation",
-      "amount": "$5,500",
-      "educationLevel": "Undergraduate",
-      "scholarshipsAwarded": "10 winners",
-      "deadline": "June 30, 2025",
-      "description": "For first-generation college students needing financial aid.",
-      "sponsored": false
-    },
-    {
-      "id": 12,
-      "title": "AI Ethics Research Grant",
-      "fundedBy": "AI Ethics Alliance",
-      "amount": "$12,000",
-      "educationLevel": "Graduate",
-      "scholarshipsAwarded": "3 winners",
-      "deadline": "December 1, 2025",
-      "description": "Supports research on the ethical implications of AI.",
-      "sponsored": true
-    },
-    {
-      "id": 13,
-      "title": "Women in Business Fund",
-      "fundedBy": "SheLeads Initiative",
-      "amount": "$8,500",
-      "educationLevel": "MBA",
-      "scholarshipsAwarded": "5 winners",
-      "deadline": "July 10, 2025",
-      "description": "Financial aid for women in business schools.",
-      "sponsored": true
-    },
-    {
-      "id": 14,
-      "title": "Future Engineers Scholarship",
-      "fundedBy": "Engineering Futures Fund",
-      "amount": "$6,500",
-      "educationLevel": "Undergraduate",
-      "scholarshipsAwarded": "4 winners",
-      "deadline": "September 25, 2025",
-      "description": "For students pursuing engineering degrees.",
-      "sponsored": false
-    }
-  ]
+  {
+    "id": "sch001",
+    "title": "Merit Excellence Scholarship",
+    "description": "A prestigious scholarship for academically outstanding students who have demonstrated exceptional performance in their studies.",
+    "amount": "₹50,000 per year",
+    "educationLevel": "Undergraduate",
+    "deadline": "August 30, 2023",
+    "fundedBy": "Edu-Empower Foundation",
+    "scholarshipsAwarded": "10 scholarships awarded annually",
+    "eligibility": "Minimum 85% in 12th standard",
+    "sponsored": true,
+    "requirements": [
+      "Academic transcripts",
+      "Letter of recommendation",
+      "Personal statement"
+    ]
+  },
+  {
+    "id": "sch002",
+    "title": "Women in STEM Scholarship",
+    "description": "Supporting female students pursuing degrees in Science, Technology, Engineering, and Mathematics to promote gender diversity in these fields.",
+    "amount": "₹75,000 per year",
+    "educationLevel": "Undergraduate",
+    "deadline": "September 15, 2023",
+    "fundedBy": "TechForAll Initiative",
+    "scholarshipsAwarded": "5 scholarships awarded annually",
+    "eligibility": "Female students pursuing STEM degrees",
+    "sponsored": true,
+    "requirements": [
+      "Academic transcripts",
+      "Essay on career goals in STEM",
+      "Proof of admission in STEM program"
+    ]
+  },
+  {
+    "id": "sch003",
+    "title": "Rural Development Scholarship",
+    "description": "Designed to support students from rural areas who wish to pursue higher education and contribute to the development of their communities.",
+    "amount": "₹40,000 per year",
+    "educationLevel": "Any Level",
+    "deadline": "October 5, 2023",
+    "fundedBy": "Rural Empowerment Trust",
+    "scholarshipsAwarded": "15 scholarships awarded annually",
+    "eligibility": "Students from designated rural areas",
+    "sponsored": false,
+    "requirements": [
+      "Domicile certificate",
+      "Income certificate",
+      "Academic records"
+    ]
+  },
+  {
+    "id": "sch004",
+    "title": "First-Generation College Student Scholarship",
+    "description": "Supporting students who are the first in their families to attend college, helping to break the cycle and create new opportunities.",
+    "amount": "₹60,000 per year",
+    "educationLevel": "Undergraduate",
+    "deadline": "September 30, 2023",
+    "fundedBy": "Education Access Foundation",
+    "scholarshipsAwarded": "8 scholarships awarded annually",
+    "eligibility": "First-generation college students",
+    "sponsored": false,
+    "requirements": [
+      "Proof of first-generation status",
+      "Academic transcripts",
+      "Personal essay"
+    ]
+  },
+  {
+    "id": "sch005",
+    "title": "Future Leaders MBA Scholarship",
+    "description": "Aimed at promising business professionals seeking to enhance their leadership skills through an MBA program.",
+    "amount": "₹1,00,000 per year",
+    "educationLevel": "MBA",
+    "deadline": "November 15, 2023",
+    "fundedBy": "Business Leadership Council",
+    "scholarshipsAwarded": "3 scholarships awarded annually",
+    "eligibility": "Minimum 2 years work experience, GMAT score above 650",
+    "sponsored": true,
+    "requirements": [
+      "Resume/CV",
+      "GMAT scores",
+      "Leadership essay",
+      "Professional recommendations"
+    ]
+  },
+  {
+    "id": "sch006",
+    "title": "Creative Arts Scholarship",
+    "description": "Supporting talented students in visual arts, performing arts, music, and creative writing to pursue their artistic passions.",
+    "amount": "₹45,000 per year",
+    "educationLevel": "Undergraduate",
+    "deadline": "October 20, 2023",
+    "fundedBy": "National Arts Foundation",
+    "scholarshipsAwarded": "6 scholarships awarded annually",
+    "eligibility": "Students pursuing degrees in creative arts",
+    "sponsored": false,
+    "requirements": [
+      "Portfolio submission",
+      "Artist statement",
+      "Academic transcripts"
+    ]
+  },
+  {
+    "id": "sch007",
+    "title": "Environmental Studies Scholarship",
+    "description": "For students committed to environmental conservation and sustainability who are pursuing related fields of study.",
+    "amount": "₹55,000 per year",
+    "educationLevel": "Graduate",
+    "deadline": "September 25, 2023",
+    "fundedBy": "Green Earth Initiative",
+    "scholarshipsAwarded": "4 scholarships awarded annually",
+    "eligibility": "Students in environmental science, conservation, or related fields",
+    "sponsored": true,
+    "requirements": [
+      "Research proposal",
+      "Academic transcripts",
+      "Letter of recommendation"
+    ]
+  },
+  {
+    "id": "sch008",
+    "title": "Community Service Scholarship",
+    "description": "Recognizing students who have demonstrated exceptional commitment to community service and volunteerism.",
+    "amount": "₹35,000 per year",
+    "educationLevel": "Any Level",
+    "deadline": "October 10, 2023",
+    "fundedBy": "Community Outreach Alliance",
+    "scholarshipsAwarded": "10 scholarships awarded annually",
+    "eligibility": "Minimum 200 hours of documented community service",
+    "sponsored": false,
+    "requirements": [
+      "Service verification forms",
+      "Essay on community impact",
+      "Academic transcripts"
+    ]
+  },
+  {
+    "id": "sch009",
+    "title": "Healthcare Professionals Scholarship",
+    "description": "Supporting students pursuing careers in healthcare fields including medicine, nursing, pharmacy, and allied health professions.",
+    "amount": "₹80,000 per year",
+    "educationLevel": "Graduate",
+    "deadline": "November 5, 2023",
+    "fundedBy": "National Healthcare Association",
+    "scholarshipsAwarded": "7 scholarships awarded annually",
+    "eligibility": "Students admitted to accredited healthcare programs",
+    "sponsored": true,
+    "requirements": [
+      "Academic transcripts",
+      "Personal statement",
+      "Proof of program admission"
+    ]
+  },
+  {
+    "id": "sch010",
+    "title": "Technology Innovation Scholarship",
+    "description": "For students with innovative ideas and projects in technology who demonstrate exceptional creativity and problem-solving skills.",
+    "amount": "₹70,000 per year",
+    "educationLevel": "Undergraduate",
+    "deadline": "October 15, 2023",
+    "fundedBy": "Tech Innovators Foundation",
+    "scholarshipsAwarded": "5 scholarships awarded annually",
+    "eligibility": "Students with demonstrated technology projects or innovations",
+    "sponsored": true,
+    "requirements": [
+      "Project portfolio",
+      "Innovation description",
+      "Academic transcripts"
+    ]
+  }
+]
   
