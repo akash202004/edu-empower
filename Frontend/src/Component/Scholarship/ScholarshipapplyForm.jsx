@@ -69,7 +69,7 @@ const ScholarshipApplyForm = () => {
 
     try {
       const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/pahari/upload",
+        "https://api.cloudinary.com/v1_1/pahari/raw/upload",
         formDataForUpload,
         {
           onUploadProgress: (progressEvent) => {
