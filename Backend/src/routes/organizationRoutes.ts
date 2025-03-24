@@ -10,4 +10,4 @@ router.get("/:id", getOrganizationDetails);
 router.put("/:id", updateOrganizationDetails);
 router.delete("/:id", deleteOrganizationDetails);
 
-module.exports = router;
+export default router;

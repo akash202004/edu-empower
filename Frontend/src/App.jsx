@@ -17,6 +17,7 @@ import DonarPage from "./Component/Donar/Donar";
 import Organization from "./Component/Organization/Organization";
 import Scholarshipapply from "./Component/Scholarship/Scholarshipapply";
 import ScholarshipapplyForm from "./Component/Scholarship/ScholarshipapplyForm";
+import ApplicationSuccess from "./Component/Scholarship/ApplicationSuccess";
 
 const ProtectedRoute = ({ children }) => {
   return (
@@ -29,12 +30,11 @@ const ProtectedRoute = ({ children }) => {
   );
 };
 
-const App = () => {
+function App() {
   return (
     <div>
       <Navbar />
       <Routes>
-        {/* Public Routes */}
         <Route
           path="/"
           element={
@@ -58,6 +58,7 @@ const App = () => {
         <Route path="/scholarship" element={<ProtectedRoute><ScholarshipPage /></ProtectedRoute>} />
         <Route path="/scholarship/apply" element={<ProtectedRoute><Scholarshipapply /></ProtectedRoute>} />
         <Route path="/scholarship/apply/form" element={<ProtectedRoute><ScholarshipapplyForm /></ProtectedRoute>} />
+        <Route path="/scholarship/application-success" element={<ProtectedRoute><ApplicationSuccess /></ProtectedRoute>} />
         <Route path="/organizationdashboard" element={<ProtectedRoute><Organizationdashboard /></ProtectedRoute>} />
         <Route path="/donation" element={<ProtectedRoute><h1 className="text-center text-3xl font-bold mt-10">Donation Page</h1></ProtectedRoute>} />
 
@@ -66,6 +67,6 @@ const App = () => {
       </Routes>
     </div>
   );
-};
+}
 
 export default App;
