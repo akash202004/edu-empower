@@ -4,35 +4,15 @@ import { useUser } from "@clerk/clerk-react";
 import { FiUpload, FiUser, FiCalendar, FiPhone, FiMail, FiHome } from "react-icons/fi";
 
 const StudentDetailsForm = () => {
-  // Near the top of your component:
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
-  
-  // Add this effect to redirect unauthenticated users
+
   useEffect(() => {
     if (!isSignedIn) {
       navigate("/auth/login");
     }
   }, [isSignedIn, navigate]);
-  
-  // Check if we have saved data in localStorage
-  useEffect(() => {
-    const savedData = localStorage.getItem('studentProfileData');
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        // Merge saved data with current user data from Clerk
-        setFormData({
-          ...parsedData,
-          name: user?.fullName || parsedData.name,
-          email: user?.primaryEmailAddress?.emailAddress || parsedData.email,
-        });
-      } catch (error) {
-        console.error("Error parsing saved profile data:", error);
-      }
-    }
-  }, [user]);
-  
+
   const [formData, setFormData] = useState({
     name: user?.fullName || "",
     dob: "",
@@ -52,51 +32,61 @@ const StudentDetailsForm = () => {
       incomeCertificate: null,
       marksheet10: null,
       marksheet12: null,
-    }
+    },
   });
 
   const [errors, setErrors] = useState({});
 
+  useEffect(() => {
+    const savedData = localStorage.getItem("studentProfileData");
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setFormData({
+          ...parsedData,
+          name: user?.fullName || parsedData.name,
+          email: user?.primaryEmailAddress?.emailAddress || parsedData.email,
+        });
+      } catch (error) {
+        console.error("Error parsing saved profile data:", error);
+      }
+    }
+  }, [user]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       documents: {
-        ...formData.documents,
-        [name]: files[0]
-      }
-    });
+        ...prev.documents,
+        [name]: files[0],
+      },
+    }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name) newErrors.name = "Name is required";
     if (!formData.dob) newErrors.dob = "Date of Birth is required";
     if (!formData.contactNumber) newErrors.contactNumber = "Contact number is required";
     if (!formData.address) newErrors.address = "Address is required";
     if (!formData.email) newErrors.email = "Email is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
-    
-    // Check required documents
-    const requiredDocs = [
-      "domicileCertificate", 
-      "incomeCertificate", 
-      "marksheet10", 
-      "marksheet12"
-    ];
-    
-    requiredDocs.forEach(doc => {
+
+    // Required documents
+    const requiredDocs = ["domicileCertificate", "incomeCertificate", "marksheet10", "marksheet12"];
+    requiredDocs.forEach((doc) => {
       if (!formData.documents[doc]) {
-        newErrors[doc] = `${doc.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required`;
+        newErrors[doc] = `${doc.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())} is required`;
       }
     });
 
@@ -104,29 +94,48 @@ const StudentDetailsForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      // Save the form data to localStorage
-      const dataToSave = {
-        ...formData,
-        // Remove actual file objects as they can't be stored in localStorage
-        documents: {
-          domicileCertificate: formData.documents.domicileCertificate ? true : null,
-          incomeCertificate: formData.documents.incomeCertificate ? true : null,
-          marksheet10: formData.documents.marksheet10 ? true : null,
-          marksheet12: formData.documents.marksheet12 ? true : null,
-        }
-      };
-      
-      localStorage.setItem('studentProfileData', JSON.stringify(dataToSave));
-      console.log("Form submitted and saved to localStorage:", dataToSave);
-      
-      // Navigate to the scholarship page
-      navigate("/scholarship");
-    } else {
+
+    if (!validateForm()) {
       console.log("Form has errors");
+      return;
+    }
+
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "documents") {
+        Object.entries(value).forEach(([docKey, docValue]) => {
+          if (docValue) data.append(docKey, docValue);
+        });
+      } else {
+        data.append(key, value);
+      }
+    });
+
+    try {
+      const response = await fetch("http://localhost:3000/api/students", {
+        method: "POST",
+        body: data,
+      });
+      console.log(formData);
+
+      if (!response.ok) {
+        throw new Error("Failed to submit data");
+      }
+
+      const result = await response.json();
+      console.log("Success:", result);
+      alert("Profile submitted successfully!");
+
+      // Clear local storage after successful submission
+      localStorage.removeItem("studentProfileData");
+
+      // Redirect to the scholarship page
+      navigate("/scholarship");
+    } catch (error) {
+      console.error("Error submitting profile:", error);
+      alert("Failed to submit profile. Please try again.");
     }
   };
 
