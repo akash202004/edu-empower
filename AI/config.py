@@ -1,22 +1,15 @@
-import requests
 import os
+from dotenv import load_dotenv
+import cloudinary
 
-# Backend API URL
-BACKEND_API = "http://localhost:5000/api/cloudinary-config"
+# Load environment variables
+load_dotenv()
 
-def fetch_cloudinary_config():
-    """Fetch Cloudinary credentials from backend"""
-    try:
-        response = requests.get(BACKEND_API)
-        if response.status_code == 200:
-            data = response.json()
-            os.environ["CLOUDINARY_CLOUD_NAME"] = data["cloud_name"]
-            os.environ["CLOUDINARY_API_KEY"] = data["api_key"]
-            os.environ["CLOUDINARY_API_SECRET"] = data["api_secret"]
-        else:
-            print("⚠️ Error: Failed to fetch Cloudinary config")
-    except requests.exceptions.RequestException as e:
-        print(f"⚠️ Request error: {e}")
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
 
-# Call the function to load credentials
-fetch_cloudinary_config()
+print("✅ Cloudinary Config Loaded in AI Module")
