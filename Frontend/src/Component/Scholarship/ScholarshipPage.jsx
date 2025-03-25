@@ -41,10 +41,14 @@ const ScholarshipPage = () => {
   useEffect(() => {
     const fetchScholarships = async () => {
       try {
+        console.log("Attempting to fetch scholarships...");
         const response = await fetch("/data/scholarship.json");
+        console.log("Fetch response:", response);
+        
         if (!response.ok) {
           throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
         }
+        
         const data = await response.json();
         console.log("Fetched scholarships:", data);
         setScholarships(data);
@@ -84,13 +88,10 @@ const ScholarshipPage = () => {
 
   // Handle apply button click
   const handleApplyClick = (scholarshipId) => {
-    if (isSignedIn) {
-      // Navigate to the application form with the scholarship ID
-      navigate(`/scholarship/apply`, { state: { scholarshipId } });
-    } else {
-      // Redirect to sign in
-      navigate("/sign-in", { state: { returnTo: "/scholarship" } });
-    }
+    console.log("Navigating to details with ID:", scholarshipId);
+    navigate("/scholarship/details", { 
+      state: { scholarshipId: scholarshipId } 
+    });
   };
 
   // Reset all filters
@@ -353,9 +354,8 @@ const ScholarshipPage = () => {
                   <div className="mt-6">
                     <button
                       onClick={() => handleApplyClick(scholarship.id)}
-                      className="w-full inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                      className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition duration-300"
                     >
-                      <FiCheckCircle className="mr-2 -ml-1 h-4 w-4" />
                       Apply Now
                     </button>
                   </div>

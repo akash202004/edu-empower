@@ -1,80 +1,115 @@
-import React, { useState } from 'react';
-import { Users, Handshake, Heart } from 'lucide-react';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { FiMail, FiPhone, FiMapPin, FiFacebook, FiTwitter, FiInstagram, FiLinkedin } from 'react-icons/fi';
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle subscription logic here
-  };
-
   return (
-    <footer className="py-6 md:py-12">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Footer Content */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Logo Section */}
-          <div>
-            <h2 className="text-xl font-bold mb-4">Edu-Empower</h2>
-            <div className="flex gap-4">
-              <Users className="w-6 h-6" />
-              <Handshake className="w-6 h-6" />
-              <Heart className="w-6 h-6" />
+    <footer className="bg-gray-900 text-white">
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Logo and Description */}
+          <div className="col-span-1 md:col-span-1">
+            <Link to="/" className="flex items-center">
+              <img className="h-8 w-auto" src="/logo.png" alt="Edu-Empower" />
+              <span className="ml-2 text-xl font-bold text-white">Edu-Empower</span>
+            </Link>
+            <p className="mt-4 text-gray-400">
+              Empowering students through scholarships, crowdfunding, and community support.
+            </p>
+            <div className="mt-6 flex space-x-4">
+              <a href="#" className="text-gray-400 hover:text-white">
+                <FiFacebook className="h-6 w-6" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white">
+                <FiTwitter className="h-6 w-6" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white">
+                <FiInstagram className="h-6 w-6" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white">
+                <FiLinkedin className="h-6 w-6" />
+              </a>
             </div>
           </div>
 
-          {/* Peer Support Section */}
+          {/* Quick Links */}
           <div>
-            <h3 className="font-semibold mb-4">Peer Support</h3>
-            <ul className="space-y-2 text-gray-600">
-              <li>Support Groups & Skill</li>
-              <li>Volunteer Opportunities</li>
-              <li>How-to Guides &</li>
+            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Quick Links</h3>
+            <ul className="mt-4 space-y-2">
+              <li>
+                <Link to="/scholarship" className="text-gray-400 hover:text-white">
+                  Scholarships
+                </Link>
+              </li>
+              <li>
+                <Link to="/crowdfunding" className="text-gray-400 hover:text-white">
+                  Crowdfunding
+                </Link>
+              </li>
+              <li>
+                <Link to="/resources" className="text-gray-400 hover:text-white">
+                  Resources
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="text-gray-400 hover:text-white">
+                  About Us
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Skill-Sharing Section */}
+          {/* Support */}
           <div>
-            <h3 className="font-semibold mb-4">Skill-Sharing</h3>
-            <ul className="space-y-2 text-gray-600">
-              <li>Mental Health Support</li>
-              <li>FAQ & Customer</li>
-              <li>Subscription Options</li>
+            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Support</h3>
+            <ul className="mt-4 space-y-2">
+              <li>
+                <Link to="/faq" className="text-gray-400 hover:text-white">
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-gray-400 hover:text-white">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="text-gray-400 hover:text-white">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-gray-400 hover:text-white">
+                  Terms of Service
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Mental Health Section with Email Subscription */}
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-semibold mb-4">Mental Health</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href="mailto:help@edufundconnect" className="text-gray-600">
-                    help@edufundconnect
-                  </a>
-                </li>
-                <li className="text-gray-600">+123 456 789 000</li>
-              </ul>
-            </div>
-            
-            {/* Email Subscription */}
-            <div className="flex flex-col gap-3">
-              <input
-                type="email"
-                placeholder="Enter Your Email Here"
-                className="px-4 py-2 border rounded-md w-full text-gray-600 focus:outline-none focus:border-gray-400"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <button
-                className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors w-full"
-                onClick={handleSubmit}
-              >
-                Subscribe Now
-              </button>
-            </div>
+          {/* Contact */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Contact Us</h3>
+            <ul className="mt-4 space-y-2">
+              <li className="flex items-center">
+                <FiMapPin className="h-5 w-5 text-gray-400 mr-2" />
+                <span className="text-gray-400">123 Education St, Knowledge City</span>
+              </li>
+              <li className="flex items-center">
+                <FiPhone className="h-5 w-5 text-gray-400 mr-2" />
+                <span className="text-gray-400">+91 1234567890</span>
+              </li>
+              <li className="flex items-center">
+                <FiMail className="h-5 w-5 text-gray-400 mr-2" />
+                <span className="text-gray-400">info@edu-empower.com</span>
+              </li>
+            </ul>
           </div>
+        </div>
+
+        <div className="mt-12 border-t border-gray-800 pt-8">
+          <p className="text-gray-400 text-center">
+            &copy; {new Date().getFullYear()} Edu-Empower. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

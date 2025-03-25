@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
-import { FiArrowRight, FiCalendar, FiDollarSign, FiBookOpen, FiAward, FiUser, FiInfo, FiList } from "react-icons/fi";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { FiArrowRight, FiCalendar, FiDollarSign, FiBookOpen, FiAward, FiUser, FiInfo, FiList, FiLogOut } from "react-icons/fi";
 
 const Scholarshipapply = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
   
   const [scholarship, setScholarship] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,6 +58,11 @@ const Scholarshipapply = () => {
     });
   };
   
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -90,10 +96,23 @@ const Scholarshipapply = () => {
       <div className="max-w-3xl mx-auto">
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 px-8">
-            <h1 className="text-2xl font-bold text-white">Scholarship Application</h1>
-            <p className="text-indigo-100 mt-2">
-              You're applying for the following scholarship
-            </p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-white">Scholarship Application</h1>
+                <p className="text-indigo-100 mt-2">
+                  You're applying for the following scholarship
+                </p>
+              </div>
+              {isSignedIn && (
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-800 hover:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <FiLogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </button>
+              )}
+            </div>
           </div>
           
           <div className="p-8">

@@ -1,127 +1,185 @@
-import { useEffect } from "react";
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import {
-  Disclosure,
-  Menu,
-  MenuButton,
-  MenuItems,
-  MenuItem,
-} from "@headlessui/react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { FiMenu, FiX, FiChevronDown, FiLogOut, FiUser } from "react-icons/fi";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
-export default function Navbar() {
+const Navbar = () => {
   const { isSignedIn, user } = useUser();
-  const navigate = useNavigate();
+  const { signOut } = useClerk();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Sync Clerk user data with the backend
-  useEffect(() => {
-    const syncUserWithBackend = async () => {
-      if (isSignedIn && user) {
-        try {
-          const { data } = await axios.post(
-            "http://localhost:3000/api/users/registerorupdate",
-            {
-              userId: user.id,
-              name: user.fullName,
-              email: user.primaryEmailAddress?.emailAddress || null,
-              role: user.publicMetadata.role || "STUDENT",
-            }
-          );
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
-          console.log("User synced:", data);
+  const toggleProfile = () => {
+    setIsProfileOpen(!isProfileOpen);
+  };
 
-          // Redirect based on role
-          if (window.location.pathname === "/") {
-            navigate(data.role === "organization" ? "/organization" : "/student");
-          }
-        } catch (error) {
-          console.error("Error syncing user data:", error.response?.data || error.message);
-        }
-      }
-    };
-
-    syncUserWithBackend();
-  }, [isSignedIn, user, navigate]);
+  const handleLogout = async () => {
+    await signOut();
+    // Close dropdown after logout
+    setIsProfileOpen(false);
+  };
 
   return (
-    <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
-      {() => (
-        <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="relative flex h-16 items-center justify-between">
-              {/* Logo */}
-              <div className="flex items-center">
-                <button
-                  onClick={() => navigate("/")}
-                  className="text-black text-lg font-bold transition-all duration-300 hover:text-blue-600"
-                >
-                  Edu-Empower
-                </button>
-              </div>
-
-              {/* User Auth Section */}
-              <div className="flex items-center ml-auto">
-                <SignedOut>
-                  <Menu as="div" className="relative">
-                    <MenuButton className="bg-black text-white rounded-md px-4 py-2 text-sm font-medium transition-all duration-300 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white-500">
-                      Login
-                    </MenuButton>
-                    <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white border rounded-md shadow-lg focus:outline-none">
-                      <MenuItem>
-                        {({ active }) => (
-                          <button
-                            onClick={() => navigate("/student")}
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700 w-full text-left"
-                            )}
-                          >
-                            Login as Student
-                          </button>
-                        )}
-                      </MenuItem>
-                      <MenuItem>
-                        {({ active }) => (
-                          <button
-                            onClick={() => navigate("/donar")}
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700 w-full text-left"
-                            )}
-                          >
-                            Login as Donor
-                          </button>
-                        )}
-                      </MenuItem>
-                      <MenuItem>
-                        {({ active }) => (
-                          <button
-                            onClick={() => navigate("/organization")}
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700 w-full text-left"
-                            )}
-                          >
-                            Login as Organization
-                          </button>
-                        )}
-                      </MenuItem>
-                    </MenuItems>
-                  </Menu>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/" />
-                </SignedIn>
-              </div>
-            </div>
+    <nav className="bg-white shadow-md fixed w-full z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <Link to="/" className="flex-shrink-0 flex items-center">
+              <img
+                className="h-8 w-auto"
+                src="/logo.png"
+                alt="Edu-Empower"
+              />
+              <span className="ml-2 text-xl font-bold text-indigo-600">Edu-Empower</span>
+            </Link>
           </div>
-        </>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-4">
+            <Link
+              to="/scholarship"
+              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600"
+            >
+              Scholarships
+            </Link>
+            <Link
+              to="/crowdfunding"
+              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600"
+            >
+              Crowdfunding
+            </Link>
+            {isSignedIn ? (
+              <div className="relative ml-3">
+                <div>
+                  <button
+                    onClick={toggleProfile}
+                    className="flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600 focus:outline-none"
+                  >
+                    <span className="mr-2">{user.firstName}</span>
+                    <img
+                      className="h-8 w-8 rounded-full"
+                      src={user.imageUrl || "https://via.placeholder.com/40"}
+                      alt={user.firstName}
+                    />
+                    <FiChevronDown className={`ml-1 h-4 w-4 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+                
+                {/* Profile dropdown */}
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
+                      <FiUser className="mr-2 h-4 w-4" />
+                      Your Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
+                      <FiLogOut className="mr-2 h-4 w-4" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/auth/role-selection"
+                className="ml-4 px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                Get Started
+              </Link>
+            )}
+          </div>
+          
+          {/* Mobile menu button */}
+          <div className="flex items-center md:hidden">
+            <button
+              onClick={toggleMenu}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+            >
+              {isMenuOpen ? (
+                <FiX className="block h-6 w-6" />
+              ) : (
+                <FiMenu className="block h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <Link
+              to="/scholarship"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
+            >
+              Scholarships
+            </Link>
+            <Link
+              to="/crowdfunding"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
+            >
+              Crowdfunding
+            </Link>
+          </div>
+          <div className="pt-4 pb-3 border-t border-gray-200">
+            {isSignedIn ? (
+              <>
+                <div className="flex items-center px-5">
+                  <div className="flex-shrink-0">
+                    <img
+                      className="h-10 w-10 rounded-full"
+                      src={user.imageUrl || "https://via.placeholder.com/40"}
+                      alt={user.firstName}
+                    />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium text-gray-800">{user.firstName} {user.lastName}</div>
+                    <div className="text-sm font-medium text-gray-500">{user.emailAddresses[0].emailAddress}</div>
+                  </div>
+                </div>
+                <div className="mt-3 px-2 space-y-1">
+                  <Link
+                    to="/profile"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 flex items-center"
+                  >
+                    <FiUser className="mr-2 h-4 w-4" />
+                    Your Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 flex items-center"
+                  >
+                    <FiLogOut className="mr-2 h-4 w-4" />
+                    Sign out
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="px-5">
+                <Link
+                  to="/auth/role-selection"
+                  className="block w-full text-center px-4 py-2 rounded-md text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
       )}
-    </Disclosure>
+    </nav>
   );
-}
+};
+
+export default Navbar;
