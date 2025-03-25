@@ -7,70 +7,53 @@ const RoleSelection = () => {
   
   const handleRoleSelect = (role) => {
     if (role === "STUDENT") {
-      // For students, navigate directly to student page without authentication
       navigate("/student", { state: { role: "STUDENT" } });
-    } else if (role === "DONOR") {
-      // For donors, navigate to donation page
-      navigate("/donation", { state: { role: "DONOR" } });
-    } else if (role === "ORGANIZATION") {
-      // For organizations, navigate to organization page
-      navigate("/organization", { state: { role: "ORGANIZATION" } });
+    } else {
+      navigate("/auth/login", { state: { role } });
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+      <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Choose your role
+            Select your role
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Select how you want to use Edu-Empower
+            Choose how you want to use Edu-Empower
           </p>
         </div>
         
         <div className="mt-8 space-y-4">
-          <button 
-            onClick={() => handleRoleSelect("STUDENT")}
-            className="w-full p-4 border rounded-lg flex items-center hover:bg-indigo-50 hover:border-indigo-500 transition-all"
-          >
-            <FiUser className="h-8 w-8 text-indigo-600 mr-4" />
-            <div className="text-left">
-              <h3 className="text-lg font-medium">Student</h3>
-              <p className="text-sm text-gray-500">Apply for scholarships and educational opportunities</p>
-            </div>
-          </button>
-          
-          <button 
-            onClick={() => handleRoleSelect("DONOR")}
-            className="w-full p-4 border rounded-lg flex items-center hover:bg-indigo-50 hover:border-indigo-500 transition-all"
-          >
-            <FiHeart className="h-8 w-8 text-indigo-600 mr-4" />
-            <div className="text-left">
-              <h3 className="text-lg font-medium">Donor</h3>
-              <p className="text-sm text-gray-500">Support students through donations</p>
-            </div>
-          </button>
-          
-          <button 
-            onClick={() => handleRoleSelect("ORGANIZATION")}
-            className="w-full p-4 border rounded-lg flex items-center hover:bg-indigo-50 hover:border-indigo-500 transition-all"
-          >
-            <FiBriefcase className="h-8 w-8 text-indigo-600 mr-4" />
-            <div className="text-left">
-              <h3 className="text-lg font-medium">Organization</h3>
-              <p className="text-sm text-gray-500">Create and manage scholarship programs</p>
-            </div>
-          </button>
-        </div>
-        
-        <div className="text-center mt-4">
           <button
-            onClick={() => navigate("/")}
-            className="text-sm text-indigo-600 hover:text-indigo-800"
+            onClick={() => handleRoleSelect("STUDENT")}
+            className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Back to home
+            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+              <FiUser className="h-5 w-5 text-indigo-300 group-hover:text-indigo-200" />
+            </span>
+            I am a Student
+          </button>
+          
+          <button
+            onClick={() => handleRoleSelect("DONOR")}
+            className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+              <FiHeart className="h-5 w-5 text-green-300 group-hover:text-green-200" />
+            </span>
+            I am a Donor
+          </button>
+          
+          <button
+            onClick={() => handleRoleSelect("ORGANIZATION")}
+            className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+          >
+            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+              <FiBriefcase className="h-5 w-5 text-purple-300 group-hover:text-purple-200" />
+            </span>
+            I am an Organization
           </button>
         </div>
       </div>

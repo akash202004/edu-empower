@@ -7,7 +7,7 @@ import {
     useUser,
 } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-
+import { FiArrowRight } from "react-icons/fi"; // Add this import for the arrow icon
 
 const navigation = [
     { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
@@ -42,13 +42,26 @@ const scholarships = [
 
 export default function ScholarshipHero() {
   const { isSignedIn } = useUser();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        if (isSignedIn) {
-          navigate("/scholarship"); // Changed from "/scholarship/apply/form" to "/scholarship"
-        }
-      }, [isSignedIn, navigate]);
+  // Add this useEffect to redirect signed-in users to the details page
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate("/student/details");
+    }
+  }, [isSignedIn, navigate]);
+
+  // Update this function to use SignInButton with proper redirect
+  const handleGetStarted = () => {
+    if (isSignedIn) {
+      navigate("/student/details");
+    }
+    // If not signed in, the SignInButton will handle authentication
+  };
+
+  const handleViewScholarships = () => {
+    navigate("/scholarship");
+  };
 
   return (
     <div className="scholarship-hero-wrapper">
@@ -62,12 +75,31 @@ export default function ScholarshipHero() {
             New scholarships published daily and matched to you, increasing your chances of winning.
           </p>
           <SignedOut>
-            <SignInButton mode="modal" redirectUrl="/scholarship">
-            <button className="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-lg">
-            Apply for scholarships
-          </button>
-            </SignInButton>
+            <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <SignInButton redirectUrl="/student/details" mode="modal">
+                <button 
+                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-lg flex items-center justify-center"
+                >
+                  Get Started
+                  <FiArrowRight className="ml-2" />
+                </button>
+              </SignInButton>
+              <button 
+                onClick={handleViewScholarships}
+                className="px-6 py-3 border border-gray-300 hover:border-gray-400 text-gray-700 text-lg font-medium rounded-lg"
+              >
+                Browse Scholarships
+              </button>
+            </div>
           </SignedOut>
+          <SignedIn>
+            <button 
+              onClick={() => navigate("/student/details")}
+              className="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-lg"
+            >
+              Complete Your Profile
+            </button>
+          </SignedIn>
           
           <p className="mt-2 text-sm text-gray-500">0% spam. 100% free.</p>
 
