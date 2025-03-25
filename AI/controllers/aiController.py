@@ -1,42 +1,33 @@
-import json
-import os
-from services.pdfExtractor import extract_pdf_data
-from services.pointDistributor import assign_points
-from fetch_pdf import download_pdf
-from services.cloudinaryService import get_latest_pdf
+from services.backendFetcher import fetch_student_documents
+from services.ocrProcessor import extract_text_from_image
+from services.rankingSystem import assign_points
+from services.storageHandler import save_local_results
 
-SAVE_JSON_PATH = "data/extracted_data.json"
+def process_student_documents(user_id):
+    try:
+        # Step 1: Fetch document URLs from backend
+        documents = fetch_student_documents(user_id)
+        if not documents:
+            print("⚠️ No documents found for user:", user_id)
+            return
 
-def process_latest_pdf():
-    """Fetch, process, and store extracted data"""
-    latest_pdf_url = get_latest_pdf()
-    if not latest_pdf_url:
-        print("No PDFs found in Cloudinary!")
-        return
+        extracted_data = {}
+        
+        # Step 2: Extract text from images
+        for doc_type, url in documents.items():
+            extracted_text = extract_text_from_image(url)
+            extracted_data[doc_type] = extracted_text
 
-    local_pdf = download_pdf(latest_pdf_url)
-    extracted_data = extract_pdf_data(local_pdf)
+        # Step 3: Assign points
+        processed_data = assign_points(extracted_data)
 
-    # Assign points
-    extracted_data["points"] = assign_points(extracted_data["income"])
+        # Step 4: Store locally
+        save_local_results(user_id, processed_data)
 
-    # Store locally in JSON
-    if os.path.exists(SAVE_JSON_PATH):
-        with open(SAVE_JSON_PATH, "r") as f:
-            data = json.load(f)
-    else:
-        data = []
+        print("✅ Processing completed for user:", user_id)
 
-    data.append(extracted_data)
+        # Step 5: (Optional) Store in DB (Commented Out)
+        # store_in_db(processed_data)
 
-    with open(SAVE_JSON_PATH, "w") as f:
-        json.dump(data, f, indent=4)
-
-    print("Extracted data stored locally!")
-
-    # **DB integration (Commented out for now)**
-    # response = requests.post("http://localhost:3000/api/students", json=extracted_data)
-    # print("DB Response:", response.json())
-
-if __name__ == "__main__":
-    process_latest_pdf()
+    except Exception as e:
+        print("❌ Error processing documents:", e)
