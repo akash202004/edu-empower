@@ -25,7 +25,6 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       address,
       fatherName,
       motherName,
-      scholarshipReason,
       careerGoals,
       otherScholarships,
     } = validationResult.data;
@@ -48,6 +47,9 @@ export const createStudentDetails = async (req: Request, res: Response) => {
     const incomeCert = files?.["incomeCert"]?.[0]?.path
       ? normalizePath(files["incomeCert"][0].path)
       : "";
+      const domicileCert = files?.["domicileCert"]?.[0]?.path
+      ? normalizePath(files["domicileCert"][0].path)
+      : ""
 
     const studentData = {
       userId,
@@ -59,12 +61,12 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       address,
       fatherName: fatherName ?? "",
       motherName: motherName ?? "",
-      scholarshipReason: scholarshipReason ?? "",
       careerGoals: careerGoals ?? "",
       otherScholarships,
       tenthResult,
       twelfthResult,
       incomeCert,
+      domicileCert,
       verified: true,
     };
 
@@ -116,7 +118,6 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
       address,
       fatherName,
       motherName,
-      scholarshipReason,
       careerGoals,
       otherScholarships,
       verified,
@@ -137,8 +138,6 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
     if (address !== undefined) updateData.address = address;
     if (fatherName !== undefined) updateData.fatherName = fatherName;
     if (motherName !== undefined) updateData.motherName = motherName;
-    if (scholarshipReason !== undefined)
-      updateData.scholarshipReason = scholarshipReason;
     if (careerGoals !== undefined) updateData.careerGoals = careerGoals;
     if (otherScholarships !== undefined)
       updateData.otherScholarships = otherScholarships;
@@ -152,6 +151,9 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
     }
     if (files?.["incomeCert"]?.[0]) {
       updateData.incomeCert = normalizePath(files["incomeCert"][0].path);
+    }
+    if (files?.["domicileCert"]?.[0]) {
+      updateData.domicileCert = normalizePath(files["domicileCert"][0].path);
     }
 
     if (Object.keys(updateData).length === 0) {

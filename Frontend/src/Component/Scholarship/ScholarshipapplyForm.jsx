@@ -173,11 +173,11 @@ const ScholarshipApplyForm = () => {
 
     const formDataForUpload = new FormData();
     formDataForUpload.append("file", file);
-    formDataForUpload.append("upload_preset", "your_preset_here");
+    formDataForUpload.append("Eduempower", "your_preset_here");
 
     try {
       const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/your_cloud_name/upload",
+        "https://api.cloudinary.com/v1_1/pahari/raw/upload",
         formDataForUpload,
         {
           onUploadProgress: (progressEvent) => {

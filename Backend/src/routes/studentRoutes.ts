@@ -15,6 +15,7 @@ router.post(
     { name: "tenthResult", maxCount: 1 },
     { name: "twelfthResult", maxCount: 1 },
     { name: "incomeCert", maxCount: 1 },
+    { name: "domicileCert", maxCount: 1 },
   ]),
   createStudentDetails
 );
@@ -26,6 +27,7 @@ router.put(
     { name: "tenthResult", maxCount: 1 },
     { name: "twelfthResult", maxCount: 1 },
     { name: "incomeCert", maxCount: 1 },
+    { name: "domicileCert", maxCount: 1 },
   ]),
   updateStudentDetails
 );

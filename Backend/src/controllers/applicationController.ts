@@ -1,17 +1,48 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
 
-// Create Application
+// Create Application with a new scholarship reason
 export const createApplication = async (req: Request, res: Response) => {
   try {
-    const { studentId, scholarshipId, status } = req.body;
-    const application = await prisma.application.create({
-      data: { studentId, scholarshipId, status },
+    const { studentId, scholarshipId, scholarshipReason } = req.body;
+
+    const existingApplication = await prisma.application.findFirst({
+      where: { studentId, scholarshipId },
     });
+
+    if (existingApplication) {
+      res.status(400).json({
+        error: "You have already applied for this scholarship.",
+      });
+      return;
+    }
+
+    const application = await prisma.application.create({
+      data: { studentId, scholarshipId, scholarshipReason, status: "PENDING" },
+    });
+
     res.status(201).json(application);
   } catch (error) {
     console.error("Error creating application:", error);
     res.status(500).json({ error: "Failed to create application" });
+  }
+};
+
+// Update Scholarship Reason for an Existing Application
+export const updateScholarshipReason = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params; // Application ID
+    const { scholarshipReason } = req.body;
+
+    const updatedApplication = await prisma.application.update({
+      where: { id },
+      data: { scholarshipReason },
+    });
+
+    res.status(200).json(updatedApplication);
+  } catch (error) {
+    console.error("Error updating scholarship reason:", error);
+    res.status(500).json({ error: "Failed to update scholarship reason" });
   }
 };
 
@@ -20,8 +51,8 @@ export const getAllApplications = async (_req: Request, res: Response) => {
   try {
     const applications = await prisma.application.findMany({
       include: {
-        student: true
-      }
+        student: true,
+      },
     });
     res.status(200).json(applications);
   } catch (error) {
