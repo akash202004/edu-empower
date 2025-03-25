@@ -11,19 +11,40 @@ export const registerOrUpdateUser = async (req: Request, res: Response) => {
     return;
   }
 
-  const { userId, name, email, role, verified } = req.body;
+  const { userId, name, email, role } = req.body;
 
   try {
-    const user = await prisma.user.upsert({
+    const existingUser = await prisma.user.findUnique({
       where: { id: userId },
-      update: { name, email, role },
-      create: { id: userId, name, email, role },
+      select: { role: true },
     });
 
-    res.status(200).json(user);
+    if (existingUser) {
+      if (role && existingUser.role !== role) {
+        res
+          .status(403)
+          .json({ error: "You cannot change your role after registration" });
+        return;
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { name, email },
+      });
+
+      res.status(200).json(updatedUser);
+      return;
+    } else {
+      const newUser = await prisma.user.create({
+        data: { id: userId, name, email, role },
+      });
+
+      res.status(201).json(newUser);
+    }
   } catch (error) {
     console.error("Error in registerOrUpdateUser:", error);
     res.status(500).json({ error: "User registration or update failed" });
+    return;
   }
 };
 

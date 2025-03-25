@@ -41,5 +41,6 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/students", studentRoutes);
 
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
