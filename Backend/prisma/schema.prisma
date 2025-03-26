@@ -25,7 +25,7 @@ model User {
 enum Role {
   STUDENT
   ORGANIZATION
-  DONOR
+   DONOR
   ADMIN
 }
 

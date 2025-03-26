@@ -15,11 +15,13 @@ import express from "express";
 dotenv.config();
 const app = express();
 
+// Update CORS configuration to allow all origins during development
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
-    methods: "GET,POST,PUT,DELETE",
+    origin: "*", // Allow all origins in development
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 

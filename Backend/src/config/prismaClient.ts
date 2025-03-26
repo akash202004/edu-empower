@@ -1,19 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
-class prismaSingleton {
-  private static instance: PrismaClient;
+export const prisma = new PrismaClient();
 
-  private constructor() {}
-
-  public static getInstance(): PrismaClient {
-    if (!prismaSingleton.instance) {
-      prismaSingleton.instance = new PrismaClient();
-    }
-
-    return prismaSingleton.instance;
+// Test database connection
+async function testConnection() {
+  try {
+    await prisma.$connect();
+    console.log('✅ Database connection established successfully');
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    process.exit(1);
   }
 }
 
-const prisma = prismaSingleton.getInstance();
-
-export { prisma };
+testConnection();

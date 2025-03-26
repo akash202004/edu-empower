@@ -1,7 +1,17 @@
 import { Request, Response } from "express";
-import { Role } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { validationResult } from "express-validator";
 import { prisma } from "../config/prismaClient";
+
+// Define the Role enum manually
+enum Role {
+  STUDENT = 'STUDENT',
+  ORGANIZATION = 'ORGANIZATION',
+  ADMIN = 'ADMIN'
+}
+
+// Remove the duplicate PrismaClient instantiation
+// const prisma = new PrismaClient();
 
 // Register or update a user
 export const registerOrUpdateUser = async (req: Request, res: Response) => {

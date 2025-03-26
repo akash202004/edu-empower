@@ -1,31 +1,76 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { FiUser, FiCalendar, FiPhone, FiMail, FiHome, FiEdit } from "react-icons/fi";
+import { FiUser, FiCalendar, FiPhone, FiMail, FiHome, FiEdit, FiLock } from "react-icons/fi";
+import axios from "axios";
+
+// Use environment variable for API URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const StudentProfile = () => {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isSignedIn) {
+    if (!isSignedIn || !user) {
       navigate("/auth/login");
       return;
     }
 
-    // Load profile data from localStorage
-    const savedData = localStorage.getItem('studentProfileData');
-    if (savedData) {
+    // Fetch profile data from backend
+    const fetchProfileData = async () => {
       try {
-        setProfileData(JSON.parse(savedData));
+        console.log("Fetching profile data for user:", user.id);
+        console.log("API URL being called:", `${API_BASE_URL}/students/${user.id}`);
+        
+        const response = await axios.get(`${API_BASE_URL}/students/${user.id}`);
+        console.log("API Response:", {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          data: response.data
+        });
+        
+        if (response.data) {
+          console.log("Profile data received:", JSON.stringify(response.data, null, 2));
+          setProfileData(response.data);
+        } else {
+          console.log("No profile data found in response");
+        }
+        setLoading(false);
       } catch (error) {
-        console.error("Error parsing saved profile data:", error);
+        console.error("Error fetching profile data:", error);
+        console.error("Error details:", {
+          message: error.message,
+          code: error.code,
+          stack: error.stack
+        });
+        
+        if (error.response) {
+          console.error("Error response status:", error.response.status);
+          console.error("Error response data:", error.response.data);
+          
+          if (error.response.status === 404) {
+            console.log("Profile not found for user, redirecting to create profile");
+            navigate("/student/details");
+          } else {
+            setError(`Failed to load profile data: ${error.response.data.message || error.message}`);
+          }
+        } else if (error.request) {
+          console.error("No response received:", error.request);
+          setError("No response received from server. Please check if the backend is running.");
+        } else {
+          setError(`Error: ${error.message}`);
+        }
+        setLoading(false);
       }
-    }
-    setLoading(false);
-  }, [isSignedIn, navigate]);
+    };
+
+    fetchProfileData();
+  }, [isSignedIn, navigate, user]);
 
   const handleEditProfile = () => {
     navigate("/student/details");
@@ -59,6 +104,17 @@ const StudentProfile = () => {
     );
   }
 
+  // Format date of birth if it exists
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not provided";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow overflow-hidden">
@@ -70,8 +126,14 @@ const StudentProfile = () => {
                 <FiUser className="h-10 w-10" />
               </div>
               <div className="ml-4 text-white">
-                <h1 className="text-2xl font-bold">{profileData.name}</h1>
-                <p className="text-indigo-200">{profileData.email}</p>
+                <div className="flex items-center">
+                  <h1 className="text-2xl font-bold">{profileData.fullName}</h1>
+                  <FiLock className="ml-2 h-4 w-4 text-indigo-200" title="Cannot be edited" />
+                </div>
+                <div className="flex items-center">
+                  <p className="text-indigo-200">{profileData.email}</p>
+                  <FiLock className="ml-2 h-4 w-4 text-indigo-200" title="Cannot be edited" />
+                </div>
               </div>
             </div>
             <button
@@ -85,6 +147,18 @@ const StudentProfile = () => {
 
         {/* Profile Content */}
         <div className="p-6">
+          {/* Add a note about name and email */}
+          <div className="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md">
+            <div className="flex">
+              <FiLock className="h-5 w-5 text-blue-500" />
+              <div className="ml-3">
+                <p className="text-sm text-blue-700">
+                  Your name and email are managed by your account settings and cannot be changed here.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Personal Information */}
             <div className="bg-gray-50 p-4 rounded-md">
@@ -94,7 +168,7 @@ const StudentProfile = () => {
                   <FiCalendar className="text-gray-400 mr-3" />
                   <div>
                     <p className="text-sm text-gray-500">Date of Birth</p>
-                    <p className="font-medium">{profileData.dob || "Not provided"}</p>
+                    <p className="font-medium">{formatDate(profileData.dateOfBirth)}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -144,8 +218,8 @@ const StudentProfile = () => {
 
           {/* About Section */}
           <div className="mt-6 bg-gray-50 p-4 rounded-md">
-            <h2 className="text-lg font-semibold text-gray-700 mb-2">About Me</h2>
-            <p className="text-gray-700">{profileData.aboutSelf || "No information provided."}</p>
+            <h2 className="text-lg font-semibold text-gray-700 mb-2">Career Goals</h2>
+            <p className="text-gray-700">{profileData.careerGoals || "No information provided."}</p>
           </div>
 
           {/* Documents Section */}
@@ -153,20 +227,40 @@ const StudentProfile = () => {
             <h2 className="text-lg font-semibold text-gray-700 mb-4">Documents</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-3 border rounded-md flex items-center">
-                <div className={`h-3 w-3 rounded-full mr-2 ${profileData.documents.domicileCertificate ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <div className={`h-3 w-3 rounded-full mr-2 ${profileData.domicileCert ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span>Domicile Certificate</span>
+                {profileData.domicileCert && (
+                  <a href={profileData.domicileCert} target="_blank" rel="noopener noreferrer" className="ml-auto text-indigo-600 hover:text-indigo-800">
+                    View
+                  </a>
+                )}
               </div>
               <div className="p-3 border rounded-md flex items-center">
-                <div className={`h-3 w-3 rounded-full mr-2 ${profileData.documents.incomeCertificate ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <div className={`h-3 w-3 rounded-full mr-2 ${profileData.incomeCert ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span>Income Certificate</span>
+                {profileData.incomeCert && (
+                  <a href={profileData.incomeCert} target="_blank" rel="noopener noreferrer" className="ml-auto text-indigo-600 hover:text-indigo-800">
+                    View
+                  </a>
+                )}
               </div>
               <div className="p-3 border rounded-md flex items-center">
-                <div className={`h-3 w-3 rounded-full mr-2 ${profileData.documents.marksheet10 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <div className={`h-3 w-3 rounded-full mr-2 ${profileData.tenthResult ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span>10th Marksheet</span>
+                {profileData.tenthResult && (
+                  <a href={profileData.tenthResult} target="_blank" rel="noopener noreferrer" className="ml-auto text-indigo-600 hover:text-indigo-800">
+                    View
+                  </a>
+                )}
               </div>
               <div className="p-3 border rounded-md flex items-center">
-                <div className={`h-3 w-3 rounded-full mr-2 ${profileData.documents.marksheet12 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <div className={`h-3 w-3 rounded-full mr-2 ${profileData.twelfthResult ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span>12th Marksheet</span>
+                {profileData.twelfthResult && (
+                  <a href={profileData.twelfthResult} target="_blank" rel="noopener noreferrer" className="ml-auto text-indigo-600 hover:text-indigo-800">
+                    View
+                  </a>
+                )}
               </div>
             </div>
           </div>
