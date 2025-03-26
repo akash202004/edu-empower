@@ -1,5 +1,5 @@
 import express from "express";
-// import { getStudentRank } from "../controllers/studentRankRoutes";
+import { getStudentRank } from "../controllers/studentRankRoutes";
 
 const router = express.Router();
 
