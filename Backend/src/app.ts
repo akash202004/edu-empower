@@ -7,6 +7,7 @@ import disbursementRoutes from "./routes/disbursementRoutes";
 import organizationRoutes from "./routes/organizationRoutes";
 import applicationRoutes from "./routes/applicationRoutes";
 import studentRoutes from "./routes/studentRoutes";
+import studentRankRoutes from "./routes/studentRankRoutes"
 import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
@@ -33,6 +34,7 @@ app.get("/", (_, res) => {
   res.send("🚀 Welcome to our API! The server is running successfully.");
 });
 
+app.use("/api/rank", studentRankRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/scholarships", scholarshipRoutes);
 app.use("/api/upload", fileUploadRoutes);

@@ -16,7 +16,7 @@ export const createDisbursement = async (req: Request, res: Response) => {
 };
 
 // Get All Disbursements
-export const getAllDisbursements = async (_req: Request, res: Response) => {
+export const getAllDisbursements = async (req: Request, res: Response) => {
   try {
     const disbursements = await prisma.disbursement.findMany();
     res.status(200).json(disbursements);
