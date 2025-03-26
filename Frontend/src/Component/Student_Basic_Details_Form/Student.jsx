@@ -7,7 +7,8 @@ import {
     useUser,
 } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowRight } from "react-icons/fi"; // Add this import for the arrow icon
+import { FiArrowRight } from "react-icons/fi";
+import axios from "axios";
 
 const navigation = [
     { name: "Crowd Funding", path: "/crowdfunding", authRequired: true },
@@ -18,7 +19,7 @@ const navigation = [
 const scholarships = [
   {
     id: 1,
-    image: "https://images.pexels.com/photos/901964/pexels-photo-901964.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",  // Replace with actual image paths
+    image: "https://images.pexels.com/photos/901964/pexels-photo-901964.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
     title: "David L. Burns Memorial Scholarship",
     amount: "$3,000",
     fundedBy: "Burns",
@@ -39,34 +40,35 @@ const scholarships = [
   },
 ];
 
-
 export default function ScholarshipHero() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
 
-  // Add this useEffect to redirect signed-in users to the details page
+  // Function to sync user data with the backend
+  const handleUserSync = async () => {
+    if (isSignedIn && user) {
+      try {
+        await axios.post("http://localhost:3000/api/users/registerorupdate", {
+          userId: user.id,
+          name: user.fullName,
+          email: user.primaryEmailAddress?.emailAddress || null,
+          role: "STUDENT", // Ensure role is always STUDENT
+        });
+        navigate("/student/details"); // Redirect after successful sync
+      } catch (error) {
+        console.error("Error syncing user data:", error.response?.data || error.message);
+      }
+    }
+  };
+
+  // Auto-sync user on page load if signed in
   useEffect(() => {
-    if (isSignedIn) {
-      navigate("/student/details");
-    }
-  }, [isSignedIn, navigate]);
-
-  // Update this function to use SignInButton with proper redirect
-  const handleGetStarted = () => {
-    if (isSignedIn) {
-      navigate("/student/details");
-    }
-    // If not signed in, the SignInButton will handle authentication
-  };
-
-  const handleViewScholarships = () => {
-    navigate("/scholarship");
-  };
+    handleUserSync();
+  }, [isSignedIn, user]);
 
   return (
     <div className="scholarship-hero-wrapper">
       <main className="flex flex-col lg:flex-row items-center justify-center max-w-6xl mx-auto px-6 py-16 lg:py-24 gap-12">
-        {/* Left Side - Text Content */}
         <div className="flex-1 text-center lg:text-left">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900">
             Exclusive Scholarships, <br className="hidden md:inline" /> Matched to You
@@ -76,7 +78,10 @@ export default function ScholarshipHero() {
           </p>
           <SignedOut>
             <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <SignInButton redirectUrl="/student/details" mode="modal">
+              <SignInButton 
+                afterSignIn={handleUserSync} // Sync user after signing in
+                mode="modal"
+              >
                 <button 
                   className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-lg flex items-center justify-center"
                 >
@@ -85,7 +90,7 @@ export default function ScholarshipHero() {
                 </button>
               </SignInButton>
               <button 
-                onClick={handleViewScholarships}
+                onClick={() => navigate("/scholarship")}
                 className="px-6 py-3 border border-gray-300 hover:border-gray-400 text-gray-700 text-lg font-medium rounded-lg"
               >
                 Browse Scholarships
@@ -94,7 +99,7 @@ export default function ScholarshipHero() {
           </SignedOut>
           <SignedIn>
             <button 
-              onClick={() => navigate("/student/details")}
+              onClick={handleUserSync}
               className="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-lg"
             >
               Complete Your Profile
@@ -102,20 +107,6 @@ export default function ScholarshipHero() {
           </SignedIn>
           
           <p className="mt-2 text-sm text-gray-500">0% spam. 100% free.</p>
-
-          {/* Universities Section */}
-          <div className="mt-8">
-            <p className="text-xs text-gray-500 font-semibold uppercase mb-4">Scholarships Featured By:</p>
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 opacity-70">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQBwuddBfDYzFHfvCjSk2dHhn1KL_weVdxIA&s" alt="Harvard" className="h-10" />
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/The_University_of_California_UCLA.svg/800px-The_University_of_California_UCLA.svg.png" alt="UCLA" className="h-8" />
-              <img src="" alt="Vanderbilt" className="h-6" />
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXTHxjibjLvPaPJSKRAFk2Oxyr_yxfcXeDYg6BF4jWJ5AERnOPn8NgeeMy&s=10" alt="Michigan" className="h-8" />
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_dtvPjZYkcgpbq18XmHvPnTEuyCOGIiGl3ERrtNtzlVeXYvTtp_j-_Odx&s=10" alt="Berkeley" className="h-10" />
-              <img src="" alt="Georgetown" className="h-15" />
-              <img src="https://collegeaim.org/wp-content/uploads/2021/09/syracuse.png" alt="Syracuse" className="h-8" />
-            </div>
-          </div>
         </div>
 
         {/* Right Side - Scholarship Card */}
@@ -134,59 +125,47 @@ export default function ScholarshipHero() {
               <span className="text-lg font-medium">Awarded to Edu-Empower Members</span>
             </div>
           </div>
-
-          {/* Notification-style Scholarship Popup */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-11/12 bg-white rounded-lg shadow-md p-4 flex items-center">
-            <img
-              src="https://randomuser.me/api/portraits/women/65.jpg"
-              alt="Hakima Siyad"
-              className="h-10 w-10 rounded-full border border-gray-200"
-            />
-            <div className="ml-3 flex-1">
-              <p className="text-sm font-semibold">Hakima Siyad won $1,000 scholarship</p>
-              <p className="text-xs text-gray-500">Ismat Tariq Muslim Women Empowerment...</p>
-            </div>
-            <span className="text-xs text-gray-400">Just now</span>
-          </div>
         </div>
       </main>
-      <section className="py-16 px-4 bg-gray-50 text-center">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-4xl font-extrabold text-gray-900">Featured Grants and Scholarships</h2>
-        <p className="text-gray-600 mt-4 text-lg">
-          Exclusive opportunities, fully managed on Bold.org. Find opportunities for current students and recent graduates at all education levels.
-        </p>
-      </div>
 
-      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4">
-        {scholarships.map((scholarship) => (
-          <div
-            key={scholarship.id}
-            className="bg-white shadow-lg rounded-xl overflow-hidden border hover:shadow-2xl transition-shadow duration-300"
-          >
-            <img src={scholarship.image} alt={scholarship.title} className="w-full h-56 object-cover" />
-            <div className="p-6">
-              <h3 className="font-semibold text-xl text-gray-900">{scholarship.title}</h3>
-              <div className="flex justify-between items-center text-gray-600 text-sm mt-3">
-                <span className="flex items-center gap-2">
-                  <span className="text-gray-700 font-medium">Funded by</span> {scholarship.fundedBy}
-                </span>
-                <span className="font-bold text-gray-900 text-lg">{scholarship.amount}</span>
+      {/* Featured Scholarships Section */}
+      <section className="py-16 px-4 bg-gray-50 text-center">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-extrabold text-gray-900">Featured Grants and Scholarships</h2>
+          <p className="text-gray-600 mt-4 text-lg">
+            Exclusive opportunities, fully managed on Bold.org. Find opportunities for current students and recent graduates at all education levels.
+          </p>
+        </div>
+
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4">
+          {scholarships.map((scholarship) => (
+            <div
+              key={scholarship.id}
+              className="bg-white shadow-lg rounded-xl overflow-hidden border hover:shadow-2xl transition-shadow duration-300"
+            >
+              <img src={scholarship.image} alt={scholarship.title} className="w-full h-56 object-cover" />
+              <div className="p-6">
+                <h3 className="font-semibold text-xl text-gray-900">{scholarship.title}</h3>
+                <div className="flex justify-between items-center text-gray-600 text-sm mt-3">
+                  <span className="flex items-center gap-2">
+                    <span className="text-gray-700 font-medium">Funded by</span> {scholarship.fundedBy}
+                  </span>
+                  <span className="font-bold text-gray-900 text-lg">{scholarship.amount}</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-        <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium shadow-md transition-all duration-300">
-          Join Edu-Empower
-        </button>
-        <button className="border border-gray-300 hover:border-gray-400 px-6 py-3 rounded-lg font-medium shadow-md transition-all duration-300">
-          See all scholarships
-        </button>
-      </div>
-    </section>
+        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+          <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium shadow-md transition-all duration-300">
+            Join Edu-Empower
+          </button>
+          <button className="border border-gray-300 hover:border-gray-400 px-6 py-3 rounded-lg font-medium shadow-md transition-all duration-300">
+            See all scholarships
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

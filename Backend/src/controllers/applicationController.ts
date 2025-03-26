@@ -31,7 +31,7 @@ export const createApplication = async (req: Request, res: Response) => {
 // Update Scholarship Reason for an Existing Application
 export const updateScholarshipReason = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params; // Application ID
+    const { id } = req.params; 
     const { scholarshipReason } = req.body;
 
     const updatedApplication = await prisma.application.update({
@@ -43,6 +43,24 @@ export const updateScholarshipReason = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error updating scholarship reason:", error);
     res.status(500).json({ error: "Failed to update scholarship reason" });
+  }
+};
+
+// Update Application Status
+export const updateApplicationStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const updatedApplication = await prisma.application.update({
+      where: { id },
+      data: { status },
+    });
+
+    res.status(200).json(updatedApplication);
+  } catch (error) {
+    console.error("Error updating application:", error);
+    res.status(500).json({ error: "Failed to update application" });
   }
 };
 
@@ -76,24 +94,6 @@ export const getApplicationById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching application:", error);
     res.status(500).json({ error: "Failed to fetch application" });
-  }
-};
-
-// Update Application Status
-export const updateApplicationStatus = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const updatedApplication = await prisma.application.update({
-      where: { id },
-      data: { status },
-    });
-
-    res.status(200).json(updatedApplication);
-  } catch (error) {
-    console.error("Error updating application:", error);
-    res.status(500).json({ error: "Failed to update application" });
   }
 };
 

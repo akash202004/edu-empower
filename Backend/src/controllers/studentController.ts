@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
-import { validateStudentData, validateStudentDataForUpdate } from "../utils/validation";
+import {
+  validateStudentData,
+  validateStudentDataForUpdate,
+} from "../utils/validation";
 import fs from "fs";
 import path from "path";
 
@@ -25,31 +28,21 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       address,
       fatherName,
       motherName,
-      careerGoals,
-      otherScholarships,
+      guardianName,
+      guardianContact,
+      aboutMe,
     } = validationResult.data;
 
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
     });
+
     if (!existingUser) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const tenthResult = files?.["tenthResult"]?.[0]?.path
-      ? normalizePath(files["tenthResult"][0].path)
-      : "";
-    const twelfthResult = files?.["twelfthResult"]?.[0]?.path
-      ? normalizePath(files["twelfthResult"][0].path)
-      : "";
-    const incomeCert = files?.["incomeCert"]?.[0]?.path
-      ? normalizePath(files["incomeCert"][0].path)
-      : "";
-      const domicileCert = files?.["domicileCert"]?.[0]?.path
-      ? normalizePath(files["domicileCert"][0].path)
-      : ""
 
     const studentData = {
       userId,
@@ -59,20 +52,27 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       nationality: nationality ?? "",
       contactNumber,
       address,
-      fatherName: fatherName ?? "",
-      motherName: motherName ?? "",
-      careerGoals: careerGoals ?? "",
-      otherScholarships,
-      tenthResult,
-      twelfthResult,
-      incomeCert,
-      domicileCert,
+      fatherName,
+      motherName,
+      guardianName: guardianName ?? "",
+      guardianContact: guardianContact ?? "",
+      aboutMe: aboutMe ?? "",
+      tenthResult: files?.["tenthResult"]?.[0]?.path
+        ? normalizePath(files["tenthResult"][0].path)
+        : "",
+      twelfthResult: files?.["twelfthResult"]?.[0]?.path
+        ? normalizePath(files["twelfthResult"][0].path)
+        : "",
+      incomeCert: files?.["incomeCert"]?.[0]?.path
+        ? normalizePath(files["incomeCert"][0].path)
+        : "",
+      domicileCert: files?.["domicileCert"]?.[0]?.path
+        ? normalizePath(files["domicileCert"][0].path)
+        : "",
       verified: true,
     };
 
-    const student = await prisma.studentDetails.create({
-      data: studentData,
-    });
+    const student = await prisma.studentDetails.create({ data: studentData });
 
     res
       .status(201)
@@ -84,7 +84,7 @@ export const createStudentDetails = async (req: Request, res: Response) => {
   }
 };
 
-// update students details
+// update student details
 export const updateStudentDetails = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -109,39 +109,15 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
-    const {
-      fullName,
-      dateOfBirth,
-      gender,
-      nationality,
-      contactNumber,
-      address,
-      fatherName,
-      motherName,
-      careerGoals,
-      otherScholarships,
-      verified,
-    } = validationResult.data;
+    const updateData: Record<string, any> = {};
+
+    Object.entries(validationResult.data).forEach(([key, value]) => {
+      if (value !== undefined) updateData[key] = value;
+    });
 
     const files = req.files as
       | { [fieldname: string]: Express.Multer.File[] }
       | undefined;
-
-    const updateData: Record<string, any> = {};
-
-    if (fullName !== undefined) updateData.fullName = fullName;
-    if (dateOfBirth !== undefined)
-      updateData.dateOfBirth = new Date(dateOfBirth);
-    if (gender !== undefined) updateData.gender = gender;
-    if (nationality !== undefined) updateData.nationality = nationality;
-    if (contactNumber !== undefined) updateData.contactNumber = contactNumber;
-    if (address !== undefined) updateData.address = address;
-    if (fatherName !== undefined) updateData.fatherName = fatherName;
-    if (motherName !== undefined) updateData.motherName = motherName;
-    if (careerGoals !== undefined) updateData.careerGoals = careerGoals;
-    if (otherScholarships !== undefined)
-      updateData.otherScholarships = otherScholarships;
-    if (verified !== undefined) updateData.verified = verified;
 
     if (files?.["tenthResult"]?.[0]) {
       updateData.tenthResult = normalizePath(files["tenthResult"][0].path);
