@@ -61,8 +61,9 @@ model StudentDetails {
   address           String   @default("")
   fatherName        String
   motherName        String
-  careerGoals       String   @default("")
-  otherScholarships Boolean  @default(false)
+  guardianName      String   @default("")
+  guardianContact   String   @default("")
+  aboutMe           String   @default("")
   tenthResult       String
   twelfthResult     String
   incomeCert        String
@@ -126,6 +127,7 @@ model Application {
   scholarshipId String
   scholarship  Scholarship @relation("ScholarshipApplications", fields: [scholarshipId], references: [id])
   scholarshipReason String 
+  otherScholarships Boolean  @default(false)
   status       ApplicationStatus @default(PENDING)
   createdAt    DateTime @default(now())
 }

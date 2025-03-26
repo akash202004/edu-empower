@@ -18,9 +18,9 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const StudentDetailsForm = () => {
-  // Near the top of your component:
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
+<<<<<<< HEAD
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState(null);
   const [bucketReady, setBucketReady] = useState(false);
@@ -135,11 +135,15 @@ const StudentDetailsForm = () => {
   }, []);
   
   // Add this effect to redirect unauthenticated users
+=======
+
+>>>>>>> ae6116019cd7abd8e1e4dd063e4ebbc666da2a86
   useEffect(() => {
     if (!isSignedIn) {
       navigate("/auth/login");
     }
   }, [isSignedIn, navigate]);
+<<<<<<< HEAD
   
   // Fetch student profile data from backend if it exists
   useEffect(() => {
@@ -188,38 +192,104 @@ const StudentDetailsForm = () => {
       ...formData,
       [name]: value,
     });
+=======
+
+  const [formData, setFormData] = useState({
+    name: user?.fullName || "",
+    dob: "",
+    contactNumber: "",
+    address: "",
+    email: user?.primaryEmailAddress?.emailAddress || "",
+    gender: "",
+    motherName: "",
+    fatherName: "",
+    guardianName: "",
+    guardianContact: "",
+    guardianAddress: "",
+    guardianEmail: "",
+    aboutSelf: "",
+    documents: {
+      domicileCertificate: null,
+      incomeCertificate: null,
+      marksheet10: null,
+      marksheet12: null,
+    },
+  });
+
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("studentProfileData");
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setFormData({
+          ...parsedData,
+          name: user?.fullName || parsedData.name,
+          email: user?.primaryEmailAddress?.emailAddress || parsedData.email,
+        });
+      } catch (error) {
+        console.error("Error parsing saved profile data:", error);
+      }
+    }
+  }, [user]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+>>>>>>> ae6116019cd7abd8e1e4dd063e4ebbc666da2a86
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       documents: {
-        ...formData.documents,
-        [name]: files[0]
-      }
-    });
+        ...prev.documents,
+        [name]: files[0],
+      },
+    }));
   };
 
   const validateForm = () => {
     const newErrors = {};
+<<<<<<< HEAD
     
     // Required personal information
+=======
+
+>>>>>>> ae6116019cd7abd8e1e4dd063e4ebbc666da2a86
     if (!formData.name) newErrors.name = "Name is required";
     if (!formData.dob) newErrors.dob = "Date of Birth is required";
     if (!formData.contactNumber) newErrors.contactNumber = "Contact number is required";
     if (!formData.address) newErrors.address = "Address is required";
     if (!formData.email) newErrors.email = "Email is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
+<<<<<<< HEAD
     
     // Temporarily disable document validation completely
     // We'll handle document uploads separately
     
     console.log("Validation errors:", newErrors);
+=======
+
+    // Required documents
+    const requiredDocs = ["domicileCertificate", "incomeCertificate", "marksheet10", "marksheet12"];
+    requiredDocs.forEach((doc) => {
+      if (!formData.documents[doc]) {
+        newErrors[doc] = `${doc.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())} is required`;
+      }
+    });
+
+>>>>>>> ae6116019cd7abd8e1e4dd063e4ebbc666da2a86
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+<<<<<<< HEAD
   // Add this function to upload files to Supabase
   // Improved uploadFileToSupabase function with better error handling
   // Improved uploadFileToSupabase function with service role permissions
@@ -284,6 +354,50 @@ const StudentDetailsForm = () => {
       console.error(`Error in Supabase upload for ${fileName}:`, error);
       setApiError(`Failed to upload ${file.name}: ${error.message || "Unknown error"}`);
       return null;
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      console.log("Form has errors");
+      return;
+    }
+
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "documents") {
+        Object.entries(value).forEach(([docKey, docValue]) => {
+          if (docValue) data.append(docKey, docValue);
+        });
+      } else {
+        data.append(key, value);
+      }
+    });
+
+    try {
+      const response = await fetch("http://localhost:3000/api/students", {
+        method: "POST",
+        body: data,
+      });
+      console.log(formData);
+
+      if (!response.ok) {
+        throw new Error("Failed to submit data");
+      }
+
+      const result = await response.json();
+      console.log("Success:", result);
+      alert("Profile submitted successfully!");
+
+      // Clear local storage after successful submission
+      localStorage.removeItem("studentProfileData");
+
+      // Redirect to the scholarship page
+      navigate("/scholarship");
+    } catch (error) {
+      console.error("Error submitting profile:", error);
+      alert("Failed to submit profile. Please try again.");
+>>>>>>> ae6116019cd7abd8e1e4dd063e4ebbc666da2a86
     }
   };
 
