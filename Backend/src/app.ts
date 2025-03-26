@@ -15,11 +15,13 @@ import express from "express";
 dotenv.config();
 const app = express();
 
+// Update CORS configuration to allow all origins during development
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
-    methods: "GET,POST,PUT,DELETE",
+    origin: "*", // Allow all origins in development
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 
@@ -40,7 +42,6 @@ app.use("/api/disbursements", disbursementRoutes);
 app.use("/api/organizations", organizationRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/students", studentRoutes);
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
