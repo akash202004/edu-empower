@@ -66,7 +66,7 @@ function Organization() {
                   Empowering Dreams Through Education
                 </h1>
                 <p className="text-lg md:text-xl mb-8">
-                  We connect talented students with scholarship opportunities to help them achieve their academic goals.
+                  We connect talented students wit scholarship opportunities to help them achieve their academic goals.
                 </p>
                 <SignedOut>
                   <div className="flex flex-col sm:flex-row gap-4">

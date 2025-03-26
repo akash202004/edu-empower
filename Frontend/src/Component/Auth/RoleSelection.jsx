@@ -25,7 +25,7 @@ const RoleSelection = () => {
             Select your role
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Choose how you want to use Edu-Empower
+            Choose how yo want to use Edu-Empower
           </p>
         </div>
         

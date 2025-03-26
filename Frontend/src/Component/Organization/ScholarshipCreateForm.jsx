@@ -76,7 +76,7 @@ const ScholarshipForm = () => {
           />
         </div>
 
-        {/* Total Amount */}
+        {/* Total Amoun */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Total Amount</label>
           <input

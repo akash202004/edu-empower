@@ -123,7 +123,7 @@ function App() {
           <Route path="/crowdfunding" element={<CrowdFundingPage2 />} />
           <Route path="/crowdfunding3" element={<CrowdFundingPage2 />} />
           
-          {/* Organization route */}
+          {/* Organization rout */}
           <Route path="/organization" element={<Organization />} />
           <Route path="/scholarshipcreateform" element={<ScholarshipForm />} />
           
