@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/clerk-react";
 import {
   Disclosure,
   Menu,
@@ -15,129 +15,44 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-function Navbar() {
+
+function Organization() {
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
 
-  // Sync Clerk user data with the backend
-  useEffect(() => {
-    const syncUserWithBackend = async () => {
-      if (isSignedIn && user) {
-        try {
-          const { data } = await axios.post(
-            "http://localhost:5001/api/users/registerorupdate",
-            {
-              userId: user.id,
-              name: user.fullName,
-              email: user.primaryEmailAddress?.emailAddress || null,
-              role: user.publicMetadata.role || "STUDENT",
-            }
-          );
-
-          console.log("User synced:", data);
-
-          // Redirect based on role - direct to profile form for students
-          if (window.location.pathname === "/") {
-            if (data.role === "STUDENT") {
-              navigate("/student/details");
-            } else if (data.role === "ORGANIZATION") {
-              navigate("/organization");
-            } else {
-              navigate("/donation");
-            }
-          }
-        } catch (error) {
-          console.error("Error syncing user data:", error.response?.data || error.message);
+  // Function to sync user data with the backend
+  const handleUserSync = async () => {
+    if (isSignedIn && user) {
+      try {
+        const email = user.primaryEmailAddress?.emailAddress || null;
+  
+        // Ensure the email belongs to an organization
+        if (!email || !email.endsWith("@organization.com")) {
+          console.error("Unauthorized email. Only organization emails are allowed.");
+          alert("Only organization emails are allowed.");
+          return;
         }
+  
+        await axios.post("http://localhost:3000/api/users/registerorupdate", {
+          userId: user.id,
+          name: user.fullName,
+          email: email,
+          role: "ORGANIZATION", 
+        });
+  
+        navigate("/scholarshipcreateform"); // Redirect after successful sync
+      } catch (error) {
+        console.error("Error syncing user data:", error.response?.data || error.message);
       }
-    };
+    }
+  };
+  
 
-    syncUserWithBackend();
-  }, [isSignedIn, user, navigate]);
-
-  return (
-    <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
-      {() => (
-        <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="relative flex h-16 items-center justify-between">
-              {/* Logo */}
-              <div className="flex items-center">
-                <button
-                  onClick={() => navigate("/")}
-                  className="text-black text-lg font-bold transition-all duration-300 hover:text-blue-600"
-                >
-                  Edu-Empower
-                </button>
-              </div>
-
-              {/* User Auth Section */}
-              <div className="flex items-center ml-auto">
-                <SignedOut>
-                  <Menu as="div" className="relative">
-                    <MenuButton className="bg-black text-white rounded-md px-4 py-2 text-sm font-medium transition-all duration-300 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white-500">
-                      Login
-                    </MenuButton>
-                    <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white border rounded-md shadow-lg focus:outline-none">
-                      <MenuItem>
-                        {({ active }) => (
-                          <button
-                            onClick={() => navigate("/student")}
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700 w-full text-left"
-                            )}
-                          >
-                            Login as Student
-                          </button>
-                        )}
-                      </MenuItem>
-                      <MenuItem>
-                        {({ active }) => (
-                          <button
-                            onClick={() => navigate("/donor")}
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700 w-full text-left"
-                            )}
-                          >
-                            Login as Donor
-                          </button>
-                        )}
-                      </MenuItem>
-                      <MenuItem>
-                        {({ active }) => (
-                          <button
-                            onClick={() => navigate("/organization")}
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700 w-full text-left"
-                            )}
-                          >
-                            Login as Organization
-                          </button>
-                        )}
-                      </MenuItem>
-                    </MenuItems>
-                  </Menu>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/" />
-                </SignedIn>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </Disclosure>
-  );
-}
-
-
-import React from "react";
-
-function Organization() {
-  const navigate = useNavigate();
+   // Auto-sync user on page load if signed in
+    useEffect(() => {
+      handleUserSync();
+    }, [isSignedIn, user]);
+  
 
   return (
     <div className="min-h-screen bg-white pt-20">
@@ -153,25 +68,30 @@ function Organization() {
                 <p className="text-lg md:text-xl mb-8">
                   We connect talented students with scholarship opportunities to help them achieve their academic goals.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button 
-                    onClick={() => navigate('/scholarship')}
-                    className="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition shadow-lg"
-                  >
-                    Find Scholarships
-                  </button>
-                  <button 
-                    onClick={() => navigate('/organization/apply')}
-                    className="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-indigo-600 transition"
-                  >
-                    Partner With Us
-                  </button>
-                </div>
+                <SignedOut>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <SignInButton 
+                    afterSignIn={handleUserSync} // Sync user after signing in
+                    mode="modal">
+                      <button
+                        className="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition shadow-lg"
+                      >
+                        Start a Scholarships
+                      </button>
+                    </SignInButton>
+                    <button
+                      onClick={() => navigate('/organization/apply')}
+                      className="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-indigo-600 transition"
+                    >
+                      Start a CrowdFunding
+                    </button>
+                  </div>
+                </SignedOut>
               </div>
               <div className="md:w-1/2 mt-10 md:mt-0">
-                <img 
-                  src="/assets/hero-students.jpg" 
-                  alt="Students celebrating graduation" 
+                <img
+                  src="/assets/hero-students.jpg"
+                  alt="Students celebrating graduation"
                   className="rounded-lg shadow-2xl mx-auto"
                 />
               </div>
@@ -232,7 +152,7 @@ function Organization() {
                   <span>200+ successful campaigns</span>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => navigate('/crowdfunding')}
                 className="mt-8 bg-white text-purple-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition shadow-lg"
               >
@@ -242,9 +162,9 @@ function Organization() {
             <div className="md:w-1/2">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-lg">
-                  <img 
-                    src="/assets/crowdfunding-1.jpg" 
-                    alt="Student crowdfunding success" 
+                  <img
+                    src="/assets/crowdfunding-1.jpg"
+                    alt="Student crowdfunding success"
                     className="w-full h-40 object-cover rounded mb-3"
                   />
                   <h3 className="font-bold">Maria's Medical School Journey</h3>
@@ -257,9 +177,9 @@ function Organization() {
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-lg">
-                  <img 
-                    src="/assets/crowdfunding-2.jpg" 
-                    alt="Student crowdfunding success" 
+                  <img
+                    src="/assets/crowdfunding-2.jpg"
+                    alt="Student crowdfunding success"
                     className="w-full h-40 object-cover rounded mb-3"
                   />
                   <h3 className="font-bold">David's Engineering Degree</h3>
@@ -272,9 +192,9 @@ function Organization() {
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-lg">
-                  <img 
-                    src="/assets/crowdfunding-3.jpg" 
-                    alt="Student crowdfunding success" 
+                  <img
+                    src="/assets/crowdfunding-3.jpg"
+                    alt="Student crowdfunding success"
                     className="w-full h-40 object-cover rounded mb-3"
                   />
                   <h3 className="font-bold">Priya's Art School Tuition</h3>
@@ -287,9 +207,9 @@ function Organization() {
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-lg">
-                  <img 
-                    src="/assets/crowdfunding-4.jpg" 
-                    alt="Student crowdfunding success" 
+                  <img
+                    src="/assets/crowdfunding-4.jpg"
+                    alt="Student crowdfunding success"
                     className="w-full h-40 object-cover rounded mb-3"
                   />
                   <h3 className="font-bold">James' Computer Science Degree</h3>
@@ -316,7 +236,7 @@ function Organization() {
               Discover our most popular scholarship opportunities available right now
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
@@ -339,9 +259,9 @@ function Organization() {
               }
             ].map((scholarship, index) => (
               <div key={index} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition">
-                <img 
-                  src={scholarship.image} 
-                  alt={scholarship.title} 
+                <img
+                  src={scholarship.image}
+                  alt={scholarship.title}
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-6">
@@ -350,7 +270,7 @@ function Organization() {
                     <span className="text-indigo-600 font-semibold">{scholarship.amount}</span>
                     <span className="text-gray-500">Deadline: {scholarship.deadline}</span>
                   </div>
-                  <button 
+                  <button
                     onClick={() => navigate('/scholarship/details')}
                     className="w-full bg-indigo-600 text-white py-2 rounded font-medium hover:bg-indigo-700 transition flex items-center justify-center"
                   >
@@ -360,9 +280,9 @@ function Organization() {
               </div>
             ))}
           </div>
-          
+
           <div className="text-center mt-12">
-            <button 
+            <button
               onClick={() => navigate('/scholarship')}
               className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-indigo-700 transition"
             >
@@ -381,7 +301,7 @@ function Organization() {
               Hear from students whose lives have been transformed through our scholarships
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
@@ -405,9 +325,9 @@ function Organization() {
             ].map((testimonial, index) => (
               <div key={index} className="bg-white p-6 rounded-lg shadow-lg">
                 <div className="flex items-center mb-4">
-                  <img 
-                    src={testimonial.image} 
-                    alt={testimonial.name} 
+                  <img
+                    src={testimonial.image}
+                    alt={testimonial.name}
                     className="w-16 h-16 rounded-full object-cover mr-4"
                   />
                   <div>
@@ -430,13 +350,13 @@ function Organization() {
             Whether you're a student seeking opportunities or an organization looking to make an impact, we're here to help.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
+            <button
               onClick={() => navigate('/student')}
               className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition"
             >
               Apply as Student
             </button>
-            <button 
+            <button
               onClick={() => navigate('/organization/register')}
               className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white hover:text-indigo-600 transition"
             >
@@ -478,9 +398,9 @@ function Organization() {
               <h4 className="font-bold mb-4">Stay Connected</h4>
               <p className="text-gray-400 mb-4">Subscribe to our newsletter for updates</p>
               <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Your email" 
+                <input
+                  type="email"
+                  placeholder="Your email"
                   className="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-900"
                 />
                 <button className="bg-indigo-600 px-4 py-2 rounded-r-lg hover:bg-indigo-700 transition">

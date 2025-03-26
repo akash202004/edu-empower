@@ -7,8 +7,11 @@ const RoleSelection = () => {
   
   const handleRoleSelect = (role) => {
     if (role === "STUDENT") {
-      // Redirect directly to the Student.jsx component without authentication
       navigate("/student", { state: { role: "STUDENT" } });
+    } else if (role === "DONOR") {
+      navigate("/donor", { state: { role: "DONOR" } });
+    } else if (role === "ORGANIZATION") {
+      navigate("/organization", { state: { role: "ORGANIZATION" } });
     } else {
       navigate("/auth/login", { state: { role } });
     }

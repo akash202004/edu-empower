@@ -20,6 +20,7 @@ import Organization from "./Component/Organization/Organization";
 import StudentProfile from "./Component/Student/StudentProfile";
 import CrowdFundingPage2 from "./Component/CrowdFunding/CrowdFundingPage2";
 import Layout from "./Component/Layout/Layout";
+import ScholarshipForm from "./Component/Organization/ScholarshipCreateForm";
 
 // Get your Clerk publishable key
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -124,6 +125,7 @@ function App() {
           
           {/* Organization route */}
           <Route path="/organization" element={<Organization />} />
+          <Route path="/scholarshipcreateform" element={<ScholarshipForm />} />
           
           {/* Donor route */}
           <Route path="/donation" element={<DonarPage />} />
