@@ -6,11 +6,11 @@ import {
   updateApplicationStatus,
   deleteApplication,
 } from "../controllers/applicationController";
-import { verifyUser } from "../middlewares/verifyUser";
+// import { verifyUser } from "../middlewares/verifyUser";
 
 const router = express.Router();
 
-router.post("/", verifyUser, createApplication);
+router.post("/", createApplication);
 router.get("/", getAllApplications);
 router.get("/:id", getApplicationById);
 router.patch("/:id", updateApplicationStatus);

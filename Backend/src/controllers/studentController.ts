@@ -3,7 +3,7 @@ import { prisma } from "../config/prismaClient";
 import {
   validateStudentData,
   validateStudentDataForUpdate,
-} from "../utils/validation";
+} from "../utils/studentDetailsValidation";
 import fs from "fs";
 import path from "path";
 

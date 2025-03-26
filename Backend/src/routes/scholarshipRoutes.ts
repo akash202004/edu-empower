@@ -6,14 +6,14 @@ import {
   updateScholarship,
   deleteScholarship,
 } from "../controllers/scholarshipController";
-import { verifyUser } from "../middlewares/verifyUser";
+// import { verifyUser } from "../middlewares/verifyUser";
 
 const router = express.Router();
 
 router.get("/", getScholarships);
 router.get("/:id", getScholarshipById);
 router.post("/", createScholarship); 
-router.put("/:id",verifyUser, updateScholarship);
+router.put("/:id", updateScholarship);
 router.delete("/:id", deleteScholarship);
 
 export default router;
