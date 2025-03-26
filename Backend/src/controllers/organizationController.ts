@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
+import {
+  validateOrganizationData,
+  validateOrganizationDataForUpdate,
+} from "../utils/organizationDetailsValidation";
 
 // Create Organization Details
 export const createOrganizationDetails = async (
@@ -7,7 +11,14 @@ export const createOrganizationDetails = async (
   res: Response
 ) => {
   try {
+    const validationResult = validateOrganizationData(req.body);
+    if (!validationResult.success) {
+      res.status(400).json({ errors: validationResult.error.format() });
+      return;
+    }
+
     const {
+      userId,
       organizationName,
       registrationNumber,
       contactPerson,
@@ -16,9 +27,7 @@ export const createOrganizationDetails = async (
       address,
       websiteURL,
       documentURL,
-    } = req.body;
-
-    const userId = (req as any).user.id;
+    } = validationResult.data;
 
     const existingDetails = await prisma.organizationDetails.findUnique({
       where: { userId },
@@ -51,6 +60,40 @@ export const createOrganizationDetails = async (
   }
 };
 
+// Update Organization Details
+export const updateOrganizationDetails = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const validationResult = validateOrganizationDataForUpdate(req.body);
+    if (!validationResult.success) {
+      res.status(400).json({ errors: validationResult.error.errors });
+      return;
+    }
+
+    const organizationDetails = await prisma.organizationDetails.findUnique({
+      where: { id },
+    });
+
+    if (!organizationDetails) {
+      res.status(404).json({ message: "Organization details not found." });
+      return;
+    }
+
+    const updatedOrganization = await prisma.organizationDetails.update({
+      where: { id },
+      data: { ...req.body, verifiedAt: req.body.verified ? new Date() : null },
+    });
+
+    res.json(updatedOrganization);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+};
+
 // Get Organization Details
 export const getOrganizationDetails = async (req: Request, res: Response) => {
   try {
@@ -67,62 +110,6 @@ export const getOrganizationDetails = async (req: Request, res: Response) => {
     }
 
     res.json(organizationDetails);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Update Organization Details
-export const updateOrganizationDetails = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const { id } = req.params;
-    const {
-      organizationName,
-      registrationNumber,
-      contactPerson,
-      contactEmail,
-      contactNumber,
-      address,
-      websiteURL,
-      documentURL,
-      verified,
-    } = req.body;
-
-    const organizationDetails = await prisma.organizationDetails.findUnique({
-      where: { id },
-    });
-    if (!organizationDetails) {
-      res.status(404).json({ message: "Organization details not found." });
-      return;
-    }
-
-    if (organizationDetails.userId !== (req as any).user.id) {
-      res
-        .status(403)
-        .json({ message: "Not authorized to update this organization." });
-      return;
-    }
-
-    const updatedOrganization = await prisma.organizationDetails.update({
-      where: { id },
-      data: {
-        organizationName,
-        registrationNumber,
-        contactPerson,
-        contactEmail,
-        contactNumber,
-        address,
-        websiteURL,
-        documentURL,
-        verified,
-        verifiedAt: verified ? new Date() : null,
-      },
-    });
-
-    res.json(updatedOrganization);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
