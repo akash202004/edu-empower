@@ -1,5 +1,8 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { ClerkProvider, useUser } from "@clerk/clerk-react";
+import Login from "./Component/Auth/Login";
+import StudentDetailsForm from "./Component/Student/StudentDetailsForm";
 import Navbar from "./Component/Navbar/Navbar";
 import Hero from "./Component/Hero/Hero";
 import About from "./Component/About/About";
@@ -7,8 +10,7 @@ import Feature from "./Component/Feature/Feature";
 import Footer from "./Component/Footer/Footer";
 import RoleSelection from "./Component/Auth/RoleSelection";
 import Student from "./Component/Student_Basic_Details_Form/Student";
-import StudentDetailsForm from "./Component/Student_Basic_Details_Form/StudentDetailsForm";
-import Login from "./Component/Auth/Login";
+import StudentBasicDetailsForm from "./Component/Student_Basic_Details_Form/StudentDetailsForm";
 import ScholarshipPage from "./Component/Scholarship/ScholarshipPage";
 import ScholarshipApplyForm from "./Component/Scholarship/ScholarshipapplyForm";
 import ScholarshipDetails from "./Component/Scholarship/ScholarshipDetails";
@@ -16,39 +18,121 @@ import Scholarshipapply from "./Component/Scholarship/Scholarshipapply";
 import DonarPage from "./Component/Donar/Donar";
 import Organization from "./Component/Organization/Organization";
 import StudentProfile from "./Component/Student/StudentProfile";
+import CrowdFundingPage2 from "./Component/CrowdFunding/CrowdFundingPage2";
+import Layout from "./Component/Layout/Layout";
+
+// Get your Clerk publishable key
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+// Create a HomePage component
+const HomePage = () => {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <div className="flex-grow">
+        <Hero />
+        <About />
+        <Feature />
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+// Simple auth protection component
+function RequireAuth({ children }) {
+  const { isSignedIn } = useUser();
+  
+  if (!isSignedIn) {
+    return <Navigate to="/auth/login" replace />;
+  }
+  
+  return children;
+}
+
+// Create a simple AuthRedirect component
+const AuthRedirect = () => {
+  const { isSignedIn, user } = useUser();
+  
+  if (isSignedIn) {
+    // If user is signed in, check their role
+    const role = user?.publicMetadata?.role || "STUDENT";
+    
+    if (role === "STUDENT") {
+      return <Navigate to="/student/details" replace />;
+    } else if (role === "ORGANIZATION") {
+      return <Navigate to="/organization" replace />;
+    } else {
+      return <Navigate to="/donation" replace />;
+    }
+  }
+  
+  // If not signed in, show the homepage
+  return <HomePage />;
+};
 
 function App() {
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <Hero />
-              <About />
-              <Feature />
-              <Footer />
-            </>
-          }
-        />
-        <Route path="/auth/role-selection" element={<RoleSelection />} />
-        <Route path="/auth/login" element={<Login />} />
-        <Route path="/student" element={<Student />} />
-        <Route path="/student/details" element={<StudentDetailsForm />} />
-        <Route path="/create-profile" element={<StudentDetailsForm />} />
-        <Route path="/student/profile" element={<StudentProfile />} />
-        <Route path="/student/dashboard" element={<div>Student Dashboard (Coming Soon)</div>} />
-        <Route path="/donation" element={<DonarPage />} />
-        <Route path="/organization" element={<Organization />} />
-        <Route path="/scholarship" element={<ScholarshipPage />} />
-        <Route path="/scholarship/details" element={<ScholarshipDetails />} />
-        <Route path="/scholarship/apply" element={<Scholarshipapply />} />
-        <Route path="/scholarship/apply/form" element={<ScholarshipApplyForm />} />
-        {/* Add other routes as needed */}
-      </Routes>
-    </div>
+    <ClerkProvider publishableKey={clerkPubKey}>
+      <Router>
+        <Routes>
+          {/* Root route */}
+          <Route path="/" element={<HomePage />} />
+          
+          {/* Auth routes */}
+          <Route path="/auth/login" element={<Login />} />
+          <Route path="/auth/role-selection" element={<RoleSelection />} />
+          
+          {/* Student routes */}
+          <Route path="/student" element={<Layout><Student /></Layout>} />
+          
+          <Route
+            path="/student/details"
+            element={<Layout><StudentDetailsForm /></Layout>}
+          />
+          
+          {/* Add the route for Student Basic Details Form */}
+          <Route 
+            path="/student/basic-details" 
+            element={<Layout><StudentBasicDetailsForm /></Layout>} 
+          />
+          
+          <Route
+            path="/student/profile"
+            element={
+              <RequireAuth>
+                <StudentProfile />
+              </RequireAuth>
+            }
+          />
+          
+          {/* Scholarship routes */}
+          <Route path="/scholarship" element={<Layout><ScholarshipPage /></Layout>} />
+          <Route path="/scholarship/:id" element={<ScholarshipDetails />} />
+          <Route 
+            path="/scholarship/apply/:id" 
+            element={
+              <RequireAuth>
+                <ScholarshipApplyForm />
+              </RequireAuth>
+            } 
+          />
+          
+          {/* Crowdfunding routes */}
+          <Route path="/crowdfunding" element={<CrowdFundingPage2 />} />
+          <Route path="/crowdfunding3" element={<CrowdFundingPage2 />} />
+          
+          {/* Organization route */}
+          <Route path="/organization" element={<Organization />} />
+          
+          {/* Donor route */}
+          <Route path="/donation" element={<DonarPage />} />
+          
+          {/* Catch-all route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </ClerkProvider>
   );
 }
 

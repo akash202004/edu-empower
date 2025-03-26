@@ -15,7 +15,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export function Navbar() {
+function Navbar() {
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ export function Navbar() {
       if (isSignedIn && user) {
         try {
           const { data } = await axios.post(
-            "http://localhost:3000/api/users/registerorupdate",
+            "http://localhost:5001/api/users/registerorupdate",
             {
               userId: user.id,
               name: user.fullName,
@@ -36,9 +36,15 @@ export function Navbar() {
 
           console.log("User synced:", data);
 
-          // Redirect based on role
+          // Redirect based on role - direct to profile form for students
           if (window.location.pathname === "/") {
-            navigate(data.role === "organization" ? "/organization" : "/student");
+            if (data.role === "STUDENT") {
+              navigate("/student/details");
+            } else if (data.role === "ORGANIZATION") {
+              navigate("/organization");
+            } else {
+              navigate("/donation");
+            }
           }
         } catch (error) {
           console.error("Error syncing user data:", error.response?.data || error.message);

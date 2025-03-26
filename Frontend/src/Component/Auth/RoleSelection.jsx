@@ -7,6 +7,7 @@ const RoleSelection = () => {
   
   const handleRoleSelect = (role) => {
     if (role === "STUDENT") {
+      // Redirect directly to the Student.jsx component without authentication
       navigate("/student", { state: { role: "STUDENT" } });
     } else {
       navigate("/auth/login", { state: { role } });

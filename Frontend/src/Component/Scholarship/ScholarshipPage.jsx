@@ -7,6 +7,7 @@ import {
   useUser,
 } from "@clerk/clerk-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Navbar from "../Navbar/Navbar";
 import {
   FiSearch,
   FiUser,
@@ -21,8 +22,9 @@ import {
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 
+// Keep only one ScholarshipPage component
 const ScholarshipPage = () => {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
 
