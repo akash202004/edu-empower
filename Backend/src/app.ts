@@ -18,7 +18,7 @@ import express from "express";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 // Configure CORS
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000'];
@@ -54,7 +54,6 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/ranking", studentRankingRoutes);
-
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
