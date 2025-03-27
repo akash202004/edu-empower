@@ -9,15 +9,15 @@ const RoleSelection = () => {
   const [hoveredRole, setHoveredRole] = useState(null);
   const heroRef = useRef(null);
   
-  // Parallax effect setup
+  // Parallax effect setup - modified to reduce the white effect
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"]
   });
   
-  // Parallax effect values
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  // Reduced parallax effect values to minimize the white effect
+  const y = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
   
   const handleRoleSelect = (role) => {
     if (role === "STUDENT") {
@@ -96,18 +96,20 @@ const RoleSelection = () => {
   ];
 
   return (
-    <div ref={heroRef} className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    // Changed the background to a more solid gradient that won't show white when elements move
+    <div ref={heroRef} className="min-h-screen flex flex-col bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+      {/* Animated Background Elements - added more elements for better coverage */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {/* Increased the number of background elements for better coverage */}
+        {Array.from({ length: 30 }).map((_, i) => (
           <motion.div
             key={i}
             className="absolute rounded-full bg-indigo-100 opacity-30 mix-blend-multiply filter blur-xl"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 10 + 5}px`,
-              height: `${Math.random() * 10 + 5}px`,
+              width: `${Math.random() * 15 + 10}px`, // Increased size
+              height: `${Math.random() * 15 + 10}px`, // Increased size
             }}
             animate={{
               x: [0, Math.random() * 100 - 50],
@@ -121,9 +123,12 @@ const RoleSelection = () => {
             }}
           />
         ))}
-        <div className="absolute top-10 left-10 w-64 h-64 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute top-0 right-10 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-green-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        {/* Made background blobs larger and more opaque */}
+        <div className="absolute top-10 left-10 w-96 h-96 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
+        <div className="absolute top-0 right-10 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-green-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+        {/* Added an extra blob for more coverage */}
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-3000"></div>
       </div>
 
       <motion.div 
@@ -225,7 +230,7 @@ const RoleSelection = () => {
                       {role.benefits.map((benefit, index) => (
                         <li key={index} className="flex items-center text-gray-600">
                           <svg className="h-4 w-4 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4m0 0l-4 4m4-4H3" />
                           </svg>
                           {benefit}
                         </li>
@@ -268,36 +273,6 @@ const RoleSelection = () => {
           <p className="text-sm text-gray-500">
             Already have an account? <a href="/auth/login" className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</a>
           </p>
-        </motion.div>
-        
-        {/* Universities Section */}
-        <motion.div 
-          className="mt-16 hidden lg:block"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <p className="text-xs text-gray-500 font-semibold uppercase mb-4 text-center">Trusted By Leading Universities:</p>
-          <div className="flex flex-wrap items-center justify-center gap-8">
-            {[
-              { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQBwuddBfDYzFHfvCjSk2dHhn1KL_weVdxIA&s", alt: "Harvard", height: "h-10" },
-              { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/The_University_of_California_UCLA.svg/800px-The_University_of_California_UCLA.svg.png", alt: "UCLA", height: "h-8" },
-              { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXTHxjibjLvPaPJSKRAFk2Oxyr_yxfcXeDYg6BF4jWJ5AERnOPn8NgeeMy&s=10", alt: "Michigan", height: "h-8" },
-              { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_dtvPjZYkcgpbq18XmHvPnTEuyCOGIiGl3ERrtNtzlVeXYvTtp_j-_Odx&s=10", alt: "Berkeley", height: "h-10" },
-              { src: "https://collegeaim.org/wp-content/uploads/2021/09/syracuse.png", alt: "Syracuse", height: "h-8" }
-            ].map((uni, index) => (
-              <motion.img 
-                key={index}
-                src={uni.src} 
-                alt={uni.alt} 
-                className={`${uni.height} grayscale hover:grayscale-0 transition-all duration-300`}
-                whileHover={{ scale: 1.1, y: -5 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 + index * 0.1 }}
-              />
-            ))}
-          </div>
         </motion.div>
       </motion.div>
     </div>
