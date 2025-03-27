@@ -29,32 +29,32 @@ const Features = () => {
   // Features data
   const features = [
     {
-      icon: <FiAward className="h-6 w-6 text-indigo-600" />,
+      icon: <FiAward className="h-6 w-6 text-black" />,
       title: "Scholarship Matching",
       description: "Our intelligent matching system connects you with scholarships that fit your profile, increasing your chances of success."
     },
     {
-      icon: <FiDollarSign className="h-6 w-6 text-indigo-600" />,
+      icon: <FiDollarSign className="h-6 w-6 text-black" />,
       title: "Crowdfunding Platform",
       description: "Create personalized campaigns to fund your education with support from family, friends, and the wider community."
     },
     {
-      icon: <FiUsers className="h-6 w-6 text-indigo-600" />,
+      icon: <FiUsers className="h-6 w-6 text-black" />,
       title: "Mentorship Network",
       description: "Connect with experienced mentors who can guide you through your educational journey and career planning."
     },
     {
-      icon: <FiSearch className="h-6 w-6 text-indigo-600" />,
+      icon: <FiSearch className="h-6 w-6 text-black" />,
       title: "Advanced Search",
       description: "Filter scholarships by amount, eligibility criteria, deadline, and more to find the perfect opportunities."
     },
     {
-      icon: <FiCheckCircle className="h-6 w-6 text-indigo-600" />,
+      icon: <FiCheckCircle className="h-6 w-6 text-black" />,
       title: "Application Tracking",
       description: "Keep track of all your scholarship applications in one place with status updates and deadline reminders."
     },
     {
-      icon: <FiShield className="h-6 w-6 text-indigo-600" />,
+      icon: <FiShield className="h-6 w-6 text-black" />,
       title: "Verified Opportunities",
       description: "All scholarships and funding opportunities on our platform are verified to ensure legitimacy and trustworthiness."
     }
@@ -70,7 +70,7 @@ const Features = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">Features</h2>
+          <h2 className="text-base font-semibold text-gray-700 tracking-wide uppercase">Features</h2>
           <h3 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             Everything You Need to Succeed
           </h3>
@@ -90,9 +90,10 @@ const Features = () => {
             <motion.div 
               key={index}
               variants={itemVariants}
-              className="bg-gray-50 rounded-xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300"
+              className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
+              whileHover={{ y: -5 }}
             >
-              <div className="h-12 w-12 rounded-md bg-indigo-100 flex items-center justify-center mb-5">
+              <div className="h-12 w-12 rounded-md bg-white flex items-center justify-center mb-5 border border-gray-200">
                 {feature.icon}
               </div>
               <h4 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h4>
@@ -109,7 +110,7 @@ const Features = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <div className="text-center mb-16">
-            <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">How It Works</h2>
+            <h2 className="text-base font-semibold text-gray-700 tracking-wide uppercase">How It Works</h2>
             <h3 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               Simple Process, Powerful Results
             </h3>
@@ -120,16 +121,17 @@ const Features = () => {
 
           <div className="relative">
             {/* Connection Line */}
-            <div className="hidden md:block absolute top-24 left-0 right-0 h-1 bg-indigo-100 z-0"></div>
+            <div className="hidden md:block absolute top-24 left-0 right-0 h-1 bg-gray-200 z-0"></div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
               <motion.div 
-                className="bg-white rounded-xl p-8 shadow-md text-center"
+                className="bg-white rounded-xl p-8 shadow-md text-center border border-gray-200"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
+                whileHover={{ y: -5 }}
               >
-                <div className="h-12 w-12 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto mb-6">
+                <div className="h-12 w-12 rounded-full bg-white text-black border border-gray-300 flex items-center justify-center mx-auto mb-6">
                   <span className="text-lg font-bold">1</span>
                 </div>
                 <h4 className="text-xl font-bold text-gray-900 mb-3">Create Your Profile</h4>
@@ -139,12 +141,13 @@ const Features = () => {
               </motion.div>
               
               <motion.div 
-                className="bg-white rounded-xl p-8 shadow-md text-center"
+                className="bg-white rounded-xl p-8 shadow-md text-center border border-gray-200"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
+                whileHover={{ y: -5 }}
               >
-                <div className="h-12 w-12 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto mb-6">
+                <div className="h-12 w-12 rounded-full bg-white text-black border border-gray-300 flex items-center justify-center mx-auto mb-6">
                   <span className="text-lg font-bold">2</span>
                 </div>
                 <h4 className="text-xl font-bold text-gray-900 mb-3">Explore Opportunities</h4>
@@ -154,12 +157,13 @@ const Features = () => {
               </motion.div>
               
               <motion.div 
-                className="bg-white rounded-xl p-8 shadow-md text-center"
+                className="bg-white rounded-xl p-8 shadow-md text-center border border-gray-200"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.7 }}
+                whileHover={{ y: -5 }}
               >
-                <div className="h-12 w-12 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto mb-6">
+                <div className="h-12 w-12 rounded-full bg-white text-black border border-gray-300 flex items-center justify-center mx-auto mb-6">
                   <span className="text-lg font-bold">3</span>
                 </div>
                 <h4 className="text-xl font-bold text-gray-900 mb-3">Apply & Succeed</h4>
@@ -173,7 +177,7 @@ const Features = () => {
 
         {/* Testimonial */}
         <motion.div 
-          className="mt-24 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 md:p-12"
+          className="mt-24 bg-white rounded-2xl p-8 md:p-12 border border-gray-200 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
@@ -189,7 +193,7 @@ const Features = () => {
               </div>
             </div>
             <div className="md:w-2/3">
-              <svg className="h-12 w-12 text-indigo-300 mb-6" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+              <svg className="h-12 w-12 text-gray-400 mb-6" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
                 <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
               </svg>
               <p className="text-xl text-gray-600 italic mb-6">
@@ -197,7 +201,7 @@ const Features = () => {
               </p>
               <div>
                 <h5 className="text-lg font-bold text-gray-900">Ananya Desai</h5>
-                <p className="text-indigo-600">Computer Engineering Student, Mumbai</p>
+                <p className="text-gray-700">Computer Engineering Student, Mumbai</p>
               </div>
             </div>
           </div>
