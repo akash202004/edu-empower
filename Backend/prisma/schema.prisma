@@ -117,6 +117,7 @@ model Scholarship {
   organization  User @relation("UserScholarships", fields: [organizationId], references: [id])
   applications  Application[] @relation("ScholarshipApplications")
   disbursements Disbursement[] @relation("ScholarshipDisbursements")
+  StudentRanking StudentRanking[]
   createdAt     DateTime @default(now())
 }
 
@@ -130,6 +131,7 @@ model Application {
   otherScholarships Boolean  @default(false)
   status       ApplicationStatus @default(PENDING)
   createdAt    DateTime @default(now())
+  StudentRanking StudentRanking[]
 }
 
 enum ApplicationStatus {
@@ -154,3 +156,16 @@ enum DisbursementStatus {
   COMPLETED
   FAILED
 }
+
+model StudentRanking {
+  id            String   @id @default(uuid())
+  applicationId String   @unique 
+  application   Application @relation(fields: [applicationId], references: [id])
+  scholarshipId String 
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id])
+  score         Float    @default(0) 
+  rank          Int?     
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
