@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import Navbar from "../Navbar/Navbar";
 
 const ScholarshipForm = () => {
   const [formData, setFormData] = useState({
@@ -45,7 +46,10 @@ const ScholarshipForm = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+    <div className="max-w-lg mx-auto w-full bg-white p-8 rounded-lg shadow-md">
+    
       <h2 className="text-2xl font-bold mt-20 mb-4 text-center">Create a Scholarship</h2>
       
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
@@ -111,6 +115,7 @@ const ScholarshipForm = () => {
           {loading ? "Submitting..." : "Create Scholarship"}
         </button>
       </form>
+    </div>
     </div>
   );
 };
