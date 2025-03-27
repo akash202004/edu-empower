@@ -8,7 +8,6 @@ import organizationRoutes from "./routes/organizationRoutes";
 import applicationRoutes from "./routes/applicationRoutes";
 import studentRoutes from "./routes/studentRoutes";
 import studentRankingRoutes from "./routes/studentRankingRoutes"
-import studentRankRoutes from "./routes/studentRankRoutes"
 import userRoutes from "./routes/userRoutes"
 import cors from "cors";
 import dotenv from "dotenv";
@@ -44,7 +43,6 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Routes
 app.use('/api/students', studentRoutes);
 app.use('/api/users', userRoutes);
-app.use("/api/rank", studentRankRoutes);
 app.use("/api/scholarships", scholarshipRoutes);
 app.use("/api/upload", fileUploadRoutes);
 app.use("/api/fundraiser", fundraiserRoutes);
