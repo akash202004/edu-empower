@@ -2,7 +2,7 @@ import os
 import requests
 
 # Load backend URL (Update this in .env)
-BACKEND_URL = "http://localhost:5000/api/students"  
+BACKEND_URL = "http://localhost:3000/api/students"  
 
 def fetch_student_data(user_id):
     url = f"{BACKEND_URL}/{user_id}"
@@ -18,6 +18,8 @@ def fetch_student_data(user_id):
         return {
             "userId": data["userId"],
             "name": data["fullName"],
+            "aboutMe": data.get("aboutMe", "Not provided"), 
+            "contactNumber": data.get("contactNumber", "Not provided"),  
             "tenthResult": data["tenthResult"],   # Cloudinary WebP URL
             "twelfthResult": data["twelfthResult"],  # Cloudinary WebP URL
             "incomeCert": data["incomeCert"],    # Cloudinary WebP URL
