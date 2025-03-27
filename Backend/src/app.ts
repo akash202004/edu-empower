@@ -7,6 +7,7 @@ import disbursementRoutes from "./routes/disbursementRoutes";
 import organizationRoutes from "./routes/organizationRoutes";
 import applicationRoutes from "./routes/applicationRoutes";
 import studentRoutes from "./routes/studentRoutes";
+import studentRankingRoutes from "./routes/studentRankingRoutes"
 import studentRankRoutes from "./routes/studentRankRoutes"
 import userRoutes from "./routes/userRoutes"
 import cors from "cors";
@@ -23,7 +24,6 @@ const PORT = process.env.PORT || 5001;
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000'];
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -53,6 +53,7 @@ app.use("/api/disbursements", disbursementRoutes);
 app.use("/api/organizations", organizationRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/students", studentRoutes);
+app.use("/api/ranking", studentRankingRoutes);
 
 
 app.listen(PORT, () => {
