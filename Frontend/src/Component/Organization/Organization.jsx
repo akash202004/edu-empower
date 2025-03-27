@@ -26,10 +26,10 @@ function Organization() {
       try {
         const email = user.primaryEmailAddress?.emailAddress || null;
   
-        // Ensure the email belongs to an organization
-        if (!email || !email.endsWith("@organization.com")) {
-          console.error("Unauthorized email. Only organization emails are allowed.");
-          alert("Only organization emails are allowed.");
+        // Ensure the email belongs to an organization with a .in domain
+        if (!email || !email.endsWith(".in")) {
+          console.error("Unauthorized email. Only .in domain emails are allowed.");
+          alert("Only emails ending with .in are allowed.");
           return;
         }
   
@@ -46,6 +46,7 @@ function Organization() {
       }
     }
   };
+  
   
 
    // Auto-sync user on page load if signed in
