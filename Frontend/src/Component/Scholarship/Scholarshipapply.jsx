@@ -35,6 +35,8 @@ const Scholarshipapply = () => {
         
         if (selectedScholarship) {
           setScholarship(selectedScholarship);
+          // Store scholarship data locally
+          localStorage.setItem('selectedScholarship', JSON.stringify(selectedScholarship));
         } else {
           setError("Scholarship not found. Please try again.");
         }
@@ -50,11 +52,21 @@ const Scholarshipapply = () => {
   }, [scholarshipId]);
   
   const handleProceed = () => {
-    navigate("/scholarship/apply/form", { 
+    console.log("Proceeding to application form with ID:", scholarshipId);
+    console.log("Scholarship title:", scholarship?.title);
+    
+    // Check if scholarshipId is defined
+    if (!scholarshipId) {
+      console.error("Scholarship ID is undefined. Cannot proceed to application form.");
+      return;
+    }
+    
+    // Redirect directly to the ScholarshipApplicationForm page
+    navigate("/ScholarshipApplicationForm", { 
       state: { 
         scholarshipId: scholarshipId,
         scholarshipTitle: scholarship?.title
-      } 
+      }
     });
   };
   
