@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
 import { useUser } from "@clerk/clerk-react";
 import { FiUpload, FiUser, FiCalendar, FiPhone, FiMail, FiHome } from "react-icons/fi";
 import { FiLock } from "react-icons/fi";
@@ -20,6 +20,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const StudentDetailsForm = () => {
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
+  const location = useLocation(); // Added to check if we're in view mode
+  const viewMode = location.state?.viewMode || false; // Define viewMode from location state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState(null);
   const [bucketReady, setBucketReady] = useState(false);
@@ -286,206 +288,237 @@ const StudentDetailsForm = () => {
     }
   };
 
+  // Add this near the top of your handleSubmit function
   const handleSubmit = async (e) => {
-      e.preventDefault();
+    e.preventDefault();
+    
+    // If in view mode, just go back
+    if (viewMode) {
+      navigate(-1);
+      return;
+    }
+    
+    console.log("Form data being validated:", formData);
+    
+    if (validateForm()) {
+      setIsSubmitting(true);
+      setApiError(null);
       
-      console.log("Form data being validated:", formData);
-      
-      if (validateForm()) {
-        setIsSubmitting(true);
-        setApiError(null);
+      try {
+        // Skip bucket check and proceed directly to uploads
+        console.log("Proceeding directly to document uploads...");
         
-        try {
-          // Skip bucket check and proceed directly to uploads
-          console.log("Proceeding directly to document uploads...");
-          
-          // Upload documents to Supabase
-          const documentUrls = {
-            domicileCertificate: null,
-            incomeCertificate: null,
-            tenthResult: null,
-            twelfthResult: null
-          };
-          
-          // Create an array to track upload promises
-          const uploadPromises = [];
-          
-          // Upload each document if it exists
-          if (formData.documents.domicileCertificate) {
-            const uploadPromise = uploadFileToSupabase(
-              formData.documents.domicileCertificate, 
-              'domicile-certificate'
-            ).then(url => {
-              documentUrls.domicileCertificate = url;
-              console.log("Domicile certificate URL:", url);
-            }).catch(err => {
-              console.error("Error uploading domicile certificate:", err);
-              return null;
-            });
-            uploadPromises.push(uploadPromise);
-          }
-          
-          if (formData.documents.incomeCertificate) {
-            const uploadPromise = uploadFileToSupabase(
-              formData.documents.incomeCertificate, 
-              'income-certificate'
-            ).then(url => {
-              documentUrls.incomeCertificate = url;
-              console.log("Income certificate URL:", url);
-            }).catch(err => {
-              console.error("Error uploading income certificate:", err);
-              return null;
-            });
-            uploadPromises.push(uploadPromise);
-          }
-          
-          if (formData.documents.marksheet10) {
-            const uploadPromise = uploadFileToSupabase(
-              formData.documents.marksheet10, 
-              'marksheet-10'
-            ).then(url => {
-              documentUrls.tenthResult = url;
-              console.log("10th marksheet URL:", url);
-            }).catch(err => {
-              console.error("Error uploading 10th marksheet:", err);
-              return null;
-            });
-            uploadPromises.push(uploadPromise);
-          }
-          
-          if (formData.documents.marksheet12) {
-            const uploadPromise = uploadFileToSupabase(
-              formData.documents.marksheet12, 
-              'marksheet-12'
-            ).then(url => {
-              documentUrls.twelfthResult = url;
-              console.log("12th marksheet URL:", url);
-            }).catch(err => {
-              console.error("Error uploading 12th marksheet:", err);
-              return null;
-            });
-            uploadPromises.push(uploadPromise);
-          }
-          
-          // Wait for all uploads to complete
-          await Promise.all(uploadPromises);
-          
-          // Add this debugging function at the top of your component
-          const logBackendResponse = (response) => {
-            console.log("Backend Response:", {
-              status: response.status,
-              statusText: response.statusText,
-              data: response.data,
-              headers: response.headers
-            });
-          };
-
-          // Prepare form data for API with field names matching the backend expectations
-          const studentData = {
-            userId: user.id,
-            fullName: formData.name,           // Changed from name to fullName
-            email: formData.email,
-            dateOfBirth: formData.dob,         // Changed from dob to dateOfBirth
-            contactNumber: formData.contactNumber,
-            address: formData.address,
-            gender: formData.gender,
-            motherName: formData.motherName || "",
-            fatherName: formData.fatherName || "",
-            guardianName: formData.guardianName || "",
-            guardianContact: formData.guardianContact || "",
-            guardianAddress: formData.guardianAddress || "",
-            guardianEmail: formData.guardianEmail || "",
-            careerGoals: formData.careerGoals || "",
-            // Add these required fields that might be missing
-            nationality: "Indian",
-            otherScholarships: "",
-            // Document URLs
-            domicileCert: documentUrls.domicileCertificate || "",
-            incomeCert: documentUrls.incomeCertificate || "",
-            tenthResult: documentUrls.tenthResult || "",
-            twelfthResult: documentUrls.twelfthResult || ""
-          };
-          
-          console.log("Student data being sent to API:", studentData);
-          
-          // Check if we're updating an existing profile or creating a new one
-          let response;
-          if (formData.userId) {
-            // Update existing profile
-            response = await axios.put(`${API_BASE_URL}/students/${user.id}`, studentData);
-            logBackendResponse(response);
-            console.log("Profile updated successfully:", response.data);
-          } else {
-            // Create new profile - add more detailed logging
-            console.log("Creating new profile with API URL:", `${API_BASE_URL}/students`);
-            response = await axios.post(`${API_BASE_URL}/students`, studentData);
-            logBackendResponse(response);
-            console.log("Profile created successfully:", response.data);
-          }
-          
-          // Navigate to the student profile page
-          navigate("/student/profile");
-        } catch (error) {
-          console.error("Error saving profile:", error);
-          // Log more detailed error information
-          if (error.response) {
-            console.error("Error response data:", error.response.data);
-            console.error("Error response status:", error.response.status);
-            console.error("Error response headers:", error.response.headers);
-            
-            // Check for validation errors
-            if (error.response.data && error.response.data.errors) {
-              console.error("Validation errors:", JSON.stringify(error.response.data.errors, null, 2));
-              setApiError(`Validation failed: ${Object.values(error.response.data.errors).flat().join(', ')}`);
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            console.error("No response received:", error.request);
-            setApiError("No response received from server. Please check if the backend is running.");
-          } else {
-            // Something happened in setting up the request
-            console.error("Error setting up request:", error.message);
-            setApiError(`Error: ${error.message}`);
-          }
-          
-          if (error.code === 'ERR_NETWORK') {
-            setApiError("Cannot connect to the server. Please make sure the backend is running.");
-          } else if (!error.response) {
-            setApiError("Network error. Please check your connection and try again.");
-          } else {
-            setApiError(error.message || error.response?.data?.message || "Failed to save profile. Please try again.");
-          }
-        } finally {
-          setIsSubmitting(false);
+        // Upload documents to Supabase
+        const documentUrls = {
+          domicileCertificate: null,
+          incomeCertificate: null,
+          tenthResult: null,
+          twelfthResult: null
+        };
+        
+        // Create an array to track upload promises
+        const uploadPromises = [];
+        
+        // Upload each document if it exists
+        if (formData.documents.domicileCertificate) {
+          const uploadPromise = uploadFileToSupabase(
+            formData.documents.domicileCertificate, 
+            'domicile-certificate'
+          ).then(url => {
+            documentUrls.domicileCertificate = url;
+            console.log("Domicile certificate URL:", url);
+          }).catch(err => {
+            console.error("Error uploading domicile certificate:", err);
+            return null;
+          });
+          uploadPromises.push(uploadPromise);
         }
-      } else {
-        console.log("Form has errors");
+        
+        if (formData.documents.incomeCertificate) {
+          const uploadPromise = uploadFileToSupabase(
+            formData.documents.incomeCertificate, 
+            'income-certificate'
+          ).then(url => {
+            documentUrls.incomeCertificate = url;
+            console.log("Income certificate URL:", url);
+          }).catch(err => {
+            console.error("Error uploading income certificate:", err);
+            return null;
+          });
+          uploadPromises.push(uploadPromise);
+        }
+        
+        if (formData.documents.marksheet10) {
+          const uploadPromise = uploadFileToSupabase(
+            formData.documents.marksheet10, 
+            'marksheet-10'
+          ).then(url => {
+            documentUrls.tenthResult = url;
+            console.log("10th marksheet URL:", url);
+          }).catch(err => {
+            console.error("Error uploading 10th marksheet:", err);
+            return null;
+          });
+          uploadPromises.push(uploadPromise);
+        }
+        
+        if (formData.documents.marksheet12) {
+          const uploadPromise = uploadFileToSupabase(
+            formData.documents.marksheet12, 
+            'marksheet-12'
+          ).then(url => {
+            documentUrls.twelfthResult = url;
+            console.log("12th marksheet URL:", url);
+          }).catch(err => {
+            console.error("Error uploading 12th marksheet:", err);
+            return null;
+          });
+          uploadPromises.push(uploadPromise);
+        }
+        
+        // Wait for all uploads to complete
+        await Promise.all(uploadPromises);
+        
+        // Add this debugging function at the top of your component
+        const logBackendResponse = (response) => {
+          console.log("Backend Response:", {
+            status: response.status,
+            statusText: response.statusText,
+            data: response.data,
+            headers: response.headers
+          });
+        };
+  
+        // Prepare form data for API with field names matching the backend expectations
+        const studentData = {
+          userId: user.id,
+          fullName: formData.name,           // Changed from name to fullName
+          email: formData.email,
+          dateOfBirth: formData.dob,         // Changed from dob to dateOfBirth
+          contactNumber: formData.contactNumber,
+          address: formData.address,
+          gender: formData.gender,
+          motherName: formData.motherName || "",
+          fatherName: formData.fatherName || "",
+          guardianName: formData.guardianName || "",
+          guardianContact: formData.guardianContact || "",
+          guardianAddress: formData.guardianAddress || "",
+          guardianEmail: formData.guardianEmail || "",
+          careerGoals: formData.careerGoals || "",
+          // Add these required fields that might be missing
+          nationality: "Indian",
+          otherScholarships: "",
+          // Document URLs
+          domicileCert: documentUrls.domicileCertificate || "",
+          incomeCert: documentUrls.incomeCertificate || "",
+          tenthResult: documentUrls.tenthResult || "",
+          twelfthResult: documentUrls.twelfthResult || ""
+        };
+        
+        console.log("Student data being sent to API:", studentData);
+        
+        // Check if we're updating an existing profile or creating a new one
+        let response;
+        if (formData.userId) {
+          // Update existing profile
+          response = await axios.put(`${API_BASE_URL}/students/${user.id}`, studentData);
+          logBackendResponse(response);
+          console.log("Profile updated successfully:", response.data);
+        } else {
+          // Create new profile - add more detailed logging
+          console.log("Creating new profile with API URL:", `${API_BASE_URL}/students`);
+          response = await axios.post(`${API_BASE_URL}/students`, studentData);
+          logBackendResponse(response);
+          console.log("Profile created successfully:", response.data);
+        }
+        
+        // Navigate to the student profile page
+        navigate("/student/profile");
+      } catch (error) {
+        console.error("Error saving profile:", error);
+        // Log more detailed error information
+        if (error.response) {
+          console.error("Error response data:", error.response.data);
+          console.error("Error response status:", error.response.status);
+          console.error("Error response headers:", error.response.headers);
+          
+          // Check for validation errors
+          if (error.response.data && error.response.data.errors) {
+            console.error("Validation errors:", JSON.stringify(error.response.data.errors, null, 2));
+            setApiError(`Validation failed: ${Object.values(error.response.data.errors).flat().join(', ')}`);
+          }
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error("No response received:", error.request);
+          setApiError("No response received from server. Please check if the backend is running.");
+        } else {
+          // Something happened in setting up the request
+          console.error("Error setting up request:", error.message);
+          setApiError(`Error: ${error.message}`);
+        }
+        
+        if (error.code === 'ERR_NETWORK') {
+          setApiError("Cannot connect to the server. Please make sure the backend is running.");
+        } else if (!error.response) {
+          setApiError("Network error. Please check your connection and try again.");
+        } else {
+          setApiError(error.message || error.response?.data?.message || "Failed to save profile. Please try again.");
+        }
+      } finally {
+        setIsSubmitting(false);
       }
-    };
+    } else {
+      console.log("Form has errors");
+    }
+  };
 
-    return (
-      <ErrorBoundary fallback={<div>Something went wrong. Please refresh the page.</div>}>
-        <div className="bg-gray-50 min-h-screen py-8">
-          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-            <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Student Details Form</h1>
-            <p className="text-gray-600 text-center mb-8">
-              Please fill in your details to complete your profile
-            </p>
-
-            {apiError && (
-              <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-                <p className="text-red-700">{apiError}</p>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Information Section */}
-              {/* Rest of your form JSX remains unchanged */}
-            </form>
-          </div>
+  return (
+    <ErrorBoundary fallback={<div>Something went wrong. Please refresh the page.</div>}>
+      <div className="bg-gray-50 min-h-screen py-8">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            {viewMode ? "Your Profile" : "Student Details Form"}
+          </h1>
+          <p className="text-gray-600 text-center mb-8">
+            {viewMode ? "View your profile information" : "Please fill in your details to complete your profile"}
+          </p>
+  
+          {apiError && (
+            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+              <p className="text-red-700">{apiError}</p>
+            </div>
+          )}
+  
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Personal Information Section */}
+            {/* Then for your form fields, add readOnly={viewMode} to make them read-only in view mode */}
+            {/* Example: */}
+            <input
+              type="text"
+              name="contactNumber"
+              value={formData.contactNumber}
+              onChange={handleChange}
+              readOnly={viewMode}
+              className={`block w-full pl-10 pr-3 py-2 border ${
+                errors.contactNumber ? "border-red-500" : "border-gray-300"
+              } rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+                viewMode ? "bg-gray-50" : ""
+              }`}
+            />
+            
+            {/* And modify your submit button */}
+            <button
+              type="submit"
+              className={`px-4 py-2 ${viewMode ? 'bg-gray-600' : 'bg-indigo-600'} text-white rounded-md shadow-sm hover:${viewMode ? 'bg-gray-700' : 'bg-indigo-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+              disabled={isSubmitting}
+            >
+              {viewMode ? "Close" : (isSubmitting ? "Saving..." : "Save Profile")}
+            </button>
+          </form>
         </div>
-      </ErrorBoundary>
-    );
+      </div>
+    </ErrorBoundary>
+  );
 };
 
 export default StudentDetailsForm;
