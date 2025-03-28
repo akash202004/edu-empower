@@ -9,7 +9,7 @@ import applicationRoutes from "./routes/applicationRoutes";
 import studentRoutes from "./routes/studentRoutes";
 import studentRankingRoutes from "./routes/studentRankingRoutes"
 import userRoutes from "./routes/userRoutes"
-import cors from "cors";
+// import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 
