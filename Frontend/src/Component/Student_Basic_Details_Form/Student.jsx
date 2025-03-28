@@ -605,7 +605,7 @@ export default function ScholarshipHero() {
                   idx === activeNotification && (
                     <motion.div 
                       key={idx}
-                      className="absolute -bottom-6 -right-6 w-64 bg-white rounded-lg shadow-lg p-3 border border-gray-100"
+                      className="absolute -right-10 w-70 bg-white rounded-lg shadow-lg p-3 border border-gray-100"
                       initial={{ opacity: 0, y: 20, scale: 0.9 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -20, scale: 0.9 }}

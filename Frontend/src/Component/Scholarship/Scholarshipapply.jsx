@@ -35,8 +35,6 @@ const Scholarshipapply = () => {
         
         if (selectedScholarship) {
           setScholarship(selectedScholarship);
-          // Store scholarship data locally
-          localStorage.setItem('selectedScholarship', JSON.stringify(selectedScholarship));
         } else {
           setError("Scholarship not found. Please try again.");
         }
