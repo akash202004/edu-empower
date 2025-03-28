@@ -385,30 +385,45 @@ const StudentDetailsForm = () => {
         await Promise.all(uploadPromises);
         
         // Prepare form data for API with field names matching the backend expectations
-        const studentData = {
-          userId: user.id,
-          fullName: formData.name,           // Changed from name to fullName
-          email: formData.email,
-          dateOfBirth: formData.dob,         // Changed from dob to dateOfBirth
-          contactNumber: formData.contactNumber,
-          address: formData.address,
-          gender: formData.gender,
-          motherName: formData.motherName || "",
-          fatherName: formData.fatherName || "",
-          guardianName: formData.guardianName || "",
-          guardianContact: formData.guardianContact || "",
-          guardianAddress: formData.guardianAddress || "",
-          guardianEmail: formData.guardianEmail || "",
-          careerGoals: formData.careerGoals || "",
-          // Add these required fields that might be missing
-          nationality: "Indian",
-          otherScholarships: "",
-          // Document URLs
-          domicileCert: documentUrls.domicileCertificate || "",
-          incomeCert: documentUrls.incomeCertificate || "",
-          tenthResult: documentUrls.tenthResult || "",
-          twelfthResult: documentUrls.twelfthResult || ""
-        };
+        useEffect(() => {
+          if (!user || !formData) return; // Ensure data exists before making the request
+      
+          const studentData = {
+            userId: user.id,
+            fullName: formData.name, // Changed from name to fullName
+            email: formData.email,
+            dateOfBirth: formData.dob, // Changed from dob to dateOfBirth
+            contactNumber: formData.contactNumber,
+            address: formData.address,
+            gender: formData.gender,
+            motherName: formData.motherName || "",
+            fatherName: formData.fatherName || "",
+            guardianName: formData.guardianName || "",
+            guardianContact: formData.guardianContact || "",
+            guardianAddress: formData.guardianAddress || "",
+            guardianEmail: formData.guardianEmail || "",
+            careerGoals: formData.careerGoals || "",
+            nationality: "Indian",
+            otherScholarships: "",
+            // Document URLs
+            domicileCert: documentUrls.domicileCertificate || "",
+            incomeCert: documentUrls.incomeCertificate || "",
+            tenthResult: documentUrls.tenthResult || "",
+            twelfthResult: documentUrls.twelfthResult || ""
+          };
+      
+          const sendStudentData = async () => {
+            try {
+              await axios.post("http://localhost:3001/api/students/register", studentData);
+              console.log("Student data sent successfully!");
+            } catch (error) {
+              console.error("Error sending student data:", error.response?.data || error.message);
+            }
+          };
+      
+          sendStudentData(); // Call function to send data
+      
+        }, [user, formData, documentUrls]); // Dependency array ensures it runs when these values change
         
         console.log("Student data being sent to API:", studentData);
         
