@@ -1,18 +1,18 @@
 import random  
+import re  
 from textblob import TextBlob  
 from googletrans import Translator
+from train import HARDSHIP_KEYWORDS  # Import hardship data
 
 # Initialize Translator
 translator = Translator()
 
-# Keywords for special hardship conditions
-HARDSHIP_KEYWORDS = {
-    "financial": ["financial difficulties", "low income", "can't afford", "struggling", "गरीब", "आर्थिक कठिनाई"],
-    "single_parent": ["lost father", "lost mother", "no father", "no mother", "orphan", "raised by guardian", "अनाथ"],
-    "disability": ["disabled", "special needs", "medical condition", "physically challenged", "विकलांग", "बीमारी"],
-    "rural": ["village", "no proper school", "rural area", "lack of resources", "गाँव", "ग्रामीण"],
-    "first_gen": ["first in family to study", "no educated family members", "first-generation learner", "पहली पीढ़ी का छात्र"]
-}
+# Detect Hindi words (basic check)
+HINDI_PATTERN = re.compile("[\u0900-\u097F]")
+
+def contains_hindi(text):
+    """Returns True if text contains Hindi characters."""
+    return bool(HINDI_PATTERN.search(text))
 
 def translate_text(text):
     """Translate text to English if it's in another language."""
@@ -34,18 +34,31 @@ def analyze_emotion(about_me):
     blob = TextBlob(about_me)
     polarity = blob.sentiment.polarity  # Sentiment score (-1 to 1)
 
-    # Convert polarity to a 1-10 scale (more negative = more emotion)
-    emotion_score = round((1 - polarity) * 9) + 1
-    emotion_score = max(1, min(emotion_score, 10))  # Ensure 1-10
+    # Convert polarity to a 1-5 scale (negative = high emotion)
+    emotion_score = round((1 - polarity) * 4.5) + 1  # Scaling max to ~5 points
+    emotion_score = max(1, min(emotion_score, 5))  # Ensure range 1-5
 
-    # Additional hardship-based points (up to 5)
+    # Hardship-based points (Only English words add points)
     hardship_points = 0
+    about_me_lower = about_me.lower()
     for category, keywords in HARDSHIP_KEYWORDS.items():
-        if any(keyword in about_me.lower() for keyword in keywords):
-            hardship_points += 1
+        for keyword in keywords:
+            if keyword in about_me_lower and not contains_hindi(keyword):  # Only English words
+                hardship_points += 1
 
-    total_score = emotion_score + hardship_points
-    return min(10, total_score)  # Cap at 10
+    hardship_points = min(5, hardship_points)  # Cap at 5 points
+
+    # Penalty for Hindi words (-1 point if found)
+    if contains_hindi(about_me):
+        hardship_points -= 1
+
+    # Penalty for illogical/gibberish sentences
+    word_count = len(about_me.split())
+    if word_count < 3 and polarity > 0.5:  # If too short and overly positive, likely nonsense
+        hardship_points -= 1
+
+    total_score = max(1, min(10, emotion_score + hardship_points))  # Ensure range 1-10
+    return total_score
 
 def process_student_data(student_data):
     print("🔄 Processing student data...")
