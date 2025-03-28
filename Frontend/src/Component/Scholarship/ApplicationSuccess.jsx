@@ -10,10 +10,7 @@ const ApplicationSuccess = () => {
   const { 
     fullName = "Student", 
     email = "your email",
-    contactNumber = "",
-    dateOfBirth = "",
-    nationality = "",
-    // Add other fields as needed
+    scholarshipTitle = "the scholarship"
   } = location.state || {};
 
   return (
@@ -33,39 +30,32 @@ const ApplicationSuccess = () => {
             </p>
             
             <p className="text-gray-600">
-              Your scholarship application has been successfully submitted. Our donors will review your profile, and you'll receive an update via email once the review process is complete.
+              Your application for <span className="font-medium">{scholarshipTitle}</span> has been successfully submitted. We'll review your application and get back to you soon.
             </p>
             
-            <div className="flex items-center justify-center text-gray-600 bg-gray-50 rounded-lg p-4">
-              <FiMail className="text-indigo-600 mr-2" />
-              <span>Notification will be sent to: <span className="font-medium">{email}</span></span>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-center text-gray-700 mb-2">
+                <FiMail className="mr-2 h-5 w-5 text-indigo-600" />
+                <span>A confirmation email has been sent to:</span>
+              </div>
+              <p className="font-medium text-gray-900">{email}</p>
             </div>
             
-            {contactNumber && (
-              <div className="text-gray-600 text-sm">
-                We may contact you at: {contactNumber}
-              </div>
-            )}
-            
-            <p className="text-gray-500 text-sm">
-              Please ensure your email is accessible and check your spam folder if you don't receive any communication within 2 weeks.
-            </p>
-            
-            <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
+            <div className="pt-6 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 justify-center">
+              <button
                 onClick={() => navigate("/scholarship")}
-                className="flex items-center justify-center px-6 py-3 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                <FiArrowLeft className="mr-2" />
-                Back to Scholarships
+                <FiArrowLeft className="mr-2 -ml-1 h-5 w-5" />
+                Browse More Scholarships
               </button>
               
-              <button 
+              <button
                 onClick={() => navigate("/")}
-                className="flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                <FiHome className="mr-2" />
-                Go to Homepage
+                <FiHome className="mr-2 -ml-1 h-5 w-5" />
+                Go to Home
               </button>
             </div>
           </div>
