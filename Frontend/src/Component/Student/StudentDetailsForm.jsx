@@ -45,6 +45,7 @@ const StudentDetailsForm = () => {
     }
   });
 
+
   // Update form data when user is available
   useEffect(() => {
     if (user) {
@@ -411,10 +412,12 @@ const StudentDetailsForm = () => {
             tenthResult: documentUrls.tenthResult || "",
             twelfthResult: documentUrls.twelfthResult || ""
           };
+
+          console.log(studentData);
       
           const sendStudentData = async () => {
             try {
-              await axios.post("http://localhost:3001/api/students/register", studentData);
+              await axios.post("http://localhost:3010/api/students", studentData);
               console.log("Student data sent successfully!");
             } catch (error) {
               console.error("Error sending student data:", error.response?.data || error.message);
