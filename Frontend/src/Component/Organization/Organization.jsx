@@ -47,15 +47,16 @@ const Organization = () => {
   // Use the first 3 features from the imported data
   const displayFeatures = allFeatures.slice(0, 3);
   
-  // Handle user navigation
+  // Update this function to remove scholarshipcreateform navigation
   const handleUserSync = () => {
-    navigate('/dashboard/create-scholarship');
+
+    console.log("Organization action triggered");
   };
   
   // Handle image errors
   const handleImageError = (e) => {
     e.target.onerror = null;
-    e.target.src = 'https://via.placeholder.com/150?text=Image+Not+Available';
+    e.target.src = '';
   };
   
   // FAQ data
@@ -121,7 +122,7 @@ const Organization = () => {
   ];
   
   return (
-    <div className="min-h-screen flex flex-col" ref={pageRef}>
+    <div className="min-h-screen flex flex-col relative" ref={pageRef}>
       <Navbar />
       
       {/* Hero Section */}

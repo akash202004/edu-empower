@@ -19,7 +19,8 @@ const Login = () => {
         // Check if the student has already completed their profile
         checkStudentProfile(user.id);
       } else if (role === "ORGANIZATION") {
-        navigate("/organization");
+        // Direct redirect to dashboard for organization users
+        navigate("/organization/dashboard");
       } else {
         navigate("/donation");
       }
@@ -68,7 +69,7 @@ const Login = () => {
   // Always redirect students to the profile form after login
   const returnTo = role === "STUDENT" 
     ? "/student/details" 
-    : (role === "ORGANIZATION" ? "/organization" : "/donation");
+    : (role === "ORGANIZATION" ? "/organization/dashboard" : "/donation");
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

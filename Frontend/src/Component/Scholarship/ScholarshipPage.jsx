@@ -56,28 +56,40 @@ const ScholarshipPage = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
 
   // Fetch scholarships from the JSON file
+  // Inside the useEffect or data fetching function
+  // Fix the useEffect to properly handle local storage data
   useEffect(() => {
     const fetchScholarships = async () => {
+      setLoading(true);
       try {
-        console.log("Attempting to fetch scholarships...");
-        const response = await fetch("/data/scholarship.json");
-        console.log("Fetch response:", response);
+        // First check if we have scholarships in local storage
+        const storedScholarships = localStorage.getItem('allScholarships');
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+        if (storedScholarships) {
+          const parsedScholarships = JSON.parse(storedScholarships);
+          setScholarships(parsedScholarships);
+          setLoading(false);
+        } else {
+          // Fallback to API or JSON file
+          const response = await fetch('/data/scholarship.json');
+          if (!response.ok) {
+            throw new Error('Failed to fetch scholarships');
+          }
+          const data = await response.json();
+          
+          // Store in local storage for future use
+          localStorage.setItem('allScholarships', JSON.stringify(data));
+          
+          setScholarships(data);
+          setLoading(false);
         }
-        
-        const data = await response.json();
-        console.log("Fetched scholarships:", data);
-        setScholarships(data);
-        setLoading(false);
       } catch (error) {
-        console.error("Error fetching scholarships:", error);
-        setError("Failed to load scholarships. Please try again later.");
+        console.error('Error fetching scholarships:', error);
+        setError('Failed to load scholarships. Please try again later.');
         setLoading(false);
       }
     };
-
+    
     fetchScholarships();
   }, []);
 
