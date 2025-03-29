@@ -213,7 +213,7 @@ export default function ScholarshipHero() {
   const handleUserSync = async () => {
     if (isSignedIn && user) {
       try {
-        await axios.post("http://localhost:3010/api/users/registerorupdate", {
+        await axios.post("http://localhost:3001/api/users/registerorupdate", {
           userId: user.id,
           name: user.fullName,
           email: user.primaryEmailAddress?.emailAddress || null,
@@ -224,7 +224,7 @@ export default function ScholarshipHero() {
         console.log(user.fullName);
         console.log(user.primaryEmailAddress?.emailAddress || null);
 
-        navigate("/scholarshipcreateform"); // Redirect after successful sync
+        navigate("/scholarship"); // Redirect after successful sync
       } catch (error) {
         console.error("Error syncing user data:", error.response?.data || error.message);
       }
@@ -322,6 +322,7 @@ export default function ScholarshipHero() {
               <SignedOut>
                 <SignInButton mode="modal" redirectUrl="/scholarship">
                   <motion.button
+                     onClick={handleUserSync()}
                     className="mt-8 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg font-medium rounded-xl shadow-lg relative overflow-hidden group"
                     whileHover={{
                       scale: 1.05,
@@ -333,7 +334,7 @@ export default function ScholarshipHero() {
                       className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-400 to-purple-400 opacity-0 group-hover:opacity-100"
                       transition={{ duration: 0.3 }}
                     />
-                    <span onClick={handleUserSync()} className="relative z-10">Apply for scholarships</span>
+                    <span className="relative z-10">Apply for scholarships</span>
                     <motion.span
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1"
                       transition={{ duration: 0.3 }}
