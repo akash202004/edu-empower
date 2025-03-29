@@ -25,7 +25,7 @@ function CrowdFundingPage2() {
             {/* Hero Section */}
             <div className="relative">
                 <img
-                    src={scholarbg1}
+                    src="https://source.unsplash.com/random/1600x900?education,students,graduation"
                     alt="Graduates"
                     className="w-full h-96 object-cover bg-no-repeat"
                 />
@@ -63,7 +63,11 @@ function CrowdFundingPage2() {
                         { name: "The Future Leaders", description: "Providing access to knowledge to shape future innovators." },
                     ].map((story, index) => (
                         <div key={index} className="p-6 rounded-lg shadow">
-                            <img src={scholarbg1} alt="Graduates" className="w-full h-64 object-cover" />
+                            <img 
+                                src={`https://source.unsplash.com/random/600x400?student,education,${index}`} 
+                                alt={story.name} 
+                                className="w-full h-64 object-cover" 
+                            />
                             <h3 className="font-bold text-xl mb-2">{story.name}</h3>
                             <p>{story.description}</p>
                         </div>
