@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ClerkProvider, useUser } from '@clerk/clerk-react';
 import useSmoothScroll from './hooks/useSmoothScroll';
+import LoadingScreen from './Component/Common/LoadingScreen';
 
 // Import components
 import Login from './Component/Auth/Login';
@@ -90,6 +91,46 @@ const OrganizationRoute = () => {
 
 function App() {
   useSmoothScroll(80);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Combine minimum loading time with actual resource loading
+    const minLoadingTime = 4000; // Minimum 4 seconds
+    const startTime = Date.now();
+    
+    // Simulate checking if resources are loaded
+    const checkResourcesLoaded = () => {
+      const elapsedTime = Date.now() - startTime;
+      
+      // Ensure minimum loading time has passed
+      if (elapsedTime >= minLoadingTime) {
+        setLoading(false);
+      } else {
+        // If minimum time hasn't passed, wait until it does
+        setTimeout(() => setLoading(false), minLoadingTime - elapsedTime);
+      }
+    };
+    
+    // Start checking if resources are loaded
+    window.addEventListener('load', checkResourcesLoaded);
+    
+    // Fallback in case the load event already fired
+    if (document.readyState === 'complete') {
+      checkResourcesLoaded();
+    }
+    
+    // Set a maximum loading time as fallback
+    const maxLoadingTimer = setTimeout(() => setLoading(false), 6000);
+    
+    return () => {
+      window.removeEventListener('load', checkResourcesLoaded);
+      clearTimeout(maxLoadingTimer);
+    };
+  }, []);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
