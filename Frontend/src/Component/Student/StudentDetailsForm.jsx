@@ -5,6 +5,7 @@ import { FiUpload, FiUser, FiCalendar, FiPhone, FiMail, FiHome } from "react-ico
 import { createClient } from '@supabase/supabase-js';
 import { ErrorBoundary } from 'react-error-boundary';
 import studentService from '../../api/studentService';
+import axios from "axios";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -22,14 +23,14 @@ const StudentDetailsForm = () => {
     contactNumber: "",
     address: "",
     email: "",
+    nationality:"",
     gender: "",
     motherName: "",
     fatherName: "",
     guardianName: "",
     guardianContact: "",
     guardianAddress: "",
-    guardianEmail: "",
-    careerGoals: "",
+    aboutMe: "",
     documents: {
       domicileCertificate: null,
       incomeCertificate: null,
@@ -82,13 +83,14 @@ const StudentDetailsForm = () => {
             contactNumber: studentData.contactNumber || "",
             address: studentData.address || "",
             gender: studentData.gender || "",
+            nationality: studentData.nationality || "",
             motherName: studentData.motherName || "",
             fatherName: studentData.fatherName || "",
             guardianName: studentData.guardianName || "",
             guardianContact: studentData.guardianContact || "",
             guardianAddress: studentData.guardianAddress || "",
             guardianEmail: studentData.guardianEmail || "",
-            careerGoals: studentData.careerGoals || "",
+            aboutMe: studentData.aboutMe || "",
           }));
         }
       } catch (error) {
@@ -203,28 +205,42 @@ const StudentDetailsForm = () => {
       // Prepare and submit student data
       const studentData = {
         userId: user.id,
-        fullName: formData.name,
-        email: formData.email,
-        dateOfBirth: formData.dob,
-        contactNumber: formData.contactNumber,
-        address: formData.address,
-        gender: formData.gender,
-        motherName: formData.motherName || "",
-        fatherName: formData.fatherName || "",
+        fullName: formData.name || "",
+        email: formData.email || "",
+        dateOfBirth: formData.dob || new Date().toISOString(),
+        contactNumber: formData.contactNumber || "",
+        address: formData.address || "",
+        gender: formData.gender || "Not Specified",
+        nationality: formData.nationality || "Not Specified",
+        fatherName: formData.fatherName || "Unknown",
+        motherName: formData.motherName || "Unknown",
         guardianName: formData.guardianName || "",
         guardianContact: formData.guardianContact || "",
-        guardianAddress: formData.guardianAddress || "",
-        guardianEmail: formData.guardianEmail || "",
-        careerGoals: formData.careerGoals || "",
-        nationality: "Indian",
-        domicileCert: documentUrls.domicileCertificate || "",
-        incomeCert: documentUrls.incomeCertificate || "",
-        tenthResult: documentUrls.marksheet10 || "",
-        twelfthResult: documentUrls.marksheet12 || ""
+        aboutMe: formData.aboutMe || "",
+        domicileCert: documentUrls.domicileCertificate || "Missing URL",
+        incomeCert: documentUrls.incomeCertificate || "Missing URL",
+        tenthResult: documentUrls.marksheet10 || "Missing URL",
+        twelfthResult: documentUrls.marksheet12 || "Missing URL",
       };
       
-      await studentService.saveStudentProfile(studentData);
-      navigate(redirectAfterSubmit);
+      // await studentService.saveStudentProfile(studentData);
+      // navigate(redirectAfterSubmit);
+      console.log("Submitting student data:", studentData);
+
+      // Submit to backend API
+      const response = await axios.post(
+        "http://localhost:3001/api/students",
+        studentData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Submission successful:", response.data);
+      setSuccessMessage("Profile saved successfully!");
+      setTimeout(() => navigate(redirectAfterSubmit), 2000);
     } catch (error) {
       console.error("Error saving profile:", error);
       if (error.response?.data?.errors) {
@@ -335,6 +351,18 @@ const StudentDetailsForm = () => {
                     />
                   </div>
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nationality</label>
+                  <div className="flex items-center">
+                    <FiUser className="text-gray-400 mr-2" />
+                    <input
+                      type="text"
+                      name="nationality"
+                      value={formData.nationality}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-200"
+                    />
+                  </div>
+                  
                 </div>
 
                 <div className="md:col-span-2">
@@ -471,10 +499,10 @@ const StudentDetailsForm = () => {
 
             {/* Career Goals Section */}
             <div className="bg-gray-100 p-4 rounded-md mb-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Career Goals</h2>
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">About Me</h2>
               <textarea
-                name="careerGoals"
-                value={formData.careerGoals}
+                name="aboutMe"
+                value={formData.aboutMe}
                 onChange={handleChange}
                 rows="4"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
