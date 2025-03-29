@@ -5,21 +5,21 @@ import { prisma } from "../config/prismaClient";
 export const createRanking = async (req: Request, res: Response) => {
   const { applicationId, scholarshipId, score, rank } = req.body;
   try {
-    // const application = await prisma.application.findUnique({
-    //   where: { id: applicationId },
-    // });
-    // if (!application) {
-    //   res.status(404).json({ error: "Application not found!" });
-    //   return;
-    // }
+    const application = await prisma.application.findUnique({
+      where: { id: applicationId },
+    });
+    if (!application) {
+      res.status(404).json({ error: "Application not found!" });
+      return;
+    }
 
-    // const scholarship = await prisma.scholarship.findUnique({
-    //   where: { id: scholarshipId },
-    // });
-    // if (!scholarship) {
-    //   res.status(404).json({ error: "Scholarship not found!" });
-    //   return;
-    // }
+    const scholarship = await prisma.scholarship.findUnique({
+      where: { id: scholarshipId },
+    });
+    if (!scholarship) {
+      res.status(404).json({ error: "Scholarship not found!" });
+      return;
+    }
 
     const newRanking = await prisma.studentRanking.create({
       data: {
