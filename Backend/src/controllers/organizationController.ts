@@ -4,6 +4,7 @@ import {
   validateOrganizationData,
   validateOrganizationDataForUpdate,
 } from "../utils/organizationDetailsValidation";
+import { Role } from "@prisma/client";
 
 // Create Organization Details
 export const createOrganizationDetails = async (
@@ -29,14 +30,24 @@ export const createOrganizationDetails = async (
       documentURL,
     } = validationResult.data;
 
-    const existingDetails = await prisma.organizationDetails.findUnique({
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!existingUser) {
+      res.status(403).json({ error: "User dosen't exists" });
+      return;
+    }
+
+    if (existingUser.role !== Role.ORGANIZATION) {
+      res.status(403).json({ error: "Only organization can create details" });
+      return;
+    }
+
+    const existingOrganization = await prisma.organizationDetails.findUnique({
       where: { userId },
     });
 
-    if (existingDetails) {
-      res
-        .status(400)
-        .json({ message: "Organization details already exist for this user." });
+    if(existingOrganization){
+      res.status(400).json({ error: "Organization details already exist" });
       return;
     }
 
@@ -141,6 +152,42 @@ export const deleteOrganizationDetails = async (
     await prisma.organizationDetails.delete({ where: { id } });
 
     res.json({ message: "Organization details deleted successfully." });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Admin verifies an organization
+export const verifyOrganization = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const organization = await prisma.organizationDetails.findUnique({
+      where: { id },
+    });
+
+    if (!organization) {
+      res.status(404).json({ message: "Organization not found." });
+      return;
+    }
+
+    if (organization.verified) {
+      res.status(400).json({ message: "Organization is already verified." });
+      return;
+    }
+
+    const updatedOrganization = await prisma.organizationDetails.update({
+      where: { id },
+      data: {
+        verified: true,
+        verifiedAt: new Date(),
+      },
+    });
+
+    res.json({
+      message: "Organization verified successfully.",
+      organization: updatedOrganization,
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

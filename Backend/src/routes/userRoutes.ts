@@ -5,11 +5,9 @@ import {
   getAllUsers,
   deleteUser,
 } from "../controllers/userControllers";
-import { validateUser } from "../middlewares/validateUser";
-
 const router = express.Router();
 
-router.post("/registerorupdate", validateUser, registerOrUpdateUser);
+router.post("/registerorupdate", registerOrUpdateUser);
 router.get("/:id", getUser);
 router.get("/", getAllUsers);
 router.delete("/:id", deleteUser);

@@ -6,6 +6,7 @@ import {
 } from "../utils/studentDetailsValidation";
 import fs from "fs";
 import path from "path";
+import { Role } from "@prisma/client";
 
 const normalizePath = (path: string) => path.replace(/\\/g, "/");
 
@@ -38,7 +39,21 @@ export const createStudentDetails = async (req: Request, res: Response) => {
     });
 
     if (!existingUser) {
-      res.status(404).json({ error: "User not found" });
+      res.status(403).json({ error: "User dosen't exists" });
+      return;
+    }
+
+    if (existingUser.role !== Role.STUDENT) {
+      res.status(403).json({ error: "Only students can create details" });
+      return;
+    }
+
+    const existingStudent = await prisma.studentDetails.findUnique({
+      where: { userId },
+    });
+
+    if (existingStudent) {
+      res.status(400).json({ error: "Student details already exist" });
       return;
     }
 
@@ -215,5 +230,58 @@ export const deleteStudentDetails = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error deleting student details:", error);
     res.status(500).json({ error: "Failed to delete student details" });
+  }
+};
+
+// Update Verified
+export const updateStudentVerifiedStatus = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { userId } = req.params;
+    const { verified } = req.body;
+
+    if (!userId && !verified) {
+      res.status(400).json({ error: "Missing fileds" });
+    }
+
+    if (typeof verified !== "boolean") {
+      res.status(400).json({ error: "Verified status must be a boolean" });
+      return;
+    }
+
+    const existingStudent = await prisma.studentDetails.findUnique({
+      where: { userId },
+    });
+
+    if (!existingStudent) {
+      res.status(404).json({ error: "Student details not found" });
+      return;
+    }
+
+    const requestingUser = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!requestingUser || requestingUser.role !== Role.ADMIN) {
+      res.status(403).json({
+        error: "Unauthorized: Only admins can update verification status",
+      });
+      return;
+    }
+
+    const updatedStudent = await prisma.studentDetails.update({
+      where: { userId },
+      data: { verified },
+    });
+
+    res.status(200).json({
+      message: "Student verification status updated successfully",
+      updatedStudent,
+    });
+  } catch (error) {
+    console.error("Error updating student verification status:", error);
+    res.status(500).json({ error: "Failed to update verification status" });
   }
 };

@@ -119,8 +119,8 @@ model Scholarship {
   applications  Application[] @relation("ScholarshipApplications")
   disbursements Disbursement[] @relation("ScholarshipDisbursements")
   StudentRanking StudentRanking[]
-  // maxFamilyIncome Float 
-  // expiredAt       DateTime
+  maxFamilyIncome  Float   @default(0)  
+  expiredAt        DateTime 
   createdAt     DateTime @default(now())
 }
 

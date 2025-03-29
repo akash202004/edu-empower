@@ -5,6 +5,7 @@ import {
   getStudentDetails,
   updateStudentDetails,
   deleteStudentDetails,
+  updateStudentVerifiedStatus,
 } from "../controllers/studentController";
 
 const router = Router();
@@ -31,7 +32,7 @@ router.put(
   ]),
   updateStudentDetails
 );
-
+router.put("/:userId", updateStudentVerifiedStatus);
 router.delete("/:userId", deleteStudentDetails);
 
 export default router;

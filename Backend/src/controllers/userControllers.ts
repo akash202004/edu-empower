@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
 import { prisma } from "../config/prismaClient";
-import { Role } from "@prisma/client"
+import { Role } from "@prisma/client";
+import { validateUserDataAndUpdate } from "../utils/userDetailsValidation";
 
-// Register or update a user
 export const registerOrUpdateUser = async (req: Request, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() });
+  // Validate request body using Zod
+  const validationResult = validateUserDataAndUpdate(req.body);
+  if (!validationResult.success) {
+    res.status(400).json({ errors: validationResult.error.format() });
     return;
   }
 
-  const { userId, name, email, role } = req.body;
+  const { userId, name, email, role } = validationResult.data;
 
   try {
     const existingUser = await prisma.user.findUnique({
@@ -33,13 +33,13 @@ export const registerOrUpdateUser = async (req: Request, res: Response) => {
       });
 
       res.status(200).json(updatedUser);
-      return;
     } else {
-      const newUser = await prisma.user.create({
-        data: { id: userId, name, email, role },
-      });
-
-      res.status(201).json(newUser);
+      if (userId && name && email && role) {
+        const newUser = await prisma.user.create({
+          data: { id: userId, name, email, role },
+        });
+        res.status(201).json(newUser);
+      }
     }
   } catch (error) {
     console.error("Error in registerOrUpdateUser:", error);
