@@ -59,40 +59,16 @@ const Hero = () => {
   ];
 
   return (
-    <div ref={heroRef} className="relative min-h-screen flex items-center pt-16 pb-20 overflow-hidden">
+    <div ref={heroRef} className="relative min-h-screen h-auto flex items-center pt-10 pb-24 overflow-hidden">
       {/* Background with improved gradient overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/95 via-purple-950/90 to-gray-950/95"></div>
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center mix-blend-overlay opacity-50"></div>
       </div>
 
-      {/* Animated Background Elements */}
-      {Array.from({ length: 15 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full bg-indigo-300 opacity-20 mix-blend-screen filter blur-xl"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            width: `${Math.random() * 15 + 5}px`,
-            height: `${Math.random() * 15 + 5}px`,
-          }}
-          animate={{
-            x: [0, Math.random() * 100 - 50],
-            y: [0, Math.random() * 100 - 50],
-          }}
-          transition={{
-            duration: Math.random() * 20 + 10,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut"
-          }}
-        />
-      ))}
-      
       {/* Content with Parallax Effect */}
       <motion.div 
-        className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10"
+        className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl"
         style={{ y, opacity }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -191,58 +167,7 @@ const Hero = () => {
               </motion.button>
             </motion.div>
             
-            {/* Stats with improved visibility and animations */}
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6"
-            >
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  className="bg-white/20 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-white/30 shadow-md"
-                  whileHover={{ 
-                    y: -5,
-                    backgroundColor: "rgba(255, 255, 255, 0.25)"
-                  }}
-                >
-                  <div className="flex items-center mb-2">
-                    <div className="p-2 bg-white/20 rounded-full mr-3">
-                      {stat.icon}
-                    </div>
-                  </div>
-                  <h4 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md">
-                    {stat.value.includes('+') ? (
-                      <CountUp 
-                        end={parseInt(stat.value.replace(/\+|\,/g, ''))} 
-                        suffix="+" 
-                        duration={2.5} 
-                        separator="," 
-                      />
-                    ) : stat.value.includes('%') ? (
-                      <CountUp 
-                        end={parseInt(stat.value.replace(/%/g, ''))} 
-                        suffix="%" 
-                        duration={2} 
-                      />
-                    ) : stat.value.includes('₹') ? (
-                      <CountUp 
-                        end={2.5} 
-                        prefix="₹" 
-                        suffix=" Cr+" 
-                        decimals={1} 
-                        duration={2.5} 
-                      />
-                    ) : (
-                      stat.value
-                    )}
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-100 font-medium">{stat.label}</p>
-                </motion.div>
-              ))}
-            </motion.div>
+            {/* Stats section removed */}
           </motion.div>
           
           {/* Right column - Enhanced floating image with effects */}
