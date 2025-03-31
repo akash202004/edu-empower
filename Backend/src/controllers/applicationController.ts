@@ -31,7 +31,7 @@ export const createApplication = async (req: Request, res: Response) => {
 // Update Scholarship Reason for an Existing Application
 export const updateScholarshipReason = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
     const { scholarshipReason } = req.body;
 
     const updatedApplication = await prisma.application.update({
@@ -91,6 +91,26 @@ export const getApplicationById = async (req: Request, res: Response) => {
     }
 
     res.status(200).json(application);
+  } catch (error) {
+    console.error("Error fetching application:", error);
+    res.status(500).json({ error: "Failed to fetch application" });
+  }
+};
+
+// Get Application by StudentID
+export const getApplicationsByStudentId = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const applications = await prisma.application.findMany({
+      where: { studentId: id },
+    });
+
+     if (!applications || applications.length === 0) {
+       res.status(404).json({ error: "No applications found for this student." });
+       return;
+      }
+
+    res.status(200).json(applications);
   } catch (error) {
     console.error("Error fetching application:", error);
     res.status(500).json({ error: "Failed to fetch application" });
