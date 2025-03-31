@@ -223,58 +223,117 @@ export const deleteScholarship = async (req: Request, res: Response) => {
   }
 };
 
-// TODO : below two routes not working
-
-// Get all active scholarships (not expired)
+// Get active scholarship
 export const getActiveScholarships = async (req: Request, res: Response) => {
   try {
-    const currentUTCDate = new Date(new Date().toISOString());
-    const activeScholarships = await prisma.scholarship.findMany({
-      where: {
-        expiredAt: {
-          gt: currentUTCDate,
+    const currentUTCDate = new Date();
+    currentUTCDate.setUTCHours(0, 0, 0, 0);
+    const { page = 1, limit = 5, organizationId, fundraiserId } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const whereClause: any = {
+      expiredAt: { gt: currentUTCDate },
+    };
+
+    if (organizationId) whereClause.organizationId = organizationId;
+    if (fundraiserId) whereClause.fundraiserId = fundraiserId;
+
+    const [activeScholarships, totalCount] = await Promise.all([
+      prisma.scholarship.findMany({
+        where: whereClause,
+        include: {
+          fundraiser: true,
+          organization: true,
+          applications: true,
+          disbursements: true,
         },
-      },
-      include: {
-        fundraiser: true,
-        organization: true,
-        applications: true,
-        disbursements: true,
-      },
-      orderBy: {
-        expiredAt: "asc",
+        orderBy: {
+          expiredAt: "asc",
+        },
+        skip,
+        take: Number(limit),
+      }),
+      prisma.scholarship.count({ where: whereClause }),
+    ]);
+
+    if (totalCount === 0) {
+      res.status(200).json("No active scholarships");
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: activeScholarships,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        totalCount,
+        totalPages: Math.ceil(totalCount / Number(limit)),
       },
     });
-    res.status(200).json(activeScholarships);
   } catch (error) {
-    console.error("Error fetching active scholarships:", error);
-    res.status(500).json({ error: "Failed to fetch active scholarships" });
+    console.error("Error in getActiveScholarships:", error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
   }
 };
 
-// Get all expired scholarships
+// Get all expired
 export const getExpiredScholarships = async (req: Request, res: Response) => {
   try {
-    const currentUTCDate = new Date(new Date().toISOString());
-    const expiredScholarships = await prisma.scholarship.findMany({
-      where: {
-        expiredAt: {
-          lte: currentUTCDate,
+    const currentUTCDate = new Date();
+    currentUTCDate.setUTCHours(0, 0, 0, 0);
+    const { page = 1, limit = 5, organizationId, fundraiserId } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const whereClause: any = {
+      expiredAt: { lte: currentUTCDate },
+    };
+
+    if (organizationId) whereClause.organizationId = organizationId;
+    if (fundraiserId) whereClause.fundraiserId = fundraiserId;
+
+    const [expiredScholarships, totalCount] = await Promise.all([
+      prisma.scholarship.findMany({
+        where: whereClause,
+        include: {
+          fundraiser: true,
+          organization: true,
+          applications: true,
+          disbursements: true,
         },
-      },
-      include: {
-        fundraiser: true,
-        organization: true,
-        applications: true,
-        disbursements: true,
-      },
-      orderBy: {
-        expiredAt: "desc",
+        orderBy: {
+          expiredAt: "desc",
+        },
+        skip,
+        take: Number(limit),
+      }),
+      prisma.scholarship.count({ where: whereClause }),
+    ]);
+
+    if (totalCount === 0) {
+      res.status(200).json("No expired scholarships");
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: expiredScholarships,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        totalCount,
+        totalPages: Math.ceil(totalCount / Number(limit)),
       },
     });
-    res.status(200).json(expiredScholarships);
   } catch (error) {
     console.error("Error fetching expired scholarships:", error);
-    res.status(500).json({ error: "Failed to fetch expired scholarships" });
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch expired scholarships",
+    });
   }
 };

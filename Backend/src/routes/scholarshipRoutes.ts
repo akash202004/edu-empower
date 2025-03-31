@@ -12,12 +12,13 @@ import {
 
 const router = express.Router();
 
+router.get("/active", getActiveScholarships);  // ✅ Now matches first
+router.get("/expired", getExpiredScholarships);
+
 router.get("/", getScholarships);
 router.get("/:id", getScholarshipById);
 router.post("/", createScholarship); 
 router.put("/:id", updateScholarship);
 router.delete("/:id", deleteScholarship);
-router.get("/active", getActiveScholarships); 
-router.get("/expired", getExpiredScholarships);
 
 export default router;
