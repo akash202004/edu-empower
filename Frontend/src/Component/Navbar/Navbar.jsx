@@ -25,7 +25,16 @@ const Navbar = () => {
 
   // Add this function to handle profile navigation
   const handleViewProfile = () => {
-    navigate("/student/profile");
+    const role = user?.publicMetadata?.role || "STUDENT";
+    // navigate("/student/profile");
+    if (role === "STUDENT") {
+      navigate("/student/profile");
+    } else if (role === "ORGANIZATION") {
+      // Direct redirect to dashboard for organization users
+      navigate("/scholarship");
+    } else {
+      navigate("/donation");
+    }
     setIsProfileOpen(false);
   };
 
