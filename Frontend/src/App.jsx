@@ -29,6 +29,8 @@ import ApplicationSuccess from './Component/Scholarship/ApplicationSuccess';
 // Import new organization dashboard components
 import OrganizationDashboard from './Component/Organization/Dashboard/OrganizationDashboard';
 import CreateScholarship from './Component/Organization/Dashboard/CreateScholarship';
+// Make sure to import the ScholarshipAnalytics component
+import ScholarshipAnalytics from './Component/Organization/Dashboard/ScholarshipAnalytics';
 
 // Get Clerk publishable key
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -162,10 +164,11 @@ function App() {
 
           {/* Organization routes */}
           <Route path="/organization" element={<OrganizationRoute />} />
-
+          
           {/* Organization dashboard routes */}
           <Route path="/organization/dashboard" element={<RequireAuth><OrganizationDashboard /></RequireAuth>} />
           <Route path="/organization/create-scholarship" element={<RequireAuth><CreateScholarship /></RequireAuth>} />
+          <Route path="/organization/analytics" element={<RequireAuth><ScholarshipAnalytics /></RequireAuth>} />
 
           {/* Donor route */}
           <Route path="/donation" element={<DonarPage />} />

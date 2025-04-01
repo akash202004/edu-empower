@@ -202,14 +202,24 @@ const OrganizationDashboard = () => {
                 <h1 className="text-3xl font-bold mb-2">Welcome, {user?.firstName || 'Organization'}</h1>
                 <p className="text-indigo-100">Manage your scholarships and track applications</p>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/organization/create-scholarship')}
-                className="mt-4 md:mt-0 flex items-center bg-white text-indigo-600 font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-50 transition-colors"
-              >
-                <FiPlus className="mr-2" /> Create Scholarship
-              </motion.button>
+              <div className="mt-4 md:mt-0 flex space-x-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/organization/create-scholarship')}
+                  className="flex items-center bg-white text-indigo-600 font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-50 transition-colors"
+                >
+                  <FiPlus className="mr-2" /> Create Scholarship
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/organization/analytics')}
+                  className="flex items-center bg-indigo-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-900 transition-colors"
+                >
+                  <FiPieChart className="mr-2" /> Analytics
+                </motion.button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -328,5 +338,25 @@ const OrganizationDashboard = () => {
     </div>
   );
 };
+
+// Find the section with action buttons in the OrganizationDashboard component
+// This is likely in a header or action section of the dashboard
+
+// Look for a section that might contain buttons like "Create Scholarship" or similar
+// Add this button nearby:
+
+<motion.button
+  onClick={() => navigate('/organization/analytics')}
+  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ml-4"
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+>
+  <FiPieChart className="mr-2 -ml-1 h-5 w-5" />
+  Scholarship Analytics
+</motion.button>
+
+// Make sure to import FiPieChart at the top of the file if it's not already imported:
+// Add this to your imports at the top of the file:
+// import { FiPieChart } from 'react-icons/fi';
 
 export default OrganizationDashboard;
