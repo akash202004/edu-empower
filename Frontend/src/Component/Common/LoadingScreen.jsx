@@ -42,10 +42,10 @@ const LoadingScreen = () => {
         <source src="/assets/load.webm" type="video/webm" />
       </video>
       
-      <div className="text-center relative z-10">
+      <div className="text-center relative z-10 px-4 w-full max-w-screen-lg mx-auto">
         {/* Animated text logo */}
-        <div className="relative h-24 flex items-center justify-center">
-          <div className="text-6xl font-bold text-purple-700 flex">
+        <div className="relative flex items-center justify-center">
+          <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-purple-700 flex flex-wrap justify-center">
             {text.split("").map((char, index) => (
               <motion.span
                 key={index}
@@ -53,7 +53,7 @@ const LoadingScreen = () => {
                 variants={textVariants}
                 initial="hidden"
                 animate="visible"
-                className={char === "-" ? "mx-2" : ""}
+                className={char === "-" ? "mx-1 sm:mx-2" : ""}
               >
                 {char}
               </motion.span>
@@ -63,14 +63,14 @@ const LoadingScreen = () => {
         
         {/* Progress indicator */}
         <motion.div 
-          className="mt-16 w-12 h-12 rounded-full border-3 border-purple-600 border-t-transparent mx-auto"
+          className="mt-8 sm:mt-12 md:mt-16 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full border-3 border-purple-600 border-t-transparent mx-auto"
           animate={{ rotate: 360 }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
         />
         
         {/* Tagline */}
         <motion.p 
-          className="mt-6 text-purple-700 text-lg tracking-wider font-medium"
+          className="mt-4 sm:mt-5 md:mt-6 text-purple-700 text-base sm:text-lg tracking-wider font-medium"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 2, duration: 1 }}

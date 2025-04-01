@@ -25,6 +25,7 @@ import CrowdFundingPage2 from './Component/CrowdFunding/CrowdFundingPage2';
 import Layout from './Component/Layout/Layout';
 import ScholarshipApplicationForm from './Component/Scholarship/ScholarshipApplicationForm';
 import ApplicationSuccess from './Component/Scholarship/ApplicationSuccess';
+import AboutEduEmpower from './Component/About-Edu_Empower/AboutEduEmpower';
 
 // Import new organization dashboard components
 import OrganizationDashboard from './Component/Organization/Dashboard/OrganizationDashboard';
@@ -172,6 +173,9 @@ function App() {
 
           {/* Donor route */}
           <Route path="/donation" element={<DonarPage />} />
+          
+          {/* About route */}
+          <Route path="/about" element={<Layout><AboutEduEmpower /></Layout>} />
 
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
