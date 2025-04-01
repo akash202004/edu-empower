@@ -223,6 +223,64 @@ export const deleteScholarship = async (req: Request, res: Response) => {
   }
 };
 
+// Get upcoming scholarships
+export const getUpcomingScholarships = async (req: Request, res: Response) => {
+  try {
+    const currentUTCDate = new Date();
+    currentUTCDate.setUTCHours(0, 0, 0, 0);
+    const { page = 1, limit = 5, organizationId, fundraiserId } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const whereClause: any = {
+      startAt: { gt: currentUTCDate },
+    };
+
+    if (organizationId) whereClause.organizationId = organizationId;
+    if (fundraiserId) whereClause.fundraiserId = fundraiserId;
+
+    const [upcomingScholarships, totalCount] = await Promise.all([
+      prisma.scholarship.findMany({
+        where: whereClause,
+        include: {
+          fundraiser: true,
+          organization: true,
+          applications: true,
+          disbursements: true,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+        skip,
+        take: Number(limit),
+      }),
+      prisma.scholarship.count({ where: whereClause }),
+    ]);
+
+    if (totalCount === 0) {
+      res.status(200).json("No upcoming scholarships");
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: upcomingScholarships,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        totalCount,
+        totalPages: Math.ceil(totalCount / Number(limit)),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching upcoming scholarships:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch upcoming scholarships",
+    });
+  }
+};
+
 // Get active scholarship
 export const getActiveScholarships = async (req: Request, res: Response) => {
   try {

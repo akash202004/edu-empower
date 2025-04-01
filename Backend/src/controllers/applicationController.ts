@@ -1,19 +1,29 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
+import { ApplicationStatus } from "@prisma/client";
+import { sendErrorResponse } from "../utils/errorResponse";
+import { sendSuccessResponse } from "../utils/successResponse";
 
 // Create Application with a new scholarship reason
 export const createApplication = async (req: Request, res: Response) => {
   try {
     const { studentId, scholarshipId, scholarshipReason } = req.body;
 
+    if (!studentId || !scholarshipId || !scholarshipReason) {
+      sendErrorResponse(res, 400, "Missing required fields");
+      return;
+    }
+
     const existingApplication = await prisma.application.findFirst({
       where: { studentId, scholarshipId },
     });
 
     if (existingApplication) {
-      res.status(400).json({
-        error: "You have already applied for this scholarship.",
-      });
+      sendErrorResponse(
+        res,
+        400,
+        "You have already applied for this scholarship."
+      );
       return;
     }
 
@@ -21,10 +31,11 @@ export const createApplication = async (req: Request, res: Response) => {
       data: { studentId, scholarshipId, scholarshipReason, status: "PENDING" },
     });
 
-    res.status(201).json(application);
+    sendSuccessResponse(res, 201, application);
   } catch (error) {
     console.error("Error creating application:", error);
-    res.status(500).json({ error: "Failed to create application" });
+    sendErrorResponse(res, 500, "Failed to create application");
+    return;
   }
 };
 
@@ -34,15 +45,24 @@ export const updateScholarshipReason = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { scholarshipReason } = req.body;
 
+    const existingApplication = await prisma.application.findUnique({
+      where: { id },
+    });
+    if (!existingApplication) {
+      sendErrorResponse(res, 400, "Application Id is invalid");
+      return;
+    }
+
     const updatedApplication = await prisma.application.update({
       where: { id },
       data: { scholarshipReason },
     });
 
-    res.status(200).json(updatedApplication);
+    sendSuccessResponse(res, 200, updatedApplication);
   } catch (error) {
     console.error("Error updating scholarship reason:", error);
-    res.status(500).json({ error: "Failed to update scholarship reason" });
+    sendErrorResponse(res, 500, "Failed to update scholarship reason");
+    return;
   }
 };
 
@@ -52,15 +72,29 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { status } = req.body;
 
+    const existingApplication = await prisma.application.findUnique({
+      where: { id },
+    });
+    if (!existingApplication) {
+      sendErrorResponse(res, 400, "Application Id is invalid");
+      return;
+    }
+
+    if (!Object.values(ApplicationStatus).includes(status)) {
+      sendErrorResponse(res, 400, "Status is Invalid");
+      return;
+    }
+
     const updatedApplication = await prisma.application.update({
       where: { id },
       data: { status },
     });
 
-    res.status(200).json(updatedApplication);
+    sendSuccessResponse(res, 200, updatedApplication);
   } catch (error) {
     console.error("Error updating application:", error);
-    res.status(500).json({ error: "Failed to update application" });
+    sendErrorResponse(res, 500, "Failed to update application");
+    return;
   }
 };
 
@@ -72,10 +106,11 @@ export const getAllApplications = async (_req: Request, res: Response) => {
         student: true,
       },
     });
-    res.status(200).json(applications);
+    sendSuccessResponse(res, 200, applications);
   } catch (error) {
     console.error("Error fetching applications:", error);
-    res.status(500).json({ error: "Failed to fetch applications" });
+    sendErrorResponse(res, 500, "Failed to fetch applications");
+    return;
   }
 };
 
@@ -83,37 +118,50 @@ export const getAllApplications = async (_req: Request, res: Response) => {
 export const getApplicationById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const application = await prisma.application.findUnique({ where: { id } });
-
-    if (!application) {
-      res.status(404).json({ error: "Application not found" });
+    const applicationId = await prisma.application.findUnique({
+      where: { id },
+    });
+    if (!applicationId) {
+      sendErrorResponse(res, 400, "Invalid application ID");
       return;
     }
 
-    res.status(200).json(application);
+    const application = await prisma.application.findUnique({ where: { id } });
+
+    if (!application) {
+      sendErrorResponse(res, 404, "Application not found");
+      return;
+    }
+
+    sendSuccessResponse(res, 200, application);
   } catch (error) {
     console.error("Error fetching application:", error);
-    res.status(500).json({ error: "Failed to fetch application" });
+    sendErrorResponse(res, 500, "Failed to fetch application");
+    return;
   }
 };
 
 // Get Application by StudentID
-export const getApplicationsByStudentId = async (req: Request, res: Response) => {
+export const getApplicationsByStudentId = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { id } = req.params;
     const applications = await prisma.application.findMany({
       where: { studentId: id },
     });
 
-     if (!applications || applications.length === 0) {
-       res.status(404).json({ error: "No applications found for this student." });
-       return;
-      }
+    if (!applications || applications.length === 0) {
+      sendErrorResponse(res, 404, "No applications found for this student.");
+      return;
+    }
 
-    res.status(200).json(applications);
+    sendSuccessResponse(res, 200, applications);
   } catch (error) {
     console.error("Error fetching application:", error);
-    res.status(500).json({ error: "Failed to fetch application" });
+    sendErrorResponse(res, 500, "Failed to fetch application");
+    return;
   }
 };
 
@@ -121,10 +169,21 @@ export const getApplicationsByStudentId = async (req: Request, res: Response) =>
 export const deleteApplication = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const existingApplication = await prisma.application.findUnique({
+      where: { id },
+    });
+    if (!existingApplication) {
+      sendErrorResponse(res, 404, "Application not found");
+      return;
+    }
+
     await prisma.application.delete({ where: { id } });
-    res.status(200).json({ message: "Application deleted successfully" });
+    sendSuccessResponse(res, 200, {
+      message: "Application deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting application:", error);
-    res.status(500).json({ error: "Failed to delete application" });
+    sendErrorResponse(res, 500, "Failed to delete application");
+    return;
   }
 };
