@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { motion } from 'framer-motion';
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/clerk-react";
 import { FiArrowRight, FiCheck } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => {
   const navigate = useNavigate();
@@ -30,6 +31,32 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
       navigate('/organization/dashboard');
     }
   }, [isSignedIn, user, navigate]);
+
+  const handleUserSync = async () => {
+    if (isSignedIn && user) {
+      try {
+        await axios.post("http://localhost:3001/api/users/registerorupdate", {
+          userId: user.id,
+          name: user.fullName,
+          email: user.primaryEmailAddress?.emailAddress || null,
+          role: "ORGANIZATION",
+        });
+
+        console.log(user.id);
+        console.log(user.fullName);
+        console.log(user.primaryEmailAddress?.emailAddress || null);
+
+        navigate("/organization/dashboard"); // Redirect after successful sync
+      } catch (error) {
+        console.error("Error syncing user data:", error.response?.data || error.message);
+      }
+    }
+  };
+
+  // Auto-sync user on page load if signed in
+  useEffect(() => {
+    handleUserSync();
+  }, [isSignedIn, user]);
   
   return (
     <div className="relative bg-white min-h-screen flex items-center">
@@ -57,6 +84,7 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
               <SignedOut>
                 <SignInButton mode="modal" redirectUrl="/organization/dashboard">
                   <motion.button
+                   onClick={handleUserSync}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="px-8 py-4 bg-indigo-600 text-white rounded-lg font-bold text-lg shadow-lg hover:bg-indigo-700 transition-all duration-200 mb-8"
