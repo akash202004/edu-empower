@@ -31,6 +31,7 @@ import OrganizationDashboard from './Component/Organization/Dashboard/Organizati
 import CreateScholarship from './Component/Organization/Dashboard/CreateScholarship';
 // Make sure to import the ScholarshipAnalytics component
 import ScholarshipAnalytics from './Component/Organization/Dashboard/ScholarshipAnalytics';
+import OrganizationProfile from './Component/Organization/OrganizationProfile';
 
 // Get Clerk publishable key
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -169,6 +170,7 @@ function App() {
           <Route path="/organization/dashboard" element={<RequireAuth><OrganizationDashboard /></RequireAuth>} />
           <Route path="/organization/create-scholarship" element={<RequireAuth><CreateScholarship /></RequireAuth>} />
           <Route path="/organization/analytics" element={<RequireAuth><ScholarshipAnalytics /></RequireAuth>} />
+          <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
 
           {/* Donor route */}
           <Route path="/donation" element={<DonarPage />} />

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"; // Add useNav
 import { useUser, useClerk, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { FiMenu, FiX, FiChevronDown, FiLogOut, FiUser, FiHome, FiBookOpen, FiDollarSign, FiHeart, FiInfo, FiMail } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { fetchUserRole } from "../Utils/RoleUtil.jsx";
 
 const Navbar = () => {
   const { isSignedIn, user } = useUser();
@@ -24,18 +25,47 @@ const Navbar = () => {
   ];
 
   // Add this function to handle profile navigation
-  const handleViewProfile = () => {
-    const role = user?.publicMetadata?.role || "STUDENT";
-    // navigate("/student/profile");
-    if (role === "STUDENT") {
+  const handleViewProfile = async () => {
+    try {
+      let roleToUse = "STUDENT"; // Default fallback
+      
+      if (user?.id) {
+        // First try to get role from backend
+        const backendRole = await fetchUserRole(user.id);
+        
+        if (backendRole) {
+          roleToUse = backendRole;
+        } else {
+          // Fallback to publicMetadata if backend fetch fails
+          roleToUse = user?.publicMetadata?.role || localStorage.getItem('userRole') || "STUDENT";
+        }
+      } else {
+        // For non-logged in users, use localStorage
+        roleToUse = localStorage.getItem('userRole') || "STUDENT";
+      }
+  
+      // Navigate based on the determined role
+      switch (roleToUse) {
+        case "STUDENT":
+          navigate("/student/profile");
+          break;
+        case "ORGANIZATION":
+          navigate("/organization/profile");
+          break;
+        case "DONOR":
+          navigate("/donor/profile");
+          break;
+        default:
+          navigate("/student/profile");
+      }
+      
+      setIsProfileOpen(false);
+    } catch (error) {
+      console.error("Error handling profile view:", error);
+      // Fallback navigation
       navigate("/student/profile");
-    } else if (role === "ORGANIZATION") {
-      // Direct redirect to dashboard for organization users
-      navigate("/scholarship");
-    } else {
-      navigate("/donation");
+      setIsProfileOpen(false);
     }
-    setIsProfileOpen(false);
   };
 
   // Handle scroll effect
