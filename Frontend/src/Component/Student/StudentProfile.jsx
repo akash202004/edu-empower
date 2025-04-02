@@ -4,9 +4,6 @@ import { useUser } from "@clerk/clerk-react";
 import { FiUser, FiCalendar, FiPhone, FiMail, FiHome, FiEdit, FiLock } from "react-icons/fi";
 import axios from "axios";
 
-// Use environment variable for API URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 const StudentProfile = () => {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
@@ -24,9 +21,9 @@ const StudentProfile = () => {
     const fetchProfileData = async () => {
       try {
         console.log("Fetching profile data for user:", user.id);
-        console.log("API URL being called:", `${API_BASE_URL}/students/${user.id}`);
+        console.log("API URL being called:", `${import.meta.env.VITE_BACKEND_URL}/students/${user.id}`);
         
-        const response = await axios.get(`${API_BASE_URL}/students/${user.id}`);
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/students/${user.id}`);
         console.log("API Response:", {
           status: response.status,
           statusText: response.statusText,

@@ -229,7 +229,7 @@ const StudentDetailsForm = () => {
 
       // Submit to backend API
       const response = await axios.post(
-        "http://localhost:3001/api/students",
+        `${import.meta.env.VITE_BACKEND_URL}/students`,
         studentData,
         {
           headers: {
@@ -239,7 +239,6 @@ const StudentDetailsForm = () => {
       );
 
       console.log("Submission successful:", response.data);
-      setSuccessMessage("Profile saved successfully!");
       setTimeout(() => navigate(redirectAfterSubmit), 2000);
     } catch (error) {
       console.error("Error saving profile:", error);

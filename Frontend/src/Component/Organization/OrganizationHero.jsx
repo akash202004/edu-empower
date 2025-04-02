@@ -1,41 +1,45 @@
-import React, {useEffect} from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/clerk-react";
-import { FiArrowRight, FiCheck } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { FiArrowRight, FiCheck } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => {
+const OrganizationHero = ({
+  handleImageError,
+  IMAGES,
+  scholarshipPrograms,
+}) => {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
-  
+
   // Updated to navigate to the dashboard
   const handleCreateScholarship = () => {
     if (isSignedIn) {
-      navigate('/organization/dashboard');
+      navigate("/organization/dashboard");
     } else {
       // If not signed in, redirect to login with organization role and redirectTo parameter
-      navigate('/auth/login', { 
-        state: { 
-          role: 'ORGANIZATION',
-          redirectTo: '/organization/dashboard' 
-        } 
+      navigate("/auth/login", {
+        state: {
+          role: "ORGANIZATION",
+          redirectTo: "/organization/dashboard",
+        },
       });
     }
   };
-  
+
   // Check if user is already signed in on component mount
   React.useEffect(() => {
-    if (isSignedIn && user?.publicMetadata?.role === 'ORGANIZATION') {
+    if (isSignedIn && user?.publicMetadata?.role === "ORGANIZATION") {
       // If already signed in as organization, redirect to dashboard
-      navigate('/organization/dashboard');
+      navigate("/organization/dashboard");
     }
   }, [isSignedIn, user, navigate]);
 
   const handleUserSync = async () => {
     if (isSignedIn && user) {
       try {
-        await axios.post("http://localhost:3001/api/users/registerorupdate", {
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/registerorupdate`, {
           userId: user.id,
           name: user.fullName,
           email: user.primaryEmailAddress?.emailAddress || null,
@@ -48,7 +52,10 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
 
         navigate("/organization/dashboard"); // Redirect after successful sync
       } catch (error) {
-        console.error("Error syncing user data:", error.response?.data || error.message);
+        console.error(
+          "Error syncing user data:",
+          error.response?.data || error.message
+        );
       }
     }
   };
@@ -57,7 +64,7 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
   useEffect(() => {
     handleUserSync();
   }, [isSignedIn, user]);
-  
+
   return (
     <div className="relative bg-white min-h-screen flex items-center">
       <div className="container mx-auto px-4 py-16">
@@ -77,14 +84,22 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
               </h2>
               <div className="w-full h-1 bg-indigo-600 mb-6"></div>
               <p className="text-lg text-gray-700 mb-8">
-                Our platform helps organizations create, manage, and measure the impact of scholarship programs with 
-                <span className="text-indigo-600 font-semibold"> up to 60% less administrative overhead</span>.
+                Our platform helps organizations create, manage, and measure the
+                impact of scholarship programs with
+                <span className="text-indigo-600 font-semibold">
+                  {" "}
+                  up to 60% less administrative overhead
+                </span>
+                .
               </p>
-              
+
               <SignedOut>
-                <SignInButton mode="modal" redirectUrl="/organization/dashboard">
+                <SignInButton
+                  mode="modal"
+                  redirectUrl="/organization/dashboard"
+                >
                   <motion.button
-                   onClick={handleUserSync}
+                    onClick={handleUserSync}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="px-8 py-4 bg-indigo-600 text-white rounded-lg font-bold text-lg shadow-lg hover:bg-indigo-700 transition-all duration-200 mb-8"
@@ -93,7 +108,7 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
                   </motion.button>
                 </SignInButton>
               </SignedOut>
-              
+
               <SignedIn>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -104,11 +119,11 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
                   Create Your Scholarship
                 </motion.button>
               </SignedIn>
-              
+
               {/* Rest of the component remains the same */}
             </motion.div>
           </div>
-          
+
           {/* Right content remains the same */}
         </div>
       </div>

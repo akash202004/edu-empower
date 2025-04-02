@@ -33,7 +33,7 @@ const ScholarshipForm = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/api/scholarships", formData);
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/scholarships`, formData);
       console.log("Scholarship Created:", response.data);
       alert("Scholarship created successfully!");
       setFormData({ title: "", description: "", totalAmount: "", organizationId: "" }); // Reset form

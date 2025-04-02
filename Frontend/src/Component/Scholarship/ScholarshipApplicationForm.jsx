@@ -5,8 +5,6 @@ import { FiArrowLeft, FiArrowRight, FiAward, FiInfo, FiCheckCircle } from "react
 import { motion } from "framer-motion";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5001/api";
-
 const ScholarshipApplicationForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -101,7 +99,7 @@ const ScholarshipApplicationForm = () => {
       `;
       
       // Submit application
-      await axios.post(`${API_BASE_URL}/applications`, {
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/applications`, {
         studentId: user.id,
         scholarshipId: scholarshipId,
         scholarshipReason: scholarshipReason.trim()

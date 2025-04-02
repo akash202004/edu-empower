@@ -209,11 +209,10 @@ export default function ScholarshipHero() {
     size: Math.random() * 10 + 5,
     duration: Math.random() * 20 + 10
   }));
-
   const handleUserSync = async () => {
     if (isSignedIn && user) {
       try {
-        await axios.post("http://localhost:3001/api/users/registerorupdate", {
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/registerorupdate`, {
           userId: user.id,
           name: user.fullName,
           email: user.primaryEmailAddress?.emailAddress || null,
@@ -224,7 +223,7 @@ export default function ScholarshipHero() {
         console.log(user.fullName);
         console.log(user.primaryEmailAddress?.emailAddress || null);
 
-        navigate("/scholarship"); // Redirect after successful sync
+        navigate("/scholarship");
       } catch (error) {
         console.error("Error syncing user data:", error.response?.data || error.message);
       }

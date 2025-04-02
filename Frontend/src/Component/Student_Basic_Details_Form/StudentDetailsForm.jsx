@@ -8,10 +8,6 @@ import { createClient } from '@supabase/supabase-js';
 import { ErrorBoundary } from 'react-error-boundary';
 import CountUp from 'react-countup';
 
-// Configure axios with base URL
-const API_BASE_URL = "http://localhost:5001/api";
-axios.defaults.baseURL = API_BASE_URL;
-
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -182,7 +178,7 @@ const StudentDetailsForm = () => {
       if (isSignedIn && user) {
         try {
           // Register or update user
-          await axios.post(`${API_BASE_URL}/users/registerorupdate`, {
+          await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/registerorupdate`, {
             userId: user.id,
             name: user.fullName,
             email: user.primaryEmailAddress?.emailAddress,
@@ -190,7 +186,7 @@ const StudentDetailsForm = () => {
           });
           
           // Fetch student profile
-          const response = await axios.get(`${API_BASE_URL}/students/${user.id}`);
+          const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}}/students/${user.id}`);
           if (response.data) {
             setFormData({
               ...response.data,
@@ -388,9 +384,9 @@ const StudentDetailsForm = () => {
         // Submit data
         let response;
         if (formData.userId) {
-          response = await axios.put(`${API_BASE_URL}/students/${user.id}`, studentData);
+          response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/students/${user.id}`, studentData);
         } else {
-          response = await axios.post(`${API_BASE_URL}/students`, studentData);
+          response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/students`, studentData);
         }
         
         navigate("/student/profile");

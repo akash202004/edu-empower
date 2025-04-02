@@ -248,7 +248,7 @@ const ScholarshipApplyForm = () => {
   
       // Send data to backend
       const response = await axios.post(
-        "http://localhost:3000/api/scholarship-applications",
+        `${import.meta.env.VITE_BACKEND_URL}/api/scholarship-applications`,
         scholarshipApplicationData
       );
   
