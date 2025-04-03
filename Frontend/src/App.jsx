@@ -4,7 +4,7 @@ import { ClerkProvider, useUser } from '@clerk/clerk-react';
 import useSmoothScroll from './hooks/useSmoothScroll';
 // Add this import at the top with your other imports
 import LoadingScreen from './Component/Common/LoadingScreen';
-// Add this import with your other imports
+// Keep only one import for OrganizationProfile
 import OrganizationProfile from './Component/Organization/OrganizationProfile';
 
 // Import components
@@ -34,7 +34,7 @@ import OrganizationDashboard from './Component/Organization/Dashboard/Organizati
 import CreateScholarship from './Component/Organization/Dashboard/CreateScholarship';
 // Make sure to import the ScholarshipAnalytics component
 import ScholarshipAnalytics from './Component/Organization/Dashboard/ScholarshipAnalytics';
-import OrganizationProfile from './Component/Organization/OrganizationProfile';
+
 
 // Get Clerk publishable key
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -174,7 +174,6 @@ function App() {
           <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
           <Route path="/organization/create-scholarship" element={<RequireAuth><CreateScholarship /></RequireAuth>} />
           <Route path="/organization/analytics" element={<RequireAuth><ScholarshipAnalytics /></RequireAuth>} />
-          <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
 
           {/* Donor route */}
           <Route path="/donation" element={<DonarPage />} />

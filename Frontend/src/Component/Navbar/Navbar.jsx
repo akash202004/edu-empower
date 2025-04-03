@@ -24,7 +24,6 @@ const Navbar = () => {
     { name: "Contact", path: "/contact", icon: <FiMail className="mr-2" /> },
   ];
 
-<<<<<<< HEAD
   // Handle profile navigation
   const handleViewProfile = () => {
     // Log the user metadata to debug
@@ -44,50 +43,9 @@ const Navbar = () => {
       navigate("/student/profile");
     } else {
       navigate("/donation");
-=======
-  // Add this function to handle profile navigation
-  const handleViewProfile = async () => {
-    try {
-      let roleToUse = "STUDENT"; // Default fallback
-      
-      if (user?.id) {
-        // First try to get role from backend
-        const backendRole = await fetchUserRole(user.id);
-        
-        if (backendRole) {
-          roleToUse = backendRole;
-        } else {
-          // Fallback to publicMetadata if backend fetch fails
-          roleToUse = user?.publicMetadata?.role || localStorage.getItem('userRole') || "STUDENT";
-        }
-      } else {
-        // For non-logged in users, use localStorage
-        roleToUse = localStorage.getItem('userRole') || "STUDENT";
-      }
-  
-      // Navigate based on the determined role
-      switch (roleToUse) {
-        case "STUDENT":
-          navigate("/student/profile");
-          break;
-        case "ORGANIZATION":
-          navigate("/organization/profile");
-          break;
-        case "DONOR":
-          navigate("/donor/profile");
-          break;
-        default:
-          navigate("/student/profile");
-      }
-      
-      setIsProfileOpen(false);
-    } catch (error) {
-      console.error("Error handling profile view:", error);
-      // Fallback navigation
-      navigate("/student/profile");
-      setIsProfileOpen(false);
->>>>>>> 9092c4742d5dd3f83cd7941e330ddf8e2ac41ab5
     }
+    setIsProfileOpen(false);
+    setIsMenuOpen(false); // Close mobile menu when navigating
   };
 
   // Handle scroll effect

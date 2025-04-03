@@ -1,12 +1,22 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const LoadingScreen = () => {
+  const text = "Edu-Empower";
+  
+  const textVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.5
+      }
+    })
+  };
+
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
-      <div className="loading-container">
-        <div className="loader"></div>
-=======
     <div className="fixed inset-0 bg-white flex flex-col justify-center items-center z-50 overflow-hidden">
       {/* Video background */}
       <video 
@@ -54,7 +64,6 @@ const LoadingScreen = () => {
         >
           Empowering education, one student at a time
         </motion.p>
->>>>>>> 9092c4742d5dd3f83cd7941e330ddf8e2ac41ab5
       </div>
       <p className="mt-4 text-gray-600">Preparing your experience...</p>
     </div>
