@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ClerkProvider, useUser } from '@clerk/clerk-react';
 import useSmoothScroll from './hooks/useSmoothScroll';
+// Add this import at the top with your other imports
 import LoadingScreen from './Component/Common/LoadingScreen';
+// Add this import with your other imports
+import OrganizationProfile from './Component/Organization/OrganizationProfile';
 
 // Import components
 import Login from './Component/Auth/Login';
@@ -168,6 +171,7 @@ function App() {
           
           {/* Organization dashboard routes */}
           <Route path="/organization/dashboard" element={<RequireAuth><OrganizationDashboard /></RequireAuth>} />
+          <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
           <Route path="/organization/create-scholarship" element={<RequireAuth><CreateScholarship /></RequireAuth>} />
           <Route path="/organization/analytics" element={<RequireAuth><ScholarshipAnalytics /></RequireAuth>} />
 

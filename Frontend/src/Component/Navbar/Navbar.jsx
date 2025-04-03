@@ -28,13 +28,21 @@ const Navbar = () => {
 
   // Handle profile navigation
   const handleViewProfile = () => {
+    // Log the user metadata to debug
+    console.log("User metadata:", user?.publicMetadata);
+    
     const role = user?.publicMetadata?.role || "STUDENT";
-    // navigate("/student/profile");
-    if (role === "STUDENT") {
+    console.log("Detected role:", role);
+    
+    // Check if the current path includes "organization" to determine context
+    const isInOrganizationSection = location.pathname.includes("/organization");
+    console.log("Is in organization section:", isInOrganizationSection);
+    
+    if (isInOrganizationSection || role === "ORGANIZATION") {
+      // Direct redirect to organization profile if in organization section
+      navigate("/organization/profile");
+    } else if (role === "STUDENT") {
       navigate("/student/profile");
-    } else if (role === "ORGANIZATION") {
-      // Direct redirect to dashboard for organization users
-      navigate("/scholarship");
     } else {
       navigate("/donation");
     }
