@@ -28,13 +28,13 @@ import CrowdFundingPage2 from './Component/CrowdFunding/CrowdFundingPage2';
 import Layout from './Component/Layout/Layout';
 import ScholarshipApplicationForm from './Component/Scholarship/ScholarshipApplicationForm';
 import ApplicationSuccess from './Component/Scholarship/ApplicationSuccess';
-import AboutEduEmpower from './Component/About-Edu_Empower/AboutEduEmpower';
 
 // Import new organization dashboard components
 import OrganizationDashboard from './Component/Organization/Dashboard/OrganizationDashboard';
 import CreateScholarship from './Component/Organization/Dashboard/CreateScholarship';
 // Make sure to import the ScholarshipAnalytics component
 import ScholarshipAnalytics from './Component/Organization/Dashboard/ScholarshipAnalytics';
+import OrganizationProfile from './Component/Organization/OrganizationProfile';
 
 // Get Clerk publishable key
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -174,12 +174,10 @@ function App() {
           <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
           <Route path="/organization/create-scholarship" element={<RequireAuth><CreateScholarship /></RequireAuth>} />
           <Route path="/organization/analytics" element={<RequireAuth><ScholarshipAnalytics /></RequireAuth>} />
+          <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
 
           {/* Donor route */}
           <Route path="/donation" element={<DonarPage />} />
-          
-          {/* About route */}
-          <Route path="/about" element={<Layout><AboutEduEmpower /></Layout>} />
 
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />

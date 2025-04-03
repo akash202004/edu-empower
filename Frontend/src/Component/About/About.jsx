@@ -68,25 +68,25 @@ const About = () => {
     }
   };
 
-  // Team members - changed to student profiles
+  // Team members
   const teamMembers = [
     {
-      name: "Rahul Verma",
-      role: "Computer Science Student",
-      image: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=688&q=80",
-      description: "First-generation college student who received a full scholarship through Edu-Empower to pursue his dream of becoming a software engineer."
+      name: "Aisha Patel",
+      role: "Founder & CEO",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=688&q=80",
+      description: "Former education policy advisor with a passion for making education accessible to all."
     },
     {
-      name: "Ananya Sharma",
-      role: "Medical Student",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
-      description: "Aspiring doctor from a rural village who accessed medical school through our healthcare education initiative."
+      name: "Raj Sharma",
+      role: "Chief Technology Officer",
+      image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+      description: "Tech innovator with 15+ years experience building platforms that connect people with opportunities."
     },
     {
-      name: "Vikram Singh",
-      role: "Engineering Student",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
-      description: "Mechanical engineering student who developed an award-winning sustainable energy project with mentorship from our platform."
+      name: "Priya Mehta",
+      role: "Head of Partnerships",
+      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=761&q=80",
+      description: "Former NGO director who has established partnerships with over 200 educational institutions."
     }
   ];
 
@@ -359,7 +359,7 @@ const About = () => {
             </motion.div>
           </div>
 
-          {/* Team section - changed to Students section */}
+          {/* Team section */}
           <div ref={teamRef} className="mb-24 relative z-30 bg-white py-8 rounded-2xl shadow-lg">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <motion.span 
@@ -367,21 +367,21 @@ const About = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={isTeamInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
               >
-                SUCCESS STORIES
+                OUR TEAM
               </motion.span>
               <motion.h2 
                 className="text-3xl font-bold text-gray-900 mb-6 text-shadow-sm"
                 initial={{ opacity: 0, y: 20 }}
                 animate={isTeamInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               >
-                Meet Our Students
+                Meet the Changemakers
               </motion.h2>
               <motion.p 
                 className="text-gray-800 font-medium"
                 initial={{ opacity: 0, y: 20 }}
                 animate={isTeamInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               >
-                These inspiring students have transformed their lives through educational opportunities provided by our platform.
+                Our diverse team brings together expertise in education, technology, and social impact.
               </motion.p>
             </div>
             

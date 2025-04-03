@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { useUser } from "@clerk/clerk-react";
 import { FiEdit2, FiSave, FiX, FiCheck, FiUpload, FiExternalLink } from 'react-icons/fi';
@@ -435,3 +436,16 @@ const OrganizationProfile = () => {
 };
 
 export default OrganizationProfile;
+=======
+import React from 'react'
+
+function OrganizationProfile() {
+  return (
+    <div>
+      Organization Profile
+    </div>
+  )
+}
+
+export default OrganizationProfile
+>>>>>>> 9092c4742d5dd3f83cd7941e330ddf8e2ac41ab5

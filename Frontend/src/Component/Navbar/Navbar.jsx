@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom"; // Add useNavigate
 import { useUser, useClerk, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { FiMenu, FiX, FiChevronDown, FiLogOut, FiUser, FiHome, FiBookOpen, FiDollarSign, FiHeart, FiInfo, FiMail } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { fetchUserRole } from "../Utils/RoleUtil.jsx";
 
 const Navbar = () => {
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Add navigate hook
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  // Add breakpoint detection for more precise responsive behavior
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isTablet, setIsTablet] = useState(window.innerWidth >= 768 && window.innerWidth < 1024);
 
   // Navigation links with icons
   const navLinks = [
@@ -26,6 +24,7 @@ const Navbar = () => {
     { name: "Contact", path: "/contact", icon: <FiMail className="mr-2" /> },
   ];
 
+<<<<<<< HEAD
   // Handle profile navigation
   const handleViewProfile = () => {
     // Log the user metadata to debug
@@ -45,9 +44,50 @@ const Navbar = () => {
       navigate("/student/profile");
     } else {
       navigate("/donation");
+=======
+  // Add this function to handle profile navigation
+  const handleViewProfile = async () => {
+    try {
+      let roleToUse = "STUDENT"; // Default fallback
+      
+      if (user?.id) {
+        // First try to get role from backend
+        const backendRole = await fetchUserRole(user.id);
+        
+        if (backendRole) {
+          roleToUse = backendRole;
+        } else {
+          // Fallback to publicMetadata if backend fetch fails
+          roleToUse = user?.publicMetadata?.role || localStorage.getItem('userRole') || "STUDENT";
+        }
+      } else {
+        // For non-logged in users, use localStorage
+        roleToUse = localStorage.getItem('userRole') || "STUDENT";
+      }
+  
+      // Navigate based on the determined role
+      switch (roleToUse) {
+        case "STUDENT":
+          navigate("/student/profile");
+          break;
+        case "ORGANIZATION":
+          navigate("/organization/profile");
+          break;
+        case "DONOR":
+          navigate("/donor/profile");
+          break;
+        default:
+          navigate("/student/profile");
+      }
+      
+      setIsProfileOpen(false);
+    } catch (error) {
+      console.error("Error handling profile view:", error);
+      // Fallback navigation
+      navigate("/student/profile");
+      setIsProfileOpen(false);
+>>>>>>> 9092c4742d5dd3f83cd7941e330ddf8e2ac41ab5
     }
-    setIsProfileOpen(false);
-    setIsMenuOpen(false); // Close mobile menu when navigating
   };
 
   // Handle scroll effect
@@ -66,325 +106,274 @@ const Navbar = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    // Close profile dropdown when opening menu
-    if (!isMenuOpen) {
-      setIsProfileOpen(false);
-    }
   };
 
   const toggleProfile = () => {
     setIsProfileOpen(!isProfileOpen);
-    // Close mobile menu when opening profile
-    if (!isProfileOpen && window.innerWidth < 768) {
-      setIsMenuOpen(false);
-    }
   };
 
   const handleLogout = async () => {
     await signOut();
     setIsProfileOpen(false);
-    setIsMenuOpen(false); // Close mobile menu when logging out
   };
 
   // Animation variants
-  const menuVariants = {
-    closed: {
-      opacity: 0,
-      y: -20,
-      transition: {
-        duration: 0.2,
-      },
-    },
-    open: {
-      opacity: 1,
+  const navbarVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: { 
+      opacity: 1, 
       y: 0,
       transition: {
-        duration: 0.3,
-        staggerChildren: 0.07,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const menuItemVariants = {
-    closed: { opacity: 0, x: -10 },
-    open: { opacity: 1, x: 0 },
-  };
-
-  const profileMenuVariants = {
-    closed: {
-      opacity: 0,
-      scale: 0.95,
-      transition: {
-        duration: 0.2,
-      },
-    },
-    open: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.2,
-      },
-    },
-  };
-
-  // Mobile menu animation variants
-  const mobileMenuVariants = {
-    closed: {
-      opacity: 0,
-      height: 0,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-        when: "afterChildren"
-      }
-    },
-    open: {
-      opacity: 1,
-      height: "auto",
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-        when: "beforeChildren",
-        staggerChildren: 0.05
+        duration: 0.5,
+        ease: "easeOut"
       }
     }
   };
 
-  // Close menus when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Close profile menu if clicked outside
-      if (isProfileOpen && !event.target.closest('.profile-menu-container')) {
-        setIsProfileOpen(false);
+  const linkVariants = {
+    hidden: { opacity: 0, y: -10 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.3
       }
-      
-      // Close mobile menu if clicked outside on mobile
-      if (isMenuOpen && window.innerWidth < 768 && !event.target.closest('.mobile-menu-container') && !event.target.closest('.menu-button')) {
-        setIsMenuOpen(false);
+    },
+    hover: {
+      scale: 1.05,
+      color: "#4F46E5",
+      transition: {
+        duration: 0.2
       }
-    };
+    }
+  };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isProfileOpen, isMenuOpen]);
+  const mobileMenuVariants = {
+    hidden: { opacity: 0, x: "100%" },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 20
+      }
+    },
+    exit: {
+      opacity: 0,
+      x: "100%",
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
 
-  // Enhanced resize handler
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setIsMobile(width < 768);
-      setIsTablet(width >= 768 && width < 1024);
-      
-      // Auto-close menus on resize
-      if (width >= 768 && isMenuOpen) {
-        setIsMenuOpen(false);
+  const profileMenuVariants = {
+    hidden: { opacity: 0, scale: 0.9, y: -10 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 20
       }
-      
-      // Adjust profile menu on different screen sizes
-      if (width < 768 && isProfileOpen && !isMobile) {
-        setIsProfileOpen(false);
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.9,
+      y: -10,
+      transition: {
+        duration: 0.2
       }
-    };
-  
-    // Initial check
-    handleResize();
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isMenuOpen, isProfileOpen, isMobile]);
+    }
+  };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white shadow-md py-2"
-          : "bg-white bg-opacity-90 backdrop-blur-sm py-3"
-      }`}
+    <motion.nav 
+      className="fixed w-full z-50 transition-all duration-300 bg-white shadow-lg"
+      initial="hidden"
+      animate="visible"
+      variants={navbarVariants}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14">
-          {/* Logo - made more responsive */}
-          <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center">
-              <span className="text-lg sm:text-xl font-bold text-purple-700">Edu-Empower</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link to="/" className="flex-shrink-0 flex items-center">
+              <div className="relative">
+                <div className="relative">
+                  <img
+                    className="h-9 w-auto"
+                    src="/logo.png"
+                    alt="Edu-Empower"
+                  />
+                </div>
+              </div>
+              <span className="ml-2 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+                Edu-Empower
+              </span>
             </Link>
           </div>
 
-          {/* Desktop Navigation - improved spacing */}
-          <div className="hidden md:flex md:items-center md:space-x-1 lg:space-x-4">
-            {navLinks.map((link) => (
-              <Link
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-1">
+            {navLinks.map((link, index) => (
+              <motion.div
                 key={link.name}
-                to={link.path}
-                className={`flex items-center px-2 lg:px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors duration-200 hover:text-purple-700 ${
-                  location.pathname === link.path
-                    ? "text-purple-700 font-semibold"
-                    : "text-gray-700"
-                }`}
+                variants={linkVariants}
+                initial="hidden"
+                animate="visible"
+                whileHover="hover"
+                custom={index}
+                className="relative"
               >
-                <span className="md:hidden lg:inline-flex">{link.icon}</span>
-                <span className={isTablet && link.name.length > 8 ? "text-xs" : ""}>{link.name}</span>
-              </Link>
+                <Link
+                  to={link.path}
+                  className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
+                    location.pathname === link.path
+                      ? 'text-indigo-600'
+                      : 'text-gray-700 hover:text-indigo-600 transition-colors duration-300'
+                  }`}
+                >
+                  {link.icon}
+                  {link.name}
+                </Link>
+                {location.pathname === link.path && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"
+                    layoutId="navbar-indicator"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
+              </motion.div>
             ))}
           </div>
 
-          {/* User Menu (Desktop) - improved for tablet */}
-          <div className="hidden md:flex md:items-center">
-            <SignedIn>
-              <div className="relative profile-menu-container">
-                <button
-                  onClick={toggleProfile}
-                  className="flex items-center space-x-1 lg:space-x-2 text-gray-700 hover:text-purple-700 transition-colors duration-200"
+          {/* Right side buttons */}
+          <div className="flex items-center">
+            {/* Auth buttons */}
+            {isSignedIn ? (
+              <div className="relative ml-3">
+                <motion.div
+                  className="flex items-center"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-purple-100 flex items-center justify-center overflow-hidden">
-                    {user?.profileImageUrl ? (
-                      <img
-                        src={user.profileImageUrl}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <FiUser className="text-purple-700" />
-                    )}
-                  </div>
-                  <span className="text-xs lg:text-sm font-medium hidden lg:block">
-                    {user?.firstName || "User"}
-                  </span>
-                  <FiChevronDown
-                    className={`transition-transform duration-200 ${
-                      isProfileOpen ? "rotate-180" : ""
-                    } w-4 h-4`}
-                  />
-                </button>
+                  <button
+                    onClick={toggleProfile}
+                    className="flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600 focus:outline-none transition-colors duration-300"
+                  >
+                    <div className="relative">
+                      <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative h-8 w-8 rounded-full overflow-hidden border-2 border-white">
+                        {user?.imageUrl ? (
+                          <img
+                            src={user.imageUrl}
+                            alt={user.fullName || "User"}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white">
+                            {user?.fullName?.charAt(0) || <FiUser />}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <span className="ml-2 hidden lg:block">{user?.fullName?.split(' ')[0] || "User"}</span>
+                    <FiChevronDown className={`ml-1 h-4 w-4 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </motion.div>
 
+                {/* Profile dropdown */}
                 <AnimatePresence>
                   {isProfileOpen && (
                     <motion.div
-                      initial="closed"
-                      animate="open"
-                      exit="closed"
+                      className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
                       variants={profileMenuVariants}
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
                     >
                       <button
                         onClick={handleViewProfile}
-                        className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                        className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200 flex items-center"
                       >
-                        <FiUser className="mr-2" />
-                        View Profile
+                        <FiUser className="mr-2 h-4 w-4" />
+                        Your Profile
                       </button>
                       <button
                         onClick={handleLogout}
-                        className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                        className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200 flex items-center"
                       >
-                        <FiLogOut className="mr-2" />
-                        Sign Out
+                        <FiLogOut className="mr-2 h-4 w-4" />
+                        Sign out
                       </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            </SignedIn>
-
-            <SignedOut>
-              <div className="flex space-x-1 lg:space-x-2">
-                <Link
-                  to="/auth/role-selection"
-                  className="px-3 lg:px-4 py-1.5 lg:py-2 text-xs lg:text-sm font-medium text-white bg-purple-700 rounded-md hover:bg-purple-800 transition-colors duration-200"
-                >
-                  Sign In / Sign Up
+            ) : (
+              <div className="flex items-center">
+                <Link to="/auth/role-selection">
+                  <motion.button
+                    className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-md shadow-md hover:shadow-lg transition-all duration-300"
+                    whileHover={{ scale: 1.05, boxShadow: "0 4px 20px rgba(79, 70, 229, 0.3)" }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Sign up
+                  </motion.button>
                 </Link>
               </div>
-            </SignedOut>
-          </div>
+            )}
 
-          {/* Mobile menu button - improved touch target */}
-          <div className="flex md:hidden">
-            <SignedIn>
-              <div className="flex items-center space-x-2">
-                <div className="relative profile-menu-container mr-1">
-                  <button
-                    onClick={toggleProfile}
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 touch-manipulation"
-                    aria-label="User profile"
-                  >
-                    {user?.profileImageUrl ? (
-                      <img
-                        src={user.profileImageUrl}
-                        alt="Profile"
-                        className="w-full h-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <FiUser className="text-purple-700" />
-                    )}
-                  </button>
-
-                  <AnimatePresence>
-                    {isProfileOpen && (
-                      <motion.div
-                        initial="closed"
-                        animate="open"
-                        exit="closed"
-                        variants={profileMenuVariants}
-                        className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
-                      >
-                        <button
-                          onClick={handleViewProfile}
-                          className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                        >
-                          <FiUser className="mr-2" />
-                          View Profile
-                        </button>
-                        <button
-                          onClick={handleLogout}
-                          className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                        >
-                          <FiLogOut className="mr-2" />
-                          Sign Out
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            </SignedIn>
-
-            <button
-              onClick={toggleMenu}
-              className="menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-purple-700 focus:outline-none touch-manipulation"
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? (
-                <FiX className="h-6 w-6" />
-              ) : (
-                <FiMenu className="h-6 w-6" />
-              )}
-            </button>
+            {/* Mobile menu button */}
+            <div className="flex md:hidden ml-2">
+              <motion.button
+                onClick={toggleMenu}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none transition-colors duration-300"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <span className="sr-only">Open main menu</span>
+                {isMenuOpen ? (
+                  <FiX className="block h-6 w-6" />
+                ) : (
+                  <FiMenu className="block h-6 w-6" />
+                )}
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu - improved animation and accessibility */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial="closed"
-            animate="open"
-            exit="closed"
+            className="md:hidden bg-white shadow-lg rounded-b-xl overflow-hidden"
             variants={mobileMenuVariants}
-            className="md:hidden mobile-menu-container overflow-hidden"
-            aria-label="Mobile navigation"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg rounded-b-lg mx-2 sm:mx-4">
-              {navLinks.map((link) => (
-                <motion.div key={link.name} variants={menuItemVariants}>
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              {navLinks.map((link, index) => (
+                <motion.div
+                  key={link.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
                   <Link
                     to={link.path}
-                    className={`flex items-center px-3 py-2.5 text-base font-medium rounded-md transition-colors duration-200 ${
+                    className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
                       location.pathname === link.path
-                        ? "text-purple-700 bg-purple-50"
-                        : "text-gray-700 hover:bg-gray-50"
+                        ? 'text-white bg-gradient-to-r from-indigo-600 to-purple-600'
+                        : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-300'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -393,24 +382,49 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
-
-              <SignedOut>
-                <motion.div variants={menuItemVariants} className="pt-4 border-t border-gray-200">
-                  <Link
-                    to="/auth/role-selection"
-                    className="flex items-center px-3 py-2.5 text-base font-medium text-white bg-purple-700 hover:bg-purple-800 rounded-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Sign In / Sign Up
-                  </Link>
-                </motion.div>
-              </SignedOut>
+              {!isSignedIn && (
+                <div className="pt-4 pb-2 border-t border-gray-200">
+                  <div className="flex items-center px-3">
+                    <div className="w-full">
+                      <Link to="/auth/role-selection" onClick={() => setIsMenuOpen(false)}>
+                        <motion.button
+                          className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-md shadow-md hover:shadow-lg transition-all duration-300"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          Sign up
+                        </motion.button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </motion.nav>
   );
 };
+
+// Remove these lines that are outside the component
+// const viewProfile = () => {
+//   navigate("/student/details", { 
+//     state: { 
+//       viewMode: true 
+//     } 
+//   });
+// };
+
+// <SignedIn>
+//   {/* Your existing navbar content */}
+//   <button
+//     onClick={viewProfile}
+//     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+//   >
+//     <FiUser className="mr-2 h-5 w-5" />
+//     Your Profile
+//   </button>
+// </SignedIn>
 
 export default Navbar;
