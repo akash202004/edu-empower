@@ -1,11 +1,10 @@
 import requests
 
-BACKEND_URL = "http://localhost:5001/api/students"
+BACKEND_URL = "http://localhost:3000/api/students"
 
 def fetch_student_data(user_id):
     """Fetch student details from the backend."""
     url = f"{BACKEND_URL}/{user_id}"
-    
     try:
         response = requests.get(url)
         
