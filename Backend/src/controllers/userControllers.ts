@@ -108,7 +108,8 @@ export const deleteUser = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      res.status(404).json({ error: "User not found" });
+      return;
     }
 
     await prisma.user.delete({
