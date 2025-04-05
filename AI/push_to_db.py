@@ -14,20 +14,11 @@ def already_exists(application_id):
 
 def push_data(students):
     for student in students:
-        payload = {
-            "applicationId": student["applicationId"],
-            "scholarshipId": student["scholarshipId"],
-            "score": student["score"],
-            "rank": student["rank"],
-            "studentId": student["userId"],  # store studentId in DB
-            "createdAt": student.get("createdAt")
-        }
-
         try:
-            res = requests.post(BACKEND_URL, json=payload)
-            if res.status_code == 200 or res.status_code == 201:
-                print(f"✅ Pushed {student['applicationId']} | Score: {student['score']}")
+            res = requests.post(BACKEND_URL, json=student)
+            if res.status_code in [200, 201]:
+                print(f"✅ Pushed {student.get('applicationId')} | Name: {student.get('name', 'Unnamed')} | Score: {student.get('score')}")
             else:
-                print(f"❌ Failed to push {student['applicationId']} | {res.text}")
+                print(f"❌ Failed to push {student.get('applicationId')} | {res.text}")
         except Exception as e:
-            print(f"❌ Exception for {student['applicationId']}: {e}")
+            print(f"❌ Exception for {student.get('applicationId')}: {e}")

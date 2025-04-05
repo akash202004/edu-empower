@@ -1,1 +1,50 @@
-[]
+[
+    {
+        "id": "student-6d23a5f7-5b20-4b17-a789-af99f2cbd156",
+        "applicationId": "fffb4798-8c84-4779-ae6a-cb9469e93ade",
+        "scholarshipId": "ba630e30-ec7b-4bbe-9e5b-80ad50f8817b",
+        "userId": "rony",
+        "name": "RONY",
+        "aboutMe": "Hey i am Need moneyy ist my ony need in life please give me help me sir donate me i beg you",
+        "incomeAmount": 135183,
+        "tenthMarks": 64,
+        "twelfthMarks": 78,
+        "incomeScore": 25,
+        "marksScore": 28.4,
+        "emotionScore": 30,
+        "score": 83.4,
+        "rank": 1
+    },
+    {
+        "id": "student-f8458ca3-a65c-4ee6-9aed-eb0637b80194",
+        "applicationId": "2e4f1f02-79ae-4d56-9ec4-805f54dd2476",
+        "scholarshipId": "ba630e30-ec7b-4bbe-9e5b-80ad50f8817b",
+        "userId": "ram",
+        "name": "PAHARI",
+        "aboutMe": "Hey i am Need moneyy ist my ony need in life please give me help me sir donate me i beg you",
+        "incomeAmount": 196243,
+        "tenthMarks": 77,
+        "twelfthMarks": 69,
+        "incomeScore": 20,
+        "marksScore": 29.2,
+        "emotionScore": 30,
+        "score": 79.2,
+        "rank": 2
+    },
+    {
+        "id": "student-70d28a00-2533-4f75-8334-3215b4df6a3a",
+        "applicationId": "a28e432d-6754-4797-b280-9cd745fc8805",
+        "scholarshipId": "ba630e30-ec7b-4bbe-9e5b-80ad50f8817b",
+        "userId": "kb",
+        "name": "AKASH",
+        "aboutMe": "Hey i am Need moneyy ist my ony need in life please give me help me sir donate me i beg you",
+        "incomeAmount": 167194,
+        "tenthMarks": 68,
+        "twelfthMarks": 75,
+        "incomeScore": 20,
+        "marksScore": 28.599999999999998,
+        "emotionScore": 30,
+        "score": 78.6,
+        "rank": 3
+    }
+]
