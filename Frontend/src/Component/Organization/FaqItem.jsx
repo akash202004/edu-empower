@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { faqItemVariants, transitions } from '../Utils/AnimationUtils';
 
 const FaqItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,7 +8,7 @@ const FaqItem = ({ question, answer }) => {
   return (
     <motion.div 
       className="bg-white p-6 rounded-xl shadow-md overflow-hidden"
-      whileHover={{ y: -2 }}
+      whileHover={faqItemVariants.container.hover}
     >
       <button 
         className="flex justify-between items-center w-full text-left"
@@ -26,12 +27,9 @@ const FaqItem = ({ question, answer }) => {
       </button>
       
       <motion.div 
-        initial={{ height: 0, opacity: 0 }}
-        animate={{ 
-          height: isOpen ? 'auto' : 0,
-          opacity: isOpen ? 1 : 0,
-        }}
-        transition={{ duration: 0.3 }}
+        initial={faqItemVariants.content.hidden}
+        animate={isOpen ? faqItemVariants.content.visible : faqItemVariants.content.hidden}
+        transition={transitions.default}
         className="overflow-hidden"
       >
         <p className="mt-4 text-gray-600">{answer}</p>

@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { motion, useScroll } from 'framer-motion';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 
@@ -11,13 +10,14 @@ import OrganizationFeatures from './OrganizationFeatures';
 import OrganizationFAQ from './OrganizationFAQ';
 import ImpactMetrics from './ImpactMetrics';
 
-// Import data
+// Import data and animations
 import { 
   features as allFeatures, 
   testimonials, 
   impactMetrics, 
   processSteps
 } from './OrganizationData';
+import { fadeIn } from '../Utils/AnimationUtils';
 
 // Online image URLs
 const IMAGES = {
@@ -32,8 +32,6 @@ const IMAGES = {
 };
 
 const Organization = () => {
-  console.log("Rendering Organization component");
-  const navigate = useNavigate();
   const statsRef = useRef(null);
   const [statsInView, setStatsInView] = useState(false);
   const pageRef = useRef(null);
@@ -47,9 +45,7 @@ const Organization = () => {
   // Use the first 3 features from the imported data
   const displayFeatures = allFeatures.slice(0, 3);
   
-  // Update this function to remove scholarshipcreateform navigation
   const handleUserSync = () => {
-
     console.log("Organization action triggered");
   };
   
@@ -144,10 +140,10 @@ const Organization = () => {
         <div className="container mx-auto px-4">
           <motion.div 
             className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={fadeIn}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
           >
             <div className="flex flex-col md:flex-row">
               <div className="md:w-2/5 bg-indigo-600">
@@ -206,10 +202,10 @@ const Organization = () => {
       <div className="py-20 bg-white">
         <div className="container mx-auto px-4 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={fadeIn}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
             className="max-w-2xl mx-auto bg-indigo-700 p-8 rounded-2xl shadow-xl"
           >
             <h2 className="text-4xl font-bold text-white mb-6">Ready to Make a Difference?</h2>

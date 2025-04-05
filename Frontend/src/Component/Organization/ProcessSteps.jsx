@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { staggerContainer, cardVariants, pulseAnimation, fadeIn } from './OrganizationData';
+import { staggerContainer, cardVariants, pulseAnimation, fadeIn } from '../Utils/AnimationUtils';
 
 const ProcessSteps = ({ processSteps }) => {
   return (
@@ -10,7 +10,7 @@ const ProcessSteps = ({ processSteps }) => {
           className="text-center mb-16"
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: true }}
           variants={fadeIn}
         >
           <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-semibold mb-4">
@@ -35,6 +35,7 @@ const ProcessSteps = ({ processSteps }) => {
               className="bg-white rounded-xl shadow-lg overflow-hidden p-6 relative"
               variants={cardVariants}
               whileHover="hover"
+              transition={{ type: "spring", stiffness: 300 }}
             >
               <motion.div 
                 className="absolute -right-4 -top-4 w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center z-0 opacity-70"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
-import { staggerContainer, cardVariants } from './OrganizationData';
+import { staggerContainer, cardVariants, fadeIn } from '../Utils/AnimationUtils';
 
 const ImpactMetrics = ({ impactMetrics, statsInView }) => {
   return (
@@ -9,10 +9,10 @@ const ImpactMetrics = ({ impactMetrics, statsInView }) => {
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          variants={fadeIn}
         >
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Impact</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">

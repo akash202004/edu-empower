@@ -4,6 +4,7 @@ import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/clerk-react";
 import { FiArrowRight, FiCheck } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { fadeIn, staggerContainer, cardVariants, floatAnimation } from '../Utils/AnimationUtils';
 
 const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => {
   const navigate = useNavigate();
@@ -65,9 +66,9 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
           {/* Left content */}
           <div className="md:w-1/2 md:pr-12">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              variants={fadeIn}
+              initial="hidden"
+              animate="visible"
             >
               <h1 className="text-5xl md:text-6xl font-bold text-indigo-600 mb-4">
                 Empower Education,
@@ -81,35 +82,56 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
                 <span className="text-indigo-600 font-semibold"> up to 60% less administrative overhead</span>.
               </p>
               
-              <SignedOut>
-                <SignInButton mode="modal" redirectUrl="/organization/dashboard">
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+              >
+                <SignedOut>
+                  <SignInButton mode="modal" redirectUrl="/organization/dashboard">
+                    <motion.button
+                      onClick={handleUserSync}
+                      variants={cardVariants}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 py-4 bg-indigo-600 text-white rounded-lg font-bold text-lg shadow-lg hover:bg-indigo-700 transition-all duration-200 mb-8"
+                    >
+                      Create Your Scholarship
+                    </motion.button>
+                  </SignInButton>
+                </SignedOut>
+                
+                <SignedIn>
                   <motion.button
-                   onClick={handleUserSync}
+                    variants={cardVariants}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="px-8 py-4 bg-indigo-600 text-white rounded-lg font-bold text-lg shadow-lg hover:bg-indigo-700 transition-all duration-200 mb-8"
+                    onClick={handleCreateScholarship}
                   >
                     Create Your Scholarship
                   </motion.button>
-                </SignInButton>
-              </SignedOut>
-              
-              <SignedIn>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-indigo-600 text-white rounded-lg font-bold text-lg shadow-lg hover:bg-indigo-700 transition-all duration-200 mb-8"
-                  onClick={handleCreateScholarship}
-                >
-                  Create Your Scholarship
-                </motion.button>
-              </SignedIn>
+                </SignedIn>
+              </motion.div>
               
               {/* Rest of the component remains the same */}
             </motion.div>
           </div>
           
-          {/* Right content remains the same */}
+          {/* Right content - Add animation */}
+          <motion.div 
+            className="md:w-1/2 mt-12 md:mt-0"
+            variants={floatAnimation}
+            initial="initial"
+            animate="animate"
+          >
+            <img
+              src={IMAGES.dashboardImg}
+              alt="Scholarship Dashboard"
+              className="w-full h-auto rounded-lg shadow-xl"
+              onError={handleImageError}
+            />
+          </motion.div>
         </div>
       </div>
     </div>

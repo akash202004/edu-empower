@@ -154,7 +154,7 @@ const ScholarshipAnalytics = () => {
             const applicantCount = scholarship.applicants || Math.floor(Math.random() * 10) + 5;
             
             // Randomly select that many applicants from our mock data
-            // In a real app, you would fetch the actual applicants for this scholarship
+            // In a real app, we should fetch the actual applicants for this scholarship
             const randomApplicants = [...mockApplicants]
               .sort(() => 0.5 - Math.random())
               .slice(0, applicantCount);

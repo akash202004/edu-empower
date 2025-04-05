@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiArrowRight } from 'react-icons/fi';
-import { staggerContainer, cardVariants } from './OrganizationData';
+import { staggerContainer, cardVariants, fadeIn } from '../Utils/AnimationUtils';
 
 const OrganizationFeatures = ({ displayFeatures }) => {
   return (
@@ -9,10 +9,10 @@ const OrganizationFeatures = ({ displayFeatures }) => {
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={fadeIn}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
         >
           <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-semibold mb-4">
             POWERFUL TOOLS
