@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from collections import defaultdict
 from analyzer import analyze_emotion
 from extractor import extract_marks_and_income
 from helpers import fetch_applications, fetch_student, save_to_json
@@ -8,9 +7,8 @@ from push_to_db import push_data, already_exists
 
 def score_student(student, app):
     data = extract_marks_and_income(student)
-    emotion_score = analyze_emotion(student.get("aboutMe", "")) * 10  # scale to 0–10
+    emotion_score = analyze_emotion(student.get("aboutMe", "")) * 10
 
-    # Income Score (out of 30)
     income = data["incomeAmount"]
     if income <= 100000:
         income_score = 30
@@ -25,11 +23,8 @@ def score_student(student, app):
     else:
         income_score = 5
 
-    # Marks Score (out of 40)
     avg_marks = (data["tenthMarks"] + data["twelfthMarks"]) / 2
     marks_score = min(max((avg_marks / 100) * 40, 0), 40)
-
-    # Emotion Score (out of 30)
     emotion_score = min(max(emotion_score * 3, 0), 30)
 
     total_score = round(income_score + marks_score + emotion_score, 2)
@@ -39,7 +34,7 @@ def score_student(student, app):
         "applicationId": app["id"],
         "scholarshipId": app.get("scholarshipId", ""),
         "userId": student.get("userId", ""),
-        "name": student.get("fullName", "Unnamed Student"),  # Fixed from “Unnamed Student”
+        "name": student.get("fullName", "Unnamed Student"),  # Use fullName here
         "aboutMe": student.get("aboutMe", ""),
         "incomeAmount": data["incomeAmount"],
         "tenthMarks": data["tenthMarks"],
@@ -55,7 +50,7 @@ def main():
     applications = fetch_applications()
     print(f"\n🎯 Total Applications: {len(applications)}\n")
 
-    students_by_scholarship = defaultdict(list)
+    students = []
 
     for app in applications:
         if already_exists(app["id"]):
@@ -65,30 +60,33 @@ def main():
         student = fetch_student(app.get("studentId"))
         if student:
             result = score_student(student, app)
-            students_by_scholarship[app["scholarshipId"]].append(result)
+            students.append(result)
 
-    all_students = []
+    students.sort(key=lambda x: (x["scholarshipId"], -x["score"]))
 
-    # Assign ranks separately per scholarship
-    for scholarship_id, group in students_by_scholarship.items():
-        group.sort(key=lambda x: x["score"], reverse=True)
-        for i, student in enumerate(group):
-            student["rank"] = i + 1
-            all_students.append(student)
+    current_scholarship = None
+    current_rank = 0
 
-    # Save full data to JSON
-    save_to_json(all_students)
+    for s in students:
+        if s["scholarshipId"] != current_scholarship:
+            current_scholarship = s["scholarshipId"]
+            current_rank = 1
+        else:
+            current_rank += 1
+        s["rank"] = current_rank
 
-    # Simplified data for DB
+    save_to_json(students)
+
     simplified = [
         {
             "applicationId": s["applicationId"],
             "scholarshipId": s["scholarshipId"],
             "score": s["score"],
             "rank": s["rank"],
-            "createdAt": datetime.now().isoformat()
+            "createdAt": datetime.now().isoformat(),
+            "name": s["name"]  # Include name for logging
         }
-        for s in all_students
+        for s in students
     ]
 
     push_data(simplified)
