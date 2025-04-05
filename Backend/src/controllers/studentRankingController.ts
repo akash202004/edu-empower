@@ -141,3 +141,43 @@ export const deleteRanking = async (req: Request, res: Response) => {
     res.status(500).json({ error: (error as Error).message });
   }
 };
+
+// Get rankings by scholarshipId
+export const getRankingsByScholarshipId = async (
+  req: Request,
+  res: Response
+) => {
+  const { scholarshipId } = req.params;
+
+  if (!scholarshipId) {
+    res.status(400).json({ message: "scholarshipId is required" });
+    return;
+  }
+
+  try {
+    const rankings = await prisma.studentRanking.findMany({
+      where: { scholarshipId },
+      include: {
+        application: true,
+        scholarship: true,
+      },
+      orderBy: {
+        rank: "asc",
+      },
+    });
+
+    if (rankings.length === 0) {
+      res
+        .status(404)
+        .json({ message: "No rankings found for this scholarship ID" });
+      return;
+    }
+    const filtered = rankings.map((item) => ({
+      studentId: item.application.studentId,
+      rank: item.rank,
+    }));
+    res.json(filtered);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
