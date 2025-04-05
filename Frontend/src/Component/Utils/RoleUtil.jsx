@@ -1,12 +1,19 @@
-// utils/api.js (or create a new file for API utilities)
-import axios from 'axios';
+import axios from "axios";
 
-export const fetchUserRole = async (userId) => {
+export const fetchCurrentUser = async (userId) => {
   try {
-    const response = await axios.get(`http://localhost:3001/api/users/${userId}`);
-    return response.data.role; // Assuming your backend returns { role: "ORGANIZATION" }
+    const response = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`
+    );
+
+    return {
+      userId: response.data.id,
+      name: response.data.name,
+      email: response.data.email,
+      role: response.data.role,
+    };
   } catch (error) {
-    console.error("Error fetching user role:", error);
-    return null;
+    console.error("Error fetching user data:", error);
+    throw error;
   }
 };
