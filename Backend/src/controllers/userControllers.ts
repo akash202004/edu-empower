@@ -98,7 +98,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-// Delete a user
+// Delete the user
 export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -112,17 +112,9 @@ export const deleteUser = async (req: Request, res: Response) => {
       return;
     }
 
-    await prisma.disbursement.deleteMany({ where: { studentId: id } });
-    await prisma.application.deleteMany({ where: { studentId: id } });
-    await prisma.donation.deleteMany({ where: { donorId: id } });
-
-    await prisma.fundraiser.deleteMany({ where: { organizationId: id } });
-    await prisma.scholarship.deleteMany({ where: { organizationId: id } });
-
-    await prisma.organizationDetails.deleteMany({ where: { userId: id } });
-    await prisma.studentDetails.deleteMany({ where: { userId: id } });
-
-    await prisma.user.delete({ where: { id } });
+    await prisma.user.delete({
+      where: { id },
+    });
 
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {

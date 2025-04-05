@@ -12,7 +12,7 @@ import {
 
 const router = express.Router();
 
-router.get("/active", getActiveScholarships);  // ✅ Now matches first
+router.get("/active", getActiveScholarships);  
 router.get("/expired", getExpiredScholarships);
 
 router.get("/", getScholarships);
