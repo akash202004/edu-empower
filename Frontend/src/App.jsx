@@ -12,6 +12,7 @@ import useSmoothScroll from "./hooks/useSmoothScroll";
 import LoadingScreen from "./Component/Common/LoadingScreen";
 // Keep only one import for OrganizationProfile
 import OrganizationProfile from "./Component/Organization/OrganizationProfile";
+import { Toaster } from "react-hot-toast";
 
 // Import components
 import Login from "./Component/Auth/Login";
@@ -34,6 +35,7 @@ import CrowdFundingPage2 from "./Component/CrowdFunding/CrowdFundingPage2";
 import Layout from "./Component/Layout/Layout";
 import ScholarshipApplicationForm from "./Component/Scholarship/ScholarshipApplicationForm";
 import ApplicationSuccess from "./Component/Scholarship/ApplicationSuccess";
+import Contact from "./Component/Contact/Contact";
 
 // Import new organization dashboard components
 import OrganizationDashboard from "./Component/Organization/Dashboard/OrganizationDashboard";
@@ -101,6 +103,7 @@ const OrganizationRoute = () => {
 };
 
 function App() {
+  <Toaster position="top-right" reverseOrder={false} />;
   useSmoothScroll(80);
   const [loading, setLoading] = useState(true);
 
@@ -156,6 +159,7 @@ function App() {
 
           {/* About routes */}
           <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
 
           {/* Student routes */}
           <Route
