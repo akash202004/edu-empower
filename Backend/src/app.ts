@@ -7,6 +7,7 @@ import disbursementRoutes from "./routes/disbursementRoutes";
 import organizationRoutes from "./routes/organizationRoutes";
 import applicationRoutes from "./routes/applicationRoutes";
 import studentRoutes from "./routes/studentRoutes";
+import transactionRoutes from "./routes/razorpayRoutes"
 import studentRankingRoutes from "./routes/studentRankingRoutes";
 import userRoutes from "./routes/userRoutes";
 import dotenv from "dotenv";
@@ -46,7 +47,7 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/ranking", studentRankingRoutes);
-// app.use("/api/transaction", );
+app.use("/api/transaction", transactionRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
