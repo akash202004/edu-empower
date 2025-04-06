@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import CountUp from "react-countup";
 import axios from "axios";
+import { userService } from "../../api/userService";
 
 // Add the FaqItem component
 const FaqItem = ({ question, answer }) => {
@@ -215,15 +216,14 @@ export default function ScholarshipHero() {
   const handleUserSync = async () => {
     if (isSignedIn && user) {
       try {
-        await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/users/registerorupdate`,
+        const response =  userService.registerOrUpdateUser(
           {
             userId: user.id,
             name: user.fullName,
             email: user.primaryEmailAddress?.emailAddress || null,
             role: "STUDENT",
           }
-        );
+        )
       } catch (error) {
         console.error(
           "Error syncing user data:",

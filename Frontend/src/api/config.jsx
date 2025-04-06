@@ -3,8 +3,8 @@ const API_CONFIG = {
   ENDPOINTS: {
     USERS: {
       REGISTERORUPDATE: "/users/registerorupdate",
-      GETUSER: `/users/${userId}`,
-      DELETE: `/users/${userId}`,
+      GETUSER: (userId) => `/users/${userId}`,
+      DELETE: (userId) => `/users/${userId}`,
     },
     STUDENTS: {
       CREATE: "/students",
