@@ -32,7 +32,7 @@ router.put(
   ]),
   updateStudentDetails
 );
-router.put("/:userId", updateStudentVerifiedStatus);
+router.put("/verify/:userId", updateStudentVerifiedStatus);
 router.delete("/:userId", deleteStudentDetails);
 
 export default router;

@@ -20,7 +20,6 @@ const RoleSelection = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
   
   const handleRoleSelect = (role) => {
-    // Store the selected role in localStorage or sessionStorage
     localStorage.setItem('userRole', role);
     
     if (role === "STUDENT") {

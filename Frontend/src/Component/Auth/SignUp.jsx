@@ -5,11 +5,14 @@ import { SignUp as ClerkSignUp } from "@clerk/clerk-react";
 const SignUp = () => {
   const location = useLocation();
   const role = location.state?.role || "STUDENT";
-  
-  // Always redirect students to the profile form after signup
-  const returnTo = role === "STUDENT" 
-    ? "/student/details" 
-    : (role === "ORGANIZATION" ? "/organization" : "/donation");
+
+  // // Always redirect students to the profile form after signup
+  // const returnTo =
+  //   role === "STUDENT"
+  //     ? "/"
+  //     : role === "ORGANIZATION"
+  //     ? "/organization"
+  //     : "/donation";
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -24,9 +27,9 @@ const SignUp = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <ClerkSignUp 
-            routing="path" 
-            path="/auth/sign-up" 
+          <ClerkSignUp
+            routing="path"
+            path="/auth/sign-up"
             signInUrl="/auth/login"
             redirectUrl={returnTo}
             afterSignUpUrl={returnTo}
@@ -34,6 +37,8 @@ const SignUp = () => {
         </div>
       </div>
     </div>
+
+    
   );
 };
 

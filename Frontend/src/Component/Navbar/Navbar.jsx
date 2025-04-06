@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom"; // Add useNavigate
+import { Link, useLocation, useNavigate } from "react-router-dom"; 
 import { useUser, useClerk, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { FiMenu, FiX, FiChevronDown, FiLogOut, FiUser, FiHome, FiBookOpen, FiDollarSign, FiHeart, FiInfo, FiMail } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-import { fetchUserRole } from "../Utils/RoleUtil.jsx";
 
 const Navbar = () => {
   const { isSignedIn, user } = useUser();

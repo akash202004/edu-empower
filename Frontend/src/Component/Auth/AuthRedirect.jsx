@@ -9,7 +9,6 @@ const AuthRedirect = () => {
   useEffect(() => {
     if (isLoaded) {
       if (isSignedIn && user) {
-        // Check user role from metadata if available
         const role = user.publicMetadata?.role || "STUDENT";
         
         // Redirect based on role

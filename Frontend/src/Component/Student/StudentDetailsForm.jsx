@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { FiUpload, FiUser, FiCalendar, FiPhone, FiMail, FiHome } from "react-icons/fi";
-import { createClient } from '@supabase/supabase-js';
-import { ErrorBoundary } from 'react-error-boundary';
-import studentService from '../../api/studentService';
+import {
+  FiUpload,
+  FiUser,
+  FiCalendar,
+  FiPhone,
+  FiMail,
+  FiHome,
+} from "react-icons/fi";
+import { createClient } from "@supabase/supabase-js";
+import { ErrorBoundary } from "react-error-boundary";
+// import studentService from "../../api/studentService";
 import axios from "axios";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -12,18 +19,19 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const StudentDetailsForm = () => {
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState(null);
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
-  const location = useLocation();
-  const redirectAfterSubmit = location.state?.redirectAfterSubmit || "/scholarship";
-  
+
   const [formData, setFormData] = useState({
     name: "",
     dob: "",
     contactNumber: "",
     address: "",
     email: "",
-    nationality:"",
+    nationality: "",
     gender: "",
     motherName: "",
     fatherName: "",
@@ -36,20 +44,16 @@ const StudentDetailsForm = () => {
       incomeCertificate: null,
       marksheet10: null,
       marksheet12: null,
-    }
+    },
   });
-  
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError] = useState(null);
 
   // Initialize form with user data
   useEffect(() => {
     if (user) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         name: user.fullName || "",
-        email: user.primaryEmailAddress?.emailAddress || ""
+        email: user.primaryEmailAddress?.emailAddress || "",
       }));
     }
   }, [user]);
@@ -63,23 +67,25 @@ const StudentDetailsForm = () => {
   useEffect(() => {
     const fetchStudentProfile = async () => {
       if (!isSignedIn || !user) return;
-      
+
       try {
         await studentService.registerOrUpdateUser({
           userId: user.id,
           name: user.fullName,
           email: user.primaryEmailAddress?.emailAddress,
-          role: "STUDENT"
+          role: "STUDENT",
         });
-        
+
         const studentData = await studentService.getStudentProfile(user.id);
         if (studentData) {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             userId: studentData.userId,
             name: studentData.fullName || user.fullName,
             email: studentData.email || user.primaryEmailAddress?.emailAddress,
-            dob: studentData.dateOfBirth ? new Date(studentData.dateOfBirth).toISOString().split('T')[0] : "",
+            dob: studentData.dateOfBirth
+              ? new Date(studentData.dateOfBirth).toISOString().split("T")[0]
+              : "",
             contactNumber: studentData.contactNumber || "",
             address: studentData.address || "",
             gender: studentData.gender || "",
@@ -97,21 +103,21 @@ const StudentDetailsForm = () => {
         console.log("No existing profile found or error fetching:", error);
       }
     };
-    
+
     fetchStudentProfile();
   }, [user, isSignedIn]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'name' || name === 'email') return;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === "name" || name === "email") return;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      documents: { ...prev.documents, [name]: files[0] }
+      documents: { ...prev.documents, [name]: files[0] },
     }));
   };
 
@@ -119,89 +125,100 @@ const StudentDetailsForm = () => {
     const newErrors = {};
     if (!formData.name) newErrors.name = "Name is required";
     if (!formData.dob) newErrors.dob = "Date of Birth is required";
-    if (!formData.contactNumber) newErrors.contactNumber = "Contact number is required";
+    if (!formData.contactNumber)
+      newErrors.contactNumber = "Contact number is required";
     if (!formData.address) newErrors.address = "Address is required";
     if (!formData.email) newErrors.email = "Email is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const uploadFileToSupabase = async (file, fileName) => {
     if (!file) return null;
-    
+
     const fileSizeInMB = file.size / (1024 * 1024);
     if (fileSizeInMB > 5) {
-      setApiError(`File ${file.name} is too large (${fileSizeInMB.toFixed(2)}MB). Maximum size is 5MB.`);
+      setApiError(
+        `File ${file.name} is too large (${fileSizeInMB.toFixed(
+          2
+        )}MB). Maximum size is 5MB.`
+      );
       return null;
     }
-    
-    if (!file.type.includes('pdf')) {
-      setApiError(`File ${file.name} is not a PDF. Only PDF files are allowed.`);
+
+    if (!file.type.includes("pdf")) {
+      setApiError(
+        `File ${file.name} is not a PDF. Only PDF files are allowed.`
+      );
       return null;
     }
-    
-    const fileExt = file.name.split('.').pop();
+
+    const fileExt = file.name.split(".").pop();
     const filePath = `${user.id}/${fileName}.${fileExt}`;
-    
+
     try {
       const { error } = await supabase.storage
-        .from('student-documents')
+        .from("student-documents")
         .upload(filePath, file, {
-          cacheControl: '3600',
+          cacheControl: "3600",
           upsert: true,
-          contentType: 'application/pdf'
+          contentType: "application/pdf",
         });
-      
+
       if (error) {
         setApiError(`Failed to upload ${file.name}: ${error.message}`);
         return null;
       }
-      
+
       const { data: urlData } = supabase.storage
-        .from('student-documents')
+        .from("student-documents")
         .getPublicUrl(filePath);
-      
+
       return urlData.publicUrl;
     } catch (error) {
-      setApiError(`Failed to upload ${file.name}: ${error.message || "Unknown error"}`);
+      setApiError(
+        `Failed to upload ${file.name}: ${error.message || "Unknown error"}`
+      );
       return null;
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
     setApiError(null);
-    
+
     try {
       // Upload documents
       const documentUrls = {};
       const uploadPromises = [];
-      
+
       const documentTypes = [
-        { key: 'domicileCertificate', name: 'domicile-certificate' },
-        { key: 'incomeCertificate', name: 'income-certificate' },
-        { key: 'marksheet10', name: 'marksheet-10' },
-        { key: 'marksheet12', name: 'marksheet-12' }
+        { key: "domicileCertificate", name: "domicile-certificate" },
+        { key: "incomeCertificate", name: "income-certificate" },
+        { key: "marksheet10", name: "marksheet-10" },
+        { key: "marksheet12", name: "marksheet-12" },
       ];
-      
+
       documentTypes.forEach(({ key, name }) => {
         if (formData.documents[key]) {
           uploadPromises.push(
             uploadFileToSupabase(formData.documents[key], name)
-              .then(url => { documentUrls[key] = url; })
-              .catch(err => console.error(`Error uploading ${key}:`, err))
-          )
+              .then((url) => {
+                documentUrls[key] = url;
+              })
+              .catch((err) => console.error(`Error uploading ${key}:`, err))
+          );
         }
       });
-      
+
       await Promise.all(uploadPromises);
-      
+
       // Prepare and submit student data
       const studentData = {
         userId: user.id,
@@ -222,10 +239,6 @@ const StudentDetailsForm = () => {
         tenthResult: documentUrls.marksheet10 || "Missing URL",
         twelfthResult: documentUrls.marksheet12 || "Missing URL",
       };
-      
-      // await studentService.saveStudentProfile(studentData);
-      // navigate(redirectAfterSubmit);
-      console.log("Submitting student data:", studentData);
 
       // Submit to backend API
       const response = await axios.post(
@@ -240,15 +253,22 @@ const StudentDetailsForm = () => {
 
       console.log("Submission successful:", response.data);
       setSuccessMessage("Profile saved successfully!");
-      setTimeout(() => navigate(redirectAfterSubmit), 2000);
     } catch (error) {
       console.error("Error saving profile:", error);
       if (error.response?.data?.errors) {
-        setApiError(`Validation failed: ${Object.values(error.response.data.errors).flat().join(', ')}`);
+        setApiError(
+          `Validation failed: ${Object.values(error.response.data.errors)
+            .flat()
+            .join(", ")}`
+        );
       } else if (error.request) {
-        setApiError("No response from server. Please check if backend is running.");
+        setApiError(
+          "No response from server. Please check if backend is running."
+        );
       } else {
-        setApiError(error.message || "Failed to save profile. Please try again.");
+        setApiError(
+          error.message || "Failed to save profile. Please try again."
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -256,10 +276,14 @@ const StudentDetailsForm = () => {
   };
 
   return (
-    <ErrorBoundary fallback={<div>Something went wrong. Please refresh the page.</div>}>
+    <ErrorBoundary
+      fallback={<div>Something went wrong. Please refresh the page.</div>}
+    >
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Student Details Form</h1>
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            Student Details Form
+          </h1>
           <p className="text-gray-600 text-center mb-8">
             Please fill in your details to complete your profile
           </p>
@@ -278,7 +302,9 @@ const StudentDetailsForm = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
                   <input
                     type="text"
                     name="name"
@@ -287,11 +313,15 @@ const StudentDetailsForm = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-200"
                     readOnly
                   />
-                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  {errors.name && (
+                    <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date of Birth
+                  </label>
                   <div className="flex items-center">
                     <FiCalendar className="text-gray-400 mr-2" />
                     <input
@@ -302,11 +332,15 @@ const StudentDetailsForm = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
-                  {errors.dob && <p className="text-red-500 text-xs mt-1">{errors.dob}</p>}
+                  {errors.dob && (
+                    <p className="text-red-500 text-xs mt-1">{errors.dob}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Gender
+                  </label>
                   <select
                     name="gender"
                     value={formData.gender}
@@ -318,11 +352,15 @@ const StudentDetailsForm = () => {
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
                   </select>
-                  {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+                  {errors.gender && (
+                    <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Contact Number
+                  </label>
                   <div className="flex items-center">
                     <FiPhone className="text-gray-400 mr-2" />
                     <input
@@ -334,11 +372,17 @@ const StudentDetailsForm = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
-                  {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
+                  {errors.contactNumber && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.contactNumber}
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
                   <div className="flex items-center">
                     <FiMail className="text-gray-400 mr-2" />
                     <input
@@ -350,8 +394,12 @@ const StudentDetailsForm = () => {
                       readOnly
                     />
                   </div>
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nationality</label>
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  )}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nationality
+                  </label>
                   <div className="flex items-center">
                     <FiUser className="text-gray-400 mr-2" />
                     <input
@@ -362,11 +410,12 @@ const StudentDetailsForm = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-200"
                     />
                   </div>
-                  
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                  </label>
                   <div className="flex items-center">
                     <FiHome className="text-gray-400 mr-2" />
                     <textarea
@@ -377,7 +426,11 @@ const StudentDetailsForm = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     ></textarea>
                   </div>
-                  {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+                  {errors.address && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.address}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -389,7 +442,9 @@ const StudentDetailsForm = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Father's Name
+                  </label>
                   <input
                     type="text"
                     name="fatherName"
@@ -400,7 +455,9 @@ const StudentDetailsForm = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mother's Name
+                  </label>
                   <input
                     type="text"
                     name="motherName"
@@ -411,7 +468,9 @@ const StudentDetailsForm = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Guardian's Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Guardian's Name
+                  </label>
                   <input
                     type="text"
                     name="guardianName"
@@ -422,7 +481,9 @@ const StudentDetailsForm = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Guardian's Contact</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Guardian's Contact
+                  </label>
                   <input
                     type="tel"
                     name="guardianContact"
@@ -442,10 +503,13 @@ const StudentDetailsForm = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
-                  { name: 'marksheet10', label: '10th Marksheet' },
-                  { name: 'marksheet12', label: '12th Marksheet' },
-                  { name: 'incomeCertificate', label: 'Income Certificate' },
-                  { name: 'domicileCertificate', label: 'Domicile Certificate' }
+                  { name: "marksheet10", label: "10th Marksheet" },
+                  { name: "marksheet12", label: "12th Marksheet" },
+                  { name: "incomeCertificate", label: "Income Certificate" },
+                  {
+                    name: "domicileCertificate",
+                    label: "Domicile Certificate",
+                  },
                 ].map(({ name, label }) => (
                   <div key={name}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -499,7 +563,9 @@ const StudentDetailsForm = () => {
 
             {/* Career Goals Section */}
             <div className="bg-gray-100 p-4 rounded-md mb-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">About Me</h2>
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                About Me
+              </h2>
               <textarea
                 name="aboutMe"
                 value={formData.aboutMe}
@@ -521,9 +587,25 @@ const StudentDetailsForm = () => {
               >
                 {isSubmitting ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Saving...
                   </>
