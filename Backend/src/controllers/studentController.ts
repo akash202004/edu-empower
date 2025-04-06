@@ -6,6 +6,7 @@ import {
   validateStudentDataForUpdate,
 } from "../utils/studentDetailsValidation";
 import { Role } from "@prisma/client";
+import { isStudentDetailsComplete } from "../utils/studentDetailsCompleteness";
 
 // Create student details
 export const createStudentDetails = async (req: Request, res: Response) => {
@@ -58,6 +59,18 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
+    if (isStudentDetailsComplete(validationResult.data)) {
+      validationResult.data.verified = true;
+    } else {
+      validationResult.data.verified = false;
+    }
+
+    if (isStudentDetailsComplete(validationResult.data)) {
+      validationResult.data.verified = true;
+    } else {
+      validationResult.data.verified = false;
+    }
+
     const studentData = {
       userId,
       fullName,
@@ -75,7 +88,7 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       twelfthResult: twelfthResult ?? "",
       incomeCert: incomeCert ?? "",
       domicileCert: domicileCert ?? "",
-      verified: true,
+      verified: isStudentDetailsComplete(validationResult.data),
     };
 
     const student = await prisma.studentDetails.create({ data: studentData });
@@ -132,6 +145,9 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
       res.status(400).json({ error: "No valid fields provided for update" });
       return;
     }
+
+    const combinedData = { ...existingStudent, ...updateData };
+    updateData.verified = isStudentDetailsComplete(combinedData);
 
     const updatedStudent = await prisma.studentDetails.update({
       where: { userId },
