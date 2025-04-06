@@ -16,7 +16,7 @@ const Navbar = () => {
   // Navigation links with icons
   const navLinks = [
     { name: "Home", path: "/", icon: <FiHome className="mr-2" /> },
-    { name: "About", path: "/about", icon: <FiInfo className="mr-2" /> },
+    { name: "About", path: "/about-edu-empower", icon: <FiInfo className="mr-2" /> },
     { name: "Scholarships", path: "/scholarship", icon: <FiBookOpen className="mr-2" /> },
     { name: "Crowdfunding", path: "/crowdfunding", icon: <FiDollarSign className="mr-2" /> },
     { name: "Donation", path: "/donation", icon: <FiHeart className="mr-2" /> },
@@ -149,7 +149,9 @@ const Navbar = () => {
 
   return (
     <motion.nav 
-      className="fixed w-full z-50 transition-all duration-300 bg-white shadow-lg"
+      className={`fixed w-full z-50 transition-all duration-300 bg-white shadow-lg ${
+        scrolled ? 'py-1' : 'py-2'
+      }`}
       initial="hidden"
       animate="visible"
       variants={navbarVariants}
@@ -364,24 +366,6 @@ const Navbar = () => {
   );
 };
 
-// Remove these lines that are outside the component
-// const viewProfile = () => {
-//   navigate("/student/details", { 
-//     state: { 
-//       viewMode: true 
-//     } 
-//   });
-// };
-
-// <SignedIn>
-//   {/* Your existing navbar content */}
-//   <button
-//     onClick={viewProfile}
-//     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//   >
-//     <FiUser className="mr-2 h-5 w-5" />
-//     Your Profile
-//   </button>
-// </SignedIn>
+// Removing the redundant navItems array that's not being used
 
 export default Navbar;

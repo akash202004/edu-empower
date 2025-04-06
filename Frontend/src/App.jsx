@@ -20,6 +20,7 @@ import StudentDetailsForm from "./Component/Student/StudentDetailsForm";
 import Navbar from "./Component/Navbar/Navbar";
 import Hero from "./Component/Hero/Hero";
 import About from "./Component/About/About";
+import AboutEduEmpower from "./Component/About/AboutEduEmpower";
 import Feature from "./Component/Feature/Feature";
 import Footer from "./Component/Footer/Footer";
 import RoleSelection from "./Component/Auth/RoleSelection";
@@ -42,6 +43,11 @@ import OrganizationDashboard from "./Component/Organization/Dashboard/Organizati
 import CreateScholarship from "./Component/Organization/Dashboard/CreateScholarship";
 // Make sure to import the ScholarshipAnalytics component
 import ScholarshipAnalytics from "./Component/Organization/Dashboard/ScholarshipAnalytics";
+
+// Remove this duplicate import
+// Import both About components
+// import About from './Component/About/About';
+
 
 // Get Clerk publishable key
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -102,6 +108,19 @@ const OrganizationRoute = () => {
   return <Organization />;
 };
 
+
+const MainLayout = ({ children }) => {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <div className="flex-grow">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
 function App() {
   <Toaster position="top-right" reverseOrder={false} />;
   useSmoothScroll(80);
@@ -157,9 +176,10 @@ function App() {
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/role-selection" element={<RoleSelection />} />
 
-          {/* About routes */}
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
+         
+          <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+          <Route path="/about-edu-empower" element={<MainLayout><AboutEduEmpower /></MainLayout>} />
+          <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
 
           {/* Student routes */}
           <Route
