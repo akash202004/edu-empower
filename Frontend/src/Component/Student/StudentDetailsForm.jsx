@@ -263,13 +263,6 @@ const StudentDetailsForm = () => {
           <p className="text-gray-600 text-center mb-8">
             Please fill in your details to complete your profile
           </p>
-
-          {apiError && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-              <p className="text-red-700">{apiError}</p>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Information Section */}
             <div className="bg-gray-100 p-4 rounded-md mb-6">
