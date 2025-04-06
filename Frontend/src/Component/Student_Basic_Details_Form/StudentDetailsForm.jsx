@@ -13,6 +13,8 @@ import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import { ErrorBoundary } from "react-error-boundary";
 import CountUp from "react-countup";
+import { userService } from "../../api/userService";
+import { studentService } from "../../api/studentService";
 
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -405,14 +407,10 @@ const StudentDetailsForm = () => {
 
         // Submit data
         if (formData.userId) {
-          response = await axios.put(
-            `${API_BASE_URL}/students/${user.id}`,
+          const response = studentService.createAndUpdateNewStudentDetails(
             studentData
           );
-        } else {
-          response = await axios.post(`${API_BASE_URL}/students`, studentData);
         }
-
         navigate("/student/profile");
       } catch (error) {
         console.error("Error saving profile:", error);
