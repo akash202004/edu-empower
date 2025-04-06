@@ -191,12 +191,6 @@ export default function ScholarshipHero() {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   useEffect(() => {
-    if (isSignedIn) {
-      navigate("/scholarship");
-    }
-  }, [isSignedIn, navigate]);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       setActiveTestimonial((prev) => (prev + 1) % recentWinners.length);
     }, 5000);
@@ -221,17 +215,15 @@ export default function ScholarshipHero() {
   const handleUserSync = async () => {
     if (isSignedIn && user) {
       try {
-        console.log("In handle sync");
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/registerorupdate`, {
-          userId: user.id,
-          name: user.fullName,
-          email: user.primaryEmailAddress?.emailAddress || null,
-          role: "STUDENT",
-        });
-
-        console.log(user.id);
-
-        navigate("/scholarship");
+        await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/users/registerorupdate`,
+          {
+            userId: user.id,
+            name: user.fullName,
+            email: user.primaryEmailAddress?.emailAddress || null,
+            role: "STUDENT",
+          }
+        );
       } catch (error) {
         console.error(
           "Error syncing user data:",
@@ -241,10 +233,12 @@ export default function ScholarshipHero() {
     }
   };
 
-  // Auto-sync user on page load if signed in
   useEffect(() => {
     handleUserSync();
-  }, [isSignedIn, user]);
+    if (isSignedIn) {
+      navigate("/scholarship");
+    }
+  }, [isSignedIn, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 overflow-hidden">

@@ -46,7 +46,7 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/ranking", studentRankingRoutes);
-app.use("/api/transaction", );
+// app.use("/api/transaction", );
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
