@@ -13,7 +13,6 @@ import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import { ErrorBoundary } from "react-error-boundary";
 import CountUp from "react-countup";
-import { fetchCurrentUser } from "../Utils/RoleUtil";
 
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;

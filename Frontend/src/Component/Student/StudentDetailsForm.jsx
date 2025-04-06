@@ -11,7 +11,7 @@ import {
 } from "react-icons/fi";
 import { createClient } from "@supabase/supabase-js";
 import { ErrorBoundary } from "react-error-boundary";
-import studentService from "../../api/studentService";
+// import studentService from "../../api/studentService";
 import axios from "axios";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
