@@ -4,11 +4,7 @@ import {
   validateStudentData,
   validateStudentDataForUpdate,
 } from "../utils/studentDetailsValidation";
-import fs from "fs";
-import path from "path";
 import { Role } from "@prisma/client";
-
-const normalizePath = (path: string) => path.replace(/\\/g, "/");
 
 // Create student details
 export const createStudentDetails = async (req: Request, res: Response) => {
@@ -31,6 +27,10 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       motherName,
       guardianName,
       guardianContact,
+      tenthResult,
+      twelfthResult,
+      incomeCert,
+      domicileCert,
       aboutMe,
     } = validationResult.data;
 
@@ -57,8 +57,6 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       return;
     }
 
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
     const studentData = {
       userId,
       fullName,
@@ -72,18 +70,10 @@ export const createStudentDetails = async (req: Request, res: Response) => {
       guardianName: guardianName ?? "",
       guardianContact: guardianContact ?? "",
       aboutMe: aboutMe ?? "",
-      tenthResult: files?.["tenthResult"]?.[0]?.path
-        ? normalizePath(files["tenthResult"][0].path)
-        : "",
-      twelfthResult: files?.["twelfthResult"]?.[0]?.path
-        ? normalizePath(files["twelfthResult"][0].path)
-        : "",
-      incomeCert: files?.["incomeCert"]?.[0]?.path
-        ? normalizePath(files["incomeCert"][0].path)
-        : "",
-      domicileCert: files?.["domicileCert"]?.[0]?.path
-        ? normalizePath(files["domicileCert"][0].path)
-        : "",
+      tenthResult: tenthResult ?? "",
+      twelfthResult: twelfthResult ?? "",
+      incomeCert: incomeCert ?? "",
+      domicileCert: domicileCert ?? "",
       verified: true,
     };
 
@@ -129,23 +119,6 @@ export const updateStudentDetails = async (req: Request, res: Response) => {
     Object.entries(validationResult.data).forEach(([key, value]) => {
       if (value !== undefined) updateData[key] = value;
     });
-
-    const files = req.files as
-      | { [fieldname: string]: Express.Multer.File[] }
-      | undefined;
-
-    if (files?.["tenthResult"]?.[0]) {
-      updateData.tenthResult = normalizePath(files["tenthResult"][0].path);
-    }
-    if (files?.["twelfthResult"]?.[0]) {
-      updateData.twelfthResult = normalizePath(files["twelfthResult"][0].path);
-    }
-    if (files?.["incomeCert"]?.[0]) {
-      updateData.incomeCert = normalizePath(files["incomeCert"][0].path);
-    }
-    if (files?.["domicileCert"]?.[0]) {
-      updateData.domicileCert = normalizePath(files["domicileCert"][0].path);
-    }
 
     if (Object.keys(updateData).length === 0) {
       res.status(400).json({ error: "No valid fields provided for update" });
@@ -212,16 +185,6 @@ export const deleteStudentDetails = async (req: Request, res: Response) => {
     if (!existingStudent) {
       res.status(404).json({ error: "Student details not found" });
       return;
-    }
-
-    if (existingStudent.tenthResult) {
-      fs.unlinkSync(path.join(__dirname, "..", existingStudent.tenthResult));
-    }
-    if (existingStudent.twelfthResult) {
-      fs.unlinkSync(path.join(__dirname, "..", existingStudent.twelfthResult));
-    }
-    if (existingStudent.incomeCert) {
-      fs.unlinkSync(path.join(__dirname, "..", existingStudent.incomeCert));
     }
 
     await prisma.studentDetails.delete({ where: { userId } });

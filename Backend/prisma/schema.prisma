@@ -23,6 +23,7 @@ model User {
   createdAt     DateTime @default(now())
   @@index([role])
   @@index([id])
+  Payment Payment[]
 }
 
 enum Role {
@@ -90,10 +91,12 @@ model Fundraiser {
   deadline     DateTime
   status       FundraiserStatus @default(PENDING)
   organizationId String
-  organization  User   @relation("UserFundraisers", fields: [organizationId], references: [id], onDelete: Cascade)
+  organization  User   @relation("UserFundraisers", fields: [organizationId], references: [id], onDelete: Restrict)
   donations     Donation[]  @relation("FundraiserDonations")
   scholarships  Scholarship[] @relation("FundraiserScholarships")
   createdAt    DateTime @default(now())
+
+  Payment Payment[]
 }
 
 enum FundraiserStatus {
@@ -110,6 +113,9 @@ model Donation {
   fundraiser   Fundraiser @relation("FundraiserDonations", fields: [fundraiserId], references: [id], onDelete: Cascade  )
   amount       Float
   createdAt    DateTime @default(now())
+
+  paymentId    String?   @unique
+  payment      Payment?  @relation(fields: [paymentId], references: [id], onDelete: SetNull)
 }
 
 model Scholarship {
@@ -185,5 +191,31 @@ model StudentRanking {
   rank          Int?     
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  razorpayPaymentId String  @unique
+  razorpayOrderId   String
+  razorpaySignature String
+  amount           Float
+  currency         String  @default("INR")
+  status           PaymentStatus @default(PENDING)
+  donorId          String
+  donor            User    @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  fundraiserId     String
+  fundraiser       Fundraiser @relation(fields: [fundraiserId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+
+  @@index([razorpayPaymentId])
+  @@index([donorId])
+  @@index([fundraiserId])
+  Donation Donation[]
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }
 
