@@ -94,7 +94,7 @@ export const createStudentDetails = async (req: Request, res: Response) => {
     const student = await prisma.studentDetails.create({ data: studentData });
     try {
       console.log("📡 Sending trigger request...");
-      await axios.post("http://localhost:5001/trigger-ai");
+      await axios.post(`${process.env.AI_SERVER_URL}`);
       console.log("✅ AI triggered successfully");
     } catch (aiError: any) {
       console.error("⚠️ Failed to trigger AI:", aiError.message);

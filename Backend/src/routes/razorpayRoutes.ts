@@ -1,7 +1,9 @@
 import express from "express";
-import { createOrder } from "../controllers/razorpayController";
+import { createOrder, verifyPayment } from "../controllers/razorpayController";
 
 const router = express.Router();
 
 router.post("/createorder", createOrder);
-router.post("/verifyorder");
+router.post("/verifypayment", verifyPayment);
+
+export default router;
