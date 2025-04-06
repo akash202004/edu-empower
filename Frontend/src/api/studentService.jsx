@@ -22,7 +22,8 @@ export const studentService = {
   // get existing student details by userId and create & update based on that
   createAndUpdateNewStudentDetails: async (studentData) => {
     try {
-      if (getExistingStudentDetails(studentData.userId)) {
+      const existingData = await studentService.getExistingStudentDetails(studentData.userId);
+      if (existingData) {
         const response = await API.put(
           API_CONFIG.ENDPOINTS.STUDENTS.UPDATE_DETAILS(studentData.userId),
           studentData

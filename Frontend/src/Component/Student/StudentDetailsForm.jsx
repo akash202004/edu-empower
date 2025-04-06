@@ -13,6 +13,7 @@ import { createClient } from "@supabase/supabase-js";
 import { ErrorBoundary } from "react-error-boundary";
 // import studentService from "../../api/studentService";
 import axios from "axios";
+import { studentService } from "../../api/studentService";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -187,89 +188,64 @@ const StudentDetailsForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) return;
-
+    console.log("Form submission started");
+  
+    if (!validateForm()) {
+      console.log("Form validation failed");
+      return;
+    }
+  
     setIsSubmitting(true);
     setApiError(null);
-
+  
     try {
       // Upload documents
       const documentUrls = {};
       const uploadPromises = [];
-
+  
       const documentTypes = [
         { key: "domicileCertificate", name: "domicile-certificate" },
         { key: "incomeCertificate", name: "income-certificate" },
         { key: "marksheet10", name: "marksheet-10" },
         { key: "marksheet12", name: "marksheet-12" },
       ];
-
-      documentTypes.forEach(({ key, name }) => {
+  
+      for (const { key, name } of documentTypes) {
         if (formData.documents[key]) {
-          uploadPromises.push(
-            uploadFileToSupabase(formData.documents[key], name)
-              .then((url) => {
-                documentUrls[key] = url;
-              })
-              .catch((err) => console.error(`Error uploading ${key}:`, err))
-          );
+          const url = await uploadFileToSupabase(formData.documents[key], name);
+          documentUrls[key] = url;
         }
-      });
-
-      await Promise.all(uploadPromises);
-
-      // Prepare and submit student data
+      }
+  
+      // Prepare student data
       const studentData = {
         userId: user.id,
-        fullName: formData.name || "",
-        email: formData.email || "",
-        dateOfBirth: formData.dob || new Date().toISOString(),
-        contactNumber: formData.contactNumber || "",
-        address: formData.address || "",
-        gender: formData.gender || "Not Specified",
-        nationality: formData.nationality || "Not Specified",
-        fatherName: formData.fatherName || "Unknown",
-        motherName: formData.motherName || "Unknown",
-        guardianName: formData.guardianName || "",
-        guardianContact: formData.guardianContact || "",
-        aboutMe: formData.aboutMe || "",
-        domicileCert: documentUrls.domicileCertificate || "Missing URL",
-        incomeCert: documentUrls.incomeCertificate || "Missing URL",
-        tenthResult: documentUrls.marksheet10 || "Missing URL",
-        twelfthResult: documentUrls.marksheet12 || "Missing URL",
+        fullName: formData.name,
+        email: formData.email,
+        dateOfBirth: formData.dob,
+        contactNumber: formData.contactNumber,
+        address: formData.address,
+        gender: formData.gender,
+        nationality: formData.nationality,
+        fatherName: formData.fatherName,
+        motherName: formData.motherName,
+        guardianName: formData.guardianName,
+        guardianContact: formData.guardianContact,
+        aboutMe: formData.aboutMe,
+        domicileCert: documentUrls.domicileCertificate || null,
+        incomeCert: documentUrls.incomeCertificate || null,
+        tenthResult: documentUrls.marksheet10 || null,
+        twelfthResult: documentUrls.marksheet12 || null,
       };
-
-      // Submit to backend API
-      const response = await axios.post(
-        "http://localhost:3001/api/students",
-        studentData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("Submission successful:", response.data);
-      setSuccessMessage("Profile saved successfully!");
+  
+      console.log("Submitting student data:", studentData);
+      const response = await studentService.createAndUpdateNewStudentDetails(studentData);
+      console.log("API response:", response);
+  
+      navigate("/student/profile");
     } catch (error) {
-      console.error("Error saving profile:", error);
-      if (error.response?.data?.errors) {
-        setApiError(
-          `Validation failed: ${Object.values(error.response.data.errors)
-            .flat()
-            .join(", ")}`
-        );
-      } else if (error.request) {
-        setApiError(
-          "No response from server. Please check if backend is running."
-        );
-      } else {
-        setApiError(
-          error.message || "Failed to save profile. Please try again."
-        );
-      }
+      console.error("Full error:", error);
+      setApiError(error.message || "Failed to save profile");
     } finally {
       setIsSubmitting(false);
     }
@@ -581,9 +557,8 @@ const StudentDetailsForm = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
               >
                 {isSubmitting ? (
                   <>
