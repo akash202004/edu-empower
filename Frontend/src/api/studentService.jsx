@@ -14,6 +14,9 @@ export const studentService = {
       );
       return response.data;
     } catch (error) {
+      if (error.response?.status === 404) {
+        return null; // Return null for 404 (not found)
+      }
       console.error("Error fetching student profile:", error);
       throw error;
     }
@@ -31,7 +34,7 @@ export const studentService = {
         return response.data;
       } else {
         const response = await API.post(
-          API_CONFIG.ENDPOINTS.STUDENTS.CREATE(studentData.userId),
+          API_CONFIG.ENDPOINTS.STUDENTS.CREATE,
           studentData
         );
         return response.data;
