@@ -149,28 +149,30 @@ const Navbar = () => {
 
   return (
     <motion.nav 
-      className={`fixed w-full z-50 transition-all duration-300 bg-white shadow-lg ${
-        scrolled ? 'py-1' : 'py-2'
+      className={`fixed w-full z-50 transition-all duration-300 bg-white ${
+        scrolled 
+          ? 'py-0.5 border-b-2 border-black shadow-[0px_4px_0px_0px_rgba(0,0,0,0.1)]' 
+          : 'py-1'
       }`}
       initial="hidden"
       animate="visible"
       variants={navbarVariants}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-14">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
               <div className="relative">
                 <div className="relative">
                   <img
-                    className="h-9 w-auto"
+                    className="h-8 w-auto"
                     src="/logo.png"
                     alt="Edu-Empower"
                   />
                 </div>
               </div>
-              <span className="ml-2 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+              <span className="ml-2 text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
                 Edu-Empower
               </span>
             </Link>
@@ -190,7 +192,7 @@ const Navbar = () => {
               >
                 <Link
                   to={link.path}
-                  className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
+                  className={`px-2 py-1 rounded-md text-sm font-medium flex items-center ${
                     location.pathname === link.path
                       ? 'text-indigo-600'
                       : 'text-gray-700 hover:text-indigo-600 transition-colors duration-300'
@@ -251,7 +253,7 @@ const Navbar = () => {
                 <AnimatePresence>
                   {isProfileOpen && (
                     <motion.div
-                      className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
+                      className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-1"
                       variants={profileMenuVariants}
                       initial="hidden"
                       animate="visible"
@@ -279,9 +281,9 @@ const Navbar = () => {
               <div className="flex items-center">
                 <Link to="/auth/role-selection">
                   <motion.button
-                    className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-md shadow-md hover:shadow-lg transition-all duration-300"
-                    whileHover={{ scale: 1.05, boxShadow: "0 4px 20px rgba(79, 70, 229, 0.3)" }}
-                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300"
+                    whileHover={{ y: -2, x: -2, boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)" }}
+                    whileTap={{ scale: 0.95, boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" }}
                   >
                     Sign up
                   </motion.button>
@@ -293,7 +295,7 @@ const Navbar = () => {
             <div className="flex md:hidden ml-2">
               <motion.button
                 onClick={toggleMenu}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none transition-colors duration-300"
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none transition-colors duration-300 border border-gray-200"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
@@ -313,7 +315,7 @@ const Navbar = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            className="md:hidden bg-white shadow-lg rounded-b-xl overflow-hidden"
+            className="md:hidden bg-white shadow-lg rounded-b-xl overflow-hidden border-2 border-t-0 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             variants={mobileMenuVariants}
             initial="hidden"
             animate="visible"
@@ -347,9 +349,9 @@ const Navbar = () => {
                     <div className="w-full">
                       <Link to="/auth/role-selection" onClick={() => setIsMenuOpen(false)}>
                         <motion.button
-                          className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-md shadow-md hover:shadow-lg transition-all duration-300"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
+                          className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300"
+                          whileHover={{ y: -2, x: -2, boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)" }}
+                          whileTap={{ scale: 0.98, boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" }}
                         >
                           Sign up
                         </motion.button>
@@ -365,7 +367,5 @@ const Navbar = () => {
     </motion.nav>
   );
 };
-
-// Removing the redundant navItems array that's not being used
 
 export default Navbar;

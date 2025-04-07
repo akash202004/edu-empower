@@ -13,5 +13,4 @@ router.put("/:id", updateOrganizationDetails);
 router.delete("/:id", deleteOrganizationDetails);
 router.patch("/organizations/:id/verify", authenticateAdmin, verifyOrganization);
 
-
 export default router;

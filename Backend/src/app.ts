@@ -47,7 +47,7 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/ranking", studentRankingRoutes);
-app.use("/api/transaction", transactionRoutes);
+// app.use("/api/transaction", transactionRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

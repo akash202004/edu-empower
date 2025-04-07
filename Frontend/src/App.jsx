@@ -8,9 +8,7 @@ import {
 } from "react-router-dom";
 import { ClerkProvider, useUser } from "@clerk/clerk-react";
 import useSmoothScroll from "./hooks/useSmoothScroll";
-// Add this import at the top with your other imports
 import LoadingScreen from "./Component/Common/LoadingScreen";
-// Keep only one import for OrganizationProfile
 import OrganizationProfile from "./Component/Organization/OrganizationProfile";
 import { Toaster } from "react-hot-toast";
 
@@ -32,22 +30,16 @@ import Scholarshipapply from "./Component/Scholarship/Scholarshipapply";
 import DonarPage from "./Component/Donar/Donar";
 import Organization from "./Component/Organization/Organization";
 import StudentProfile from "./Component/Student/StudentProfile";
-import CrowdFundingPage2 from "./Component/CrowdFunding/CrowdFundingPage2";
 import Layout from "./Component/Layout/Layout";
 import ScholarshipApplicationForm from "./Component/Scholarship/ScholarshipApplicationForm";
 import ApplicationSuccess from "./Component/Scholarship/ApplicationSuccess";
 import Contact from "./Component/Contact/Contact";
+import ContactSubmitted from "./Component/Contact/ContactSubmitted";
 
 // Import new organization dashboard components
 import OrganizationDashboard from "./Component/Organization/Dashboard/OrganizationDashboard";
 import CreateScholarship from "./Component/Organization/Dashboard/CreateScholarship";
-// Make sure to import the ScholarshipAnalytics component
 import ScholarshipAnalytics from "./Component/Organization/Dashboard/ScholarshipAnalytics";
-
-// Remove this duplicate import
-// Import both About components
-// import About from './Component/About/About';
-
 
 // Get Clerk publishable key
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -100,12 +92,31 @@ const RequireAuth = ({ children }) => {
 // Custom Organization Route
 const OrganizationRoute = () => {
   const { isSignedIn, user } = useUser();
+  const navigate = useNavigate();
 
-  if (isSignedIn && user?.publicMetadata?.role === "ORGANIZATION") {
-    return <Navigate to="/organization/dashboard" replace />;
-  }
+  useEffect(() => {
+    if (isSignedIn) {
+      if (user?.publicMetadata?.role === "ORGANIZATION") {
+        navigate("/organization/dashboard", { replace: true });
+      } else {
+        // If signed in but not an organization, redirect to role selection
+        navigate("/auth/role-selection", { 
+          state: { message: "Please select the Organization role to continue" } 
+        });
+      }
+    } else {
+      // If not signed in, redirect to login with organization role preselected
+      navigate("/auth/login", { 
+        state: { 
+          role: "ORGANIZATION",
+          redirectTo: "/organization/dashboard" 
+        } 
+      });
+    }
+  }, [isSignedIn, user, navigate]);
 
-  return <Organization />;
+  // Return null while redirecting
+  return null;
 };
 
 
@@ -120,45 +131,20 @@ const MainLayout = ({ children }) => {
     </div>
   );
 };
+import CrowdFunding from "./Component/CrowdFunding/CrowdFunding";
+import ProjectDetail from "./Component/CrowdFunding/ProjectDetail";
+// Removed StartCampaign import
 
 function App() {
-  <Toaster position="top-right" reverseOrder={false} />;
-  useSmoothScroll(80);
+  useSmoothScroll();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Combine minimum loading time with actual resource loading
-    const minLoadingTime = 4000; // Minimum 4 seconds
-    const startTime = Date.now();
-
-    // Simulate checking if resources are loaded
-    const checkResourcesLoaded = () => {
-      const elapsedTime = Date.now() - startTime;
-
-      // Ensure minimum loading time has passed
-      if (elapsedTime >= minLoadingTime) {
-        setLoading(false);
-      } else {
-        // If minimum time hasn't passed, wait until it does
-        setTimeout(() => setLoading(false), minLoadingTime - elapsedTime);
-      }
-    };
-
-    // Start checking if resources are loaded
-    window.addEventListener("load", checkResourcesLoaded);
-
-    // Fallback in case the load event already fired
-    if (document.readyState === "complete") {
-      checkResourcesLoaded();
-    }
-
-    // Set a maximum loading time as fallback
-    const maxLoadingTimer = setTimeout(() => setLoading(false), 6000);
-
-    return () => {
-      window.removeEventListener("load", checkResourcesLoaded);
-      clearTimeout(maxLoadingTimer);
-    };
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   if (loading) {
@@ -168,134 +154,36 @@ function App() {
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
       <Router>
+        <Toaster position="top-center" />
         <Routes>
-          {/* Root route */}
           <Route path="/" element={<AuthRedirect />} />
-
-          {/* Auth routes */}
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/role-selection" element={<RoleSelection />} />
-
-         
-          <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/about-edu-empower" element={<MainLayout><AboutEduEmpower /></MainLayout>} />
-          <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
-
-          {/* Student routes */}
-          <Route
-            path="/student"
-            element={
-              <Layout>
-                <Student />
-              </Layout>
-            }
-          />
-          <Route
-            path="/student/details"
-            element={
-              <Layout>
-                <StudentDetailsForm />
-              </Layout>
-            }
-          />
-          <Route
-            path="/student/basic-details"
-            element={
-              <Layout>
-                <StudentBasicDetailsForm />
-              </Layout>
-            }
-          />
-          <Route
-            path="/student/profile"
-            element={
-              <RequireAuth>
-                <StudentProfile />
-              </RequireAuth>
-            }
-          />
-
-          {/* Scholarship routes */}
-          <Route
-            path="/scholarship"
-            element={
-              <Layout>
-                <ScholarshipPage />
-              </Layout>
-            }
-          />
-          <Route path="/scholarship/:id" element={<ScholarshipDetails />} />
-          <Route
-            path="/scholarship/application-form"
-            element={
-              <RequireAuth>
-                <ScholarshipApplicationForm />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/scholarship/apply/:id"
-            element={
-              <RequireAuth>
-                <Scholarshipapply />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/scholarship/application/success"
-            element={
-              <RequireAuth>
-                <ApplicationSuccess />
-              </RequireAuth>
-            }
-          />
-
-          {/* Crowdfunding routes */}
-          <Route path="/crowdfunding" element={<CrowdFundingPage2 />} />
-          <Route path="/crowdfunding3" element={<CrowdFundingPage2 />} />
-
-          {/* Organization routes */}
+          <Route path="/auth/role-selection" element={<RoleSelection />} />
+          <Route path="/auth/login" element={<Login />} />
+          
+          {/* Add the crowdfunding routes */}
+          <Route path="/crowdfunding" element={<MainLayout><CrowdFunding /></MainLayout>} />
+          <Route path="/crowdfunding/project/:id" element={<MainLayout><ProjectDetail /></MainLayout>} />
+          {/* Removed start-campaign route */}
+          
+          {/* Other existing routes */}
+          <Route path="/student" element={<RequireAuth><Student /></RequireAuth>} />
+          <Route path="/student/details" element={<RequireAuth><StudentDetailsForm /></RequireAuth>} />
+          <Route path="/student/profile" element={<RequireAuth><StudentProfile /></RequireAuth>} />
+          <Route path="/scholarship" element={<MainLayout><ScholarshipPage /></MainLayout>} />
+          <Route path="/scholarship/:id" element={<MainLayout><ScholarshipDetails /></MainLayout>} />
+          <Route path="/scholarship/:id/apply" element={<MainLayout><Scholarshipapply /></MainLayout>} />
+          <Route path="/scholarship/:id/application-form" element={<MainLayout><ScholarshipApplicationForm /></MainLayout>} />
+          <Route path="/scholarship/application-success" element={<MainLayout><ApplicationSuccess /></MainLayout>} />
+          <Route path="/donation" element={<MainLayout><DonarPage /></MainLayout>} />
           <Route path="/organization" element={<OrganizationRoute />} />
-
-          {/* Organization dashboard routes */}
-          <Route
-            path="/organization/dashboard"
-            element={
-              <RequireAuth>
-                <OrganizationDashboard />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/organization/profile"
-            element={
-              <RequireAuth>
-                <OrganizationProfile />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/organization/create-scholarship"
-            element={
-              <RequireAuth>
-                <CreateScholarship />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/organization/analytics"
-            element={
-              <RequireAuth>
-                <ScholarshipAnalytics />
-              </RequireAuth>
-            }
-          />
-
-          {/* Donor route */}
-          <Route path="/donation" element={<DonarPage />} />
-
-          {/* Catch-all route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
+          <Route path="/organization/dashboard" element={<RequireAuth><OrganizationDashboard /></RequireAuth>} />
+          <Route path="/organization/dashboard/create-scholarship" element={<RequireAuth><CreateScholarship /></RequireAuth>} />
+          <Route path="/organization/dashboard/scholarship-analytics" element={<RequireAuth><ScholarshipAnalytics /></RequireAuth>} />
+          <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+          <Route path="/contact/submitted" element={<MainLayout><ContactSubmitted /></MainLayout>} />
         </Routes>
       </Router>
     </ClerkProvider>
