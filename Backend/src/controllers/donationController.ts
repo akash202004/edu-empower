@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
 
 // Create a new donation
-export const createDonation = async (req: Request, res: Response): Promise<void> => {
+export const createDonation = async (req: Request, res: Response) => {
   try {
     const { donorId, fundraiserId, amount } = req.body;
 
@@ -28,7 +28,7 @@ export const createDonation = async (req: Request, res: Response): Promise<void>
 };
 
 // Get all donations
-export const getAllDonations = async (_req: Request, res: Response): Promise<void> => {
+export const getAllDonations = async (_req: Request, res: Response) => {
   try {
     const donations = await prisma.donation.findMany({
       include: { donor: true, fundraiser: true },
@@ -42,7 +42,7 @@ export const getAllDonations = async (_req: Request, res: Response): Promise<voi
 };
 
 // Get a single donation by ID
-export const getDonationById = async (req: Request, res: Response): Promise<void> => {
+export const getDonationById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -64,7 +64,7 @@ export const getDonationById = async (req: Request, res: Response): Promise<void
 };
 
 // Get all donations for a specific fundraiser
-export const getDonationsByFundraiser = async (req: Request, res: Response): Promise<void> => {
+export const getDonationsByFundraiser = async (req: Request, res: Response) => {
   try {
     const { fundraiserId } = req.params;
 
@@ -81,11 +81,13 @@ export const getDonationsByFundraiser = async (req: Request, res: Response): Pro
 };
 
 // Delete a donation
-export const deleteDonation = async (req: Request, res: Response): Promise<void> => {
+export const deleteDonation = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existingDonation = await prisma.donation.findUnique({ where: { id } });
+    const existingDonation = await prisma.donation.findUnique({
+      where: { id },
+    });
 
     if (!existingDonation) {
       res.status(404).json({ error: "Donation not found" });

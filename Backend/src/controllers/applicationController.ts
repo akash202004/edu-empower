@@ -6,6 +6,11 @@ export const createApplication = async (req: Request, res: Response) => {
   try {
     const { studentId, scholarshipId, scholarshipReason } = req.body;
 
+    if (!studentId || !scholarshipId || !scholarshipReason) {
+      res.status(400).json({ error: "All fields are required." });
+      return;
+    }
+
     const existingApplication = await prisma.application.findFirst({
       where: { studentId, scholarshipId },
     });
@@ -34,6 +39,20 @@ export const updateScholarshipReason = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { scholarshipReason } = req.body;
 
+    const existingApplication = await prisma.application.findUnique({
+      where: { id },
+    });
+
+    if (!existingApplication) {
+      res.status(404).json({ error: "Application not found." });
+      return;
+    }
+
+    if (!scholarshipReason) {
+      res.status(400).json({ error: "Scholarship reason is required." });
+      return;
+    }
+
     const updatedApplication = await prisma.application.update({
       where: { id },
       data: { scholarshipReason },
@@ -51,6 +70,11 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+
+    if (!status) {
+      res.status(400).json({ error: "Status is required." });
+      return;
+    }
 
     const updatedApplication = await prisma.application.update({
       where: { id },
@@ -98,17 +122,22 @@ export const getApplicationById = async (req: Request, res: Response) => {
 };
 
 // Get Application by StudentID
-export const getApplicationsByStudentId = async (req: Request, res: Response) => {
+export const getApplicationsByStudentId = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { id } = req.params;
     const applications = await prisma.application.findMany({
       where: { studentId: id },
     });
 
-     if (!applications || applications.length === 0) {
-       res.status(404).json({ error: "No applications found for this student." });
-       return;
-      }
+    if (!applications || applications.length === 0) {
+      res
+        .status(404)
+        .json({ error: "No applications found for this student." });
+      return;
+    }
 
     res.status(200).json(applications);
   } catch (error) {
@@ -121,6 +150,17 @@ export const getApplicationsByStudentId = async (req: Request, res: Response) =>
 export const deleteApplication = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    const applications = await prisma.application.findUnique({
+      where: { id },
+    });
+    if (!applications) {
+      res
+        .status(404)
+        .json({ error: "No applications found for this student." });
+      return;
+    }
+
     await prisma.application.delete({ where: { id } });
     res.status(200).json({ message: "Application deleted successfully" });
   } catch (error) {

@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
+import {
+  validateCreateFundraiserDetails,
+  validateUpdateFundraiserDetails,
+} from "../utils/fundraiserDetailsValidation";
 
 // Get all fundraisers
 export const getFundraisers = async (req: Request, res: Response) => {
@@ -47,7 +51,16 @@ export const getFundraiserById = async (req: Request, res: Response) => {
 
 // Create a new fundraiser
 export const createFundraiser = async (req: Request, res: Response) => {
-  const { title, description, goalAmount, deadline, organizationId } = req.body;
+  const validationResult = validateCreateFundraiserDetails(req.body);
+  if (!validationResult.success) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: validationResult.error.format(),
+    });
+  }
+
+  const { title, description, goalAmount, deadline, organizationId } =
+    validationResult.data;
 
   try {
     const newFundraiser = await prisma.fundraiser.create({
@@ -70,7 +83,14 @@ export const createFundraiser = async (req: Request, res: Response) => {
 // Update a fundraiser
 export const updateFundraiser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const updateData = req.body;
+  const validationResult = validateUpdateFundraiserDetails(req.body);
+  if (!validationResult.success) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: validationResult.error.format(),
+    });
+  }
+  const updateData = validationResult.data;
 
   try {
     const updatedFundraiser = await prisma.fundraiser.update({
@@ -88,8 +108,14 @@ export const updateFundraiser = async (req: Request, res: Response) => {
 // Delete a fundraiser
 export const deleteFundraiser = async (req: Request, res: Response) => {
   const { id } = req.params;
-
   try {
+    const existingFundraiser = await prisma.fundraiser.findUnique({
+      where: { id },
+    });
+    if (!existingFundraiser) {
+      return res.status(404).json({ error: "Fundraiser not found" });
+    }
+
     await prisma.fundraiser.delete({ where: { id } });
     res.status(204).send();
   } catch (error) {
