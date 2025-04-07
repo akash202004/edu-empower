@@ -1,6 +1,5 @@
 import path from "path";
 import scholarshipRoutes from "./routes/scholarshipRoutes";
-import fileUploadRoutes from "./routes/fileUploadRoutes";
 import donationRoutes from "./routes/donationRoutes";
 import fundraiserRoutes from "./routes/fundraiserRoutes";
 import disbursementRoutes from "./routes/disbursementRoutes";
@@ -39,7 +38,6 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api/students", studentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/scholarships", scholarshipRoutes);
-app.use("/api/upload", fileUploadRoutes);
 app.use("/api/fundraiser", fundraiserRoutes);
 app.use("/api/donations", donationRoutes);
 app.use("/api/disbursements", disbursementRoutes);
