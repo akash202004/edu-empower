@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll } from 'framer-motion';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
+import { SignInButton, SignedOut, useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
 // Import components
 import OrganizationHero from './OrganizationHero';
@@ -18,6 +20,7 @@ import {
   processSteps
 } from './OrganizationData';
 import { fadeIn } from '../Utils/AnimationUtils';
+import { userService } from '../../api/userService';
 
 // Online image URLs
 const IMAGES = {
@@ -32,6 +35,8 @@ const IMAGES = {
 };
 
 const Organization = () => {
+  const { isSignedIn, user } = useUser();
+  const navigate = useNavigate();
   const statsRef = useRef(null);
   const [statsInView, setStatsInView] = useState(false);
   const pageRef = useRef(null);
@@ -45,9 +50,6 @@ const Organization = () => {
   // Use the first 3 features from the imported data
   const displayFeatures = allFeatures.slice(0, 3);
   
-  const handleUserSync = () => {
-    console.log("Organization action triggered");
-  };
   
   // Handle image errors
   const handleImageError = (e) => {
@@ -116,6 +118,35 @@ const Organization = () => {
       deadline: "September 30, 2023"
     }
   ];
+
+  const handleUserSync = async () => {
+      if (isSignedIn && user) {
+        try {
+          const response =  userService.registerOrUpdateUser(
+            {
+              userId: user.id,
+              name: user.fullName,
+              email: user.primaryEmailAddress?.emailAddress || null,
+              role: "ORGANIZATION",
+            }
+          )
+        } catch (error) {
+          console.error(
+            "Error syncing user data:",
+            error.response?.data || error.message
+          );
+        }
+      }
+    };
+  
+    useEffect(() => {
+      handleUserSync();
+      if (isSignedIn) {
+        navigate("/organization/dashboard");
+      }
+    }, [isSignedIn, navigate]);
+  
+  
   
   return (
     <div className="min-h-screen flex flex-col relative" ref={pageRef}>

@@ -1,56 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from "@clerk/clerk-react";
 import { FiEdit2, FiSave, FiX, FiCheck, FiUpload, FiExternalLink } from 'react-icons/fi';
+import { createClient } from '@supabase/supabase-js';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 import { motion } from 'framer-motion';
 import { fadeIn, staggerContainer, cardVariants, floatAnimation } from '../Utils/AnimationUtils';
+import { organizationService } from '../../api/organizationService';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const OrganizationProfile = () => {
   const { user } = useUser();
-  const [organization, setOrganization] = useState({
-    organizationName: '',
-    registrationNumber: '',
-    contactPerson: '',
-    contactEmail: '',
-    contactNumber: '',
-    address: '',
-    websiteURL: '',
-    documentURL: '',
-    verified: false,
-    verifiedAt: null
-  });
+  const [organization, setOrganization] = useState(null);
+  const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({});
   const [documentFile, setDocumentFile] = useState(null);
   const [saveStatus, setSaveStatus] = useState({ show: false, success: false, message: '' });
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
-    // Simulate fetching organization data
     const fetchOrganizationProfile = async () => {
+      if (!user?.id) return;
       try {
-        if (user) {
-          // In a real app, you would fetch data from your API
-          // For now, we'll use mock data based on the user
-          const mockData = {
+        const { data, error } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        console.log("Supabase fetch result:", { data, error });
+
+        if (error && error.code !== 'PGRST116') throw error;
+
+        if (data) {
+          const orgData = {
+            organizationName: data.organization_name,
+            registrationNumber: data.registration_number,
+            contactPerson: data.contact_person,
+            contactEmail: data.contact_email,
+            contactNumber: data.contact_number,
+            address: data.address,
+            websiteURL: data.website_url,
+            documentURL: data.document_url,
+            verified: data.verified,
+            verifiedAt: data.verified_at
+          };
+          setOrganization(orgData);
+          setFormData(orgData);
+        } else {
+          const defaultData = {
             organizationName: user.fullName || 'Organization Name',
-            registrationNumber: 'ORG12345678',
+            registrationNumber: '',
             contactPerson: user.fullName || 'Contact Person',
-            contactEmail: user.primaryEmailAddress?.emailAddress || 'email@example.com',
-            contactNumber: '+1234567890',
-            address: '123 Main St, City, Country',
-            websiteURL: 'www.example.org',
+            contactEmail: user.primaryEmailAddress?.emailAddress || '',
+            contactNumber: '',
+            address: '',
+            websiteURL: '',
             documentURL: '',
             verified: false,
             verifiedAt: null
           };
-          
-          setOrganization(mockData);
-          setFormData(mockData);
+          setOrganization(defaultData);
+          setFormData(defaultData);
         }
       } catch (err) {
         console.error("Error fetching organization profile:", err);
+        setApiError("Failed to load organization profile");
       } finally {
         setLoading(false);
       }
@@ -61,50 +80,109 @@ const OrganizationProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleDocumentChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setDocumentFile(e.target.files[0]);
-      setFormData({
-        ...formData,
-        documentURL: URL.createObjectURL(e.target.files[0])
-      });
+      const file = e.target.files[0];
+      setDocumentFile(file);
+      setFormData(prev => ({ ...prev, documentURL: URL.createObjectURL(file) }));
+    }
+  };
+
+  const uploadDocumentToSupabase = async (file) => {
+    if (!file) return null;
+
+    const fileSizeInMB = file.size / (1024 * 1024);
+    if (fileSizeInMB > 5) {
+      setApiError(`File is too large (${fileSizeInMB.toFixed(2)}MB). Max size is 5MB.`);
+      return null;
+    }
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `org-docs/${user.id}/${Date.now()}.${fileExt}`;
+
+    try {
+      const { error } = await supabase.storage
+        .from('organization-documents')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('organization-documents')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      setApiError(`Failed to upload document: ${error.message}`);
+      return null;
     }
   };
 
   const handleSave = async () => {
     try {
-      // In a real app, you would send the data to your API
-      console.log("Saving organization profile:", formData);
-      console.log("Document file:", documentFile);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setOrganization(formData);
-      setIsEditing(false);
-      setSaveStatus({
-        show: true,
-        success: true,
-        message: 'Profile updated successfully!'
+      setLoading(true);
+      setApiError(null);
+
+      let documentUrl = formData.documentURL;
+      if (documentFile) {
+        documentUrl = await uploadDocumentToSupabase(documentFile);
+        if (!documentUrl) return;
+      }
+
+      const organizationData = {
+        user_id: user.id,
+        organization_name: formData.organizationName,
+        registration_number: formData.registrationNumber,
+        contact_person: formData.contactPerson,
+        contact_email: formData.contactEmail,
+        contact_number: formData.contactNumber,
+        address: formData.address,
+        website_url: formData.websiteURL,
+        document_url: documentUrl,
+        verified: false,
+        verified_at: null
+      };
+
+      const response = await organizationService.createOrganization(organizationData);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to save organization data');
+      }
+
+      setOrganization({
+        organizationName: data.organization_name,
+        registrationNumber: data.registration_number,
+        contactPerson: data.contact_person,
+        contactEmail: data.contact_email,
+        contactNumber: data.contact_number,
+        address: data.address,
+        websiteURL: data.website_url,
+        documentURL: data.document_url,
+        verified: data.verified,
+        verifiedAt: data.verified_at
       });
-      
-      // Hide the status message after 3 seconds
-      setTimeout(() => {
-        setSaveStatus({ show: false, success: false, message: '' });
-      }, 3000);
+
+      setIsEditing(false);
+      setDocumentFile(null);
+      setSaveStatus({ show: true, success: true, message: 'Profile updated successfully!' });
     } catch (err) {
       console.error("Error saving organization profile:", err);
-      setSaveStatus({
-        show: true,
-        success: false,
-        message: 'Failed to update profile. Please try again.'
-      });
+      setApiError(err.message || 'Failed to save organization profile');
+      setSaveStatus({ show: true, success: false, message: 'Failed to update profile. Please try again.' });
+    } finally {
+      setLoading(false);
+      setTimeout(() => {
+        setSaveStatus(prev => ({ ...prev, show: false }));
+      }, 3000);
     }
   };
 
@@ -112,6 +190,7 @@ const OrganizationProfile = () => {
     setFormData(organization);
     setIsEditing(false);
     setDocumentFile(null);
+    setApiError(null);
   };
 
   if (loading) {
@@ -139,7 +218,7 @@ const OrganizationProfile = () => {
           >
             {/* Header */}
             <div className="bg-indigo-600 px-6 py-4">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between mt-15 items-center">
                 <h1 className="text-xl font-semibold text-white">Organization Profile</h1>
                 {!isEditing ? (
                   <motion.button
@@ -188,6 +267,20 @@ const OrganizationProfile = () => {
                     <FiX className="mr-2" />
                   )}
                   {saveStatus.message}
+                </div>
+              </motion.div>
+            )}
+
+            {/* API Error message */}
+            {apiError && (
+              <motion.div 
+                className="px-6 py-3 bg-red-100 text-red-700"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="flex items-center">
+                  <FiX className="mr-2" />
+                  {apiError}
                 </div>
               </motion.div>
             )}
@@ -368,6 +461,7 @@ const OrganizationProfile = () => {
                             file:bg-indigo-50 file:text-indigo-700
                             hover:file:bg-indigo-100"
                           onChange={handleDocumentChange}
+                          accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
                         />
                       </label>
                     </div>
