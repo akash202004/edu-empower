@@ -4,6 +4,7 @@ from analyzer import analyze_emotion
 from extractor import extract_marks_and_income
 from helpers import fetch_applications, fetch_student, save_to_json
 from push_to_db import push_data, already_exists
+from extractor import extract_marks_and_income
 
 def score_student(student, app):
     data = extract_marks_and_income(student)
