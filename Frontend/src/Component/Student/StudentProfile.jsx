@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { FiUser, FiCalendar, FiPhone, FiMail, FiHome, FiEdit, FiLock } from "react-icons/fi";
 import axios from "axios";
+import { studentService } from "../../api/studentService";
 
 // Use environment variable for API URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -10,66 +11,81 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const StudentProfile = () => {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
-  const [profileData, setProfileData] = useState(null);
+  const [profileData, setProfileData] = useState({
+    name: "",
+    dob: "",
+    contactNumber: "",
+    address: "",
+    email: "",
+    nationality: "",
+    gender: "",
+    motherName: "",
+    fatherName: "",
+    guardianName: "",
+    guardianContact: "",
+    guardianAddress: "",
+    aboutMe: "",
+    documents: {
+      domicileCertificate: null,
+      incomeCertificate: null,
+      marksheet10: null,
+      marksheet12: null,
+    },
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isSignedIn || !user) {
-      navigate("/auth/login");
-      return;
-    }
-
-    // Fetch profile data from backend
-    const fetchProfileData = async () => {
+    const fetchdata = async () => {  // Make the function async
+      if (!isSignedIn || !user) {
+        navigate("/auth/login");
+        return;
+      }
+      
       try {
-        console.log("Fetching profile data for user:", user.id);
-        console.log("API URL being called:", `${API_BASE_URL}/students/${user.id}`);
+        setLoading(true);
+        const response = await studentService.getExistingStudentDetails(user.id); // Add await
         
-        const response = await axios.get(`${API_BASE_URL}/students/${user.id}`);
-        console.log("API Response:", {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
-          data: response.data
-        });
-        
-        if (response.data) {
-          console.log("Profile data received:", JSON.stringify(response.data, null, 2));
-          setProfileData(response.data);
+        if (response) {  // Check response directly
+          console.log("Profile data received:", response);
+          setProfileData({
+            name: response.fullName || "",
+            email: response.email || "",
+            dob: response.dateOfBirth || "",
+            contactNumber: response.contactNumber || "",
+            address: response.address || "",
+            gender: response.gender || "",
+            nationality: response.nationality || "",
+            motherName: response.motherName || "",
+            fatherName: response.fatherName || "",
+            guardianName: response.guardianName || "",
+            guardianContact: response.guardianContact || "",
+            guardianAddress: response.guardianAddress || "",
+            aboutMe: response.aboutMe || "",
+            documents: {
+              domicileCertificate: response.domicileCert || null,
+              incomeCertificate: response.incomeCert || null,
+              marksheet10: response.tenthResult || null,
+              marksheet12: response.twelfthResult || null,
+            }
+          });
         } else {
-          console.log("No profile data found in response");
+          console.log("No profile data found");
+          navigate("/student/details");
         }
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching profile data:", error);
-        console.error("Error details:", {
-          message: error.message,
-          code: error.code,
-          stack: error.stack
-        });
-        
-        if (error.response) {
-          console.error("Error response status:", error.response.status);
-          console.error("Error response data:", error.response.data);
-          
-          if (error.response.status === 404) {
-            console.log("Profile not found for user, redirecting to create profile");
-            navigate("/student/details");
-          } else {
-            setError(`Failed to load profile data: ${error.response.data.message || error.message}`);
-          }
-        } else if (error.request) {
-          console.error("No response received:", error.request);
-          setError("No response received from server. Please check if the backend is running.");
+        if (error.response?.status === 404) {
+          navigate("/student/details");
         } else {
-          setError(`Error: ${error.message}`);
+          setError(error.message || "Failed to load profile data");
         }
+      } finally {
         setLoading(false);
       }
     };
-
-    fetchProfileData();
+  
+    fetchdata();
   }, [isSignedIn, navigate, user]);
 
   const handleEditProfile = () => {

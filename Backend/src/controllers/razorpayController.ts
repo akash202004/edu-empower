@@ -1,9 +1,22 @@
 import { Request, Response } from "express";
+import { prisma } from "../config/prismaClient";
 import crypto from "crypto";
 import { razorpay } from "../config/razorpayConfig";
+import {
+  createOrderSchema,
+  paymentVerificationSchema,
+} from "../utils/paymentDetailsValidation";
 
 export const createOrder = async (req: Request, res: Response) => {
-  const { amount } = req.body;
+  const parseResult = createOrderSchema.safeParse(req.body);
+
+  if (!parseResult.success) {
+    res.status(400).json({ error: parseResult.error.flatten() });
+    return;
+  }
+
+  const { amount } = parseResult.data;
+
   if (!amount) {
     res.status(400).json({ message: "Amount is required" });
     return;
@@ -26,19 +39,48 @@ export const createOrder = async (req: Request, res: Response) => {
 };
 
 export const verifyPayment = async (req: Request, res: Response) => {
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-    req.body;
+  const parseResult = paymentVerificationSchema.safeParse(req.body);
+
+  if (!parseResult.success) {
+    res.status(400).json({ error: parseResult.error.flatten() });
+    return;
+  }
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    donorId,
+    fundraiserId,
+    amount,
+  } = parseResult.data;
 
   const generated_signature = crypto
     .createHmac("sha256", process.env.RAZORPAY_SECRET!)
     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
     .digest("hex");
 
-  if (generated_signature === razorpay_signature) {
-    console.log("Payment verified!");
-    res.status(200).json({ success: true, message: "Payment verified" });
+  if (generated_signature !== razorpay_signature) {
+    res.status(400).json({ success: false, message: "Invalid signature" });
     return;
-  } else {
+  }
+
+  try {
+    const payment = await prisma.payment.create({
+      data: {
+        razorpayPaymentId: razorpay_payment_id,
+        razorpayOrderId: razorpay_order_id,
+        razorpaySignature: razorpay_signature,
+        amount,
+        donorId,
+        fundraiserId,
+        status: "SUCCESS",
+      },
+    });
+
+    res
+      .status(200)
+      .json({ success: true, message: "Payment verified", payment });
+  } catch (error) {
     console.error("Payment verification failed.");
     res.status(400).json({ success: false, message: "Invalid signature" });
     return;
