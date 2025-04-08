@@ -179,7 +179,9 @@ function App() {
           <Route path="/scholarship/:id/application-form" element={<MainLayout><ScholarshipApplicationForm /></MainLayout>} />
           <Route path="/scholarship/application-success" element={<MainLayout><ApplicationSuccess /></MainLayout>} />
           <Route path="/donation" element={<MainLayout><DonarPage /></MainLayout>} />
-          <Route path="/organization" element={<OrganizationRoute />} />
+          <Route path="/organization" element={<Organization />} />
+          
+          <Route path="/organization" element={<RequireAuth><Organization /></RequireAuth>} />
           <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
           <Route path="/organization/dashboard" element={<RequireAuth><OrganizationDashboard /></RequireAuth>} />
           <Route path="/organization/dashboard/create-scholarship" element={<RequireAuth><CreateScholarship /></RequireAuth>} />
