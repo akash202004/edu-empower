@@ -240,7 +240,7 @@ const CrowdFunding = () => {
             </div>
             
             {/* Category Pills */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-5">
               <button
                 onClick={() => handleCategoryChange("all")}
                 className={`px-4 py-2 rounded-full text-sm font-medium ${

@@ -133,6 +133,7 @@ const MainLayout = ({ children }) => {
 };
 import CrowdFunding from "./Component/CrowdFunding/CrowdFunding";
 import ProjectDetail from "./Component/CrowdFunding/ProjectDetail";
+import { CrowdFundingForm } from "./Component/CrowdFunding/CrowdFundingForm";
 // Removed StartCampaign import
 
 function App() {
@@ -165,6 +166,7 @@ function App() {
           {/* Add the crowdfunding routes */}
           <Route path="/crowdfunding" element={<MainLayout><CrowdFunding /></MainLayout>} />
           <Route path="/crowdfunding/project/:id" element={<MainLayout><ProjectDetail /></MainLayout>} />
+          <Route path="/crowdfunding/start-campaign" element={<MainLayout><CrowdFundingForm /></MainLayout>} />
           {/* Removed start-campaign route */}
           
           {/* Other existing routes */}

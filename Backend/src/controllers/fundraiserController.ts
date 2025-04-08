@@ -53,20 +53,30 @@ export const getFundraiserById = async (req: Request, res: Response) => {
 export const createFundraiser = async (req: Request, res: Response) => {
   const validationResult = validateCreateFundraiserDetails(req.body);
   if (!validationResult.success) {
-    return res.status(400).json({
+    res.status(400).json({
       message: "Validation failed",
       errors: validationResult.error.format(),
     });
+    return;
   }
 
-  const { title, description, goalAmount, deadline, organizationId } =
-    validationResult.data;
+  const {
+    title,
+    description,
+    goalAmount,
+    imageUrl,
+    about,
+    deadline,
+    organizationId,
+  } = validationResult.data;
 
   try {
     const newFundraiser = await prisma.fundraiser.create({
       data: {
         title,
         description,
+        imageUrl,
+        about,
         goalAmount,
         deadline: new Date(deadline),
         organizationId,
@@ -85,10 +95,11 @@ export const updateFundraiser = async (req: Request, res: Response) => {
   const { id } = req.params;
   const validationResult = validateUpdateFundraiserDetails(req.body);
   if (!validationResult.success) {
-    return res.status(400).json({
+    res.status(400).json({
       message: "Validation failed",
       errors: validationResult.error.format(),
     });
+    return;
   }
   const updateData = validationResult.data;
 
@@ -113,7 +124,8 @@ export const deleteFundraiser = async (req: Request, res: Response) => {
       where: { id },
     });
     if (!existingFundraiser) {
-      return res.status(404).json({ error: "Fundraiser not found" });
+      res.status(404).json({ error: "Fundraiser not found" });
+      return;
     }
 
     await prisma.fundraiser.delete({ where: { id } });

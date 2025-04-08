@@ -15,7 +15,7 @@ export const studentService = {
       return response.data;
     } catch (error) {
       if (error.response?.status === 404) {
-        return null; // Return null for 404 (not found)
+        return null; 
       }
       console.error("Error fetching student profile:", error);
       throw error;

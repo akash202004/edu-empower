@@ -36,6 +36,13 @@ const API_CONFIG = {
       UPDATE_STATUS: (id) => `/applications/${id}`,
       DELETE: (id) => `/applications/${id}`,
     },
+    FUNDRAISERS: {
+      GET_ALL: "/fundraisers",
+      GET_BY_ID: (id) => `/fundraisers/${id}`,
+      CREATE: "/fundraisers",
+      UPDATE: (id) => `/fundraisers/${id}`,
+      DELETE: (id) => `/fundraisers/${id}`,
+    },
     DONATIONS: "/donations",
   },
 };

@@ -86,6 +86,8 @@ model Fundraiser {
   id           String   @id @default(uuid())
   title        String
   description  String
+  imageUrl     String
+  about        String
   goalAmount   Float
   raisedAmount Float    @default(0)
   deadline     DateTime
