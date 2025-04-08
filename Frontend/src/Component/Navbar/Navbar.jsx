@@ -19,7 +19,7 @@ const Navbar = () => {
     { name: "About", path: "/about-edu-empower", icon: <FiInfo className="mr-2" /> },
     { name: "Scholarships", path: "/scholarship", icon: <FiBookOpen className="mr-2" /> },
     { name: "Crowdfunding", path: "/crowdfunding", icon: <FiDollarSign className="mr-2" /> },
-    { name: "Donation", path: "/donation", icon: <FiHeart className="mr-2" /> },
+    // Donation link removed
     { name: "Contact", path: "/contact", icon: <FiMail className="mr-2" /> },
   ];
 
