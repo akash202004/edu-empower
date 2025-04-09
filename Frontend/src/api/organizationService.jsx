@@ -9,10 +9,12 @@ export const organizationService = {
   // create a new organization
   createOrganization: async (data) => {
     try {
-      const existingOrg = getExistingOrganizationDetails.data.id;
+      // First check if organization exists for this user
+      const existingOrg = await organizationService.getExistingOrganizationDetails(data.user_id);
+      
       if (existingOrg) {
         const response = await API.put(
-          API_CONFIG.ENDPOINTS.ORGANIZATIONS.UPDATE(id),
+          API_CONFIG.ENDPOINTS.ORGANIZATIONS.UPDATE(existingOrg.id),
           data
         );
         return response.data;
@@ -36,6 +38,7 @@ export const organizationService = {
         API_CONFIG.ENDPOINTS.ORGANIZATIONS.GET_BY_ID(id)
       );
       return response.data;
+      console.log(response.data)
     } catch (error) {
       console.error("Error fetching organization details:", error);
       throw error;

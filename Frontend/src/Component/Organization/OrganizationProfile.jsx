@@ -7,6 +7,7 @@ import Footer from '../Footer/Footer';
 import { motion } from 'framer-motion';
 import { fadeIn, staggerContainer, cardVariants, floatAnimation } from '../Utils/AnimationUtils';
 import { organizationService } from '../../api/organizationService';
+import axios from 'axios';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -190,15 +191,15 @@ const OrganizationProfile = () => {
   
       // 2. Prepare the organization data payload
       const organizationData = {
-        user_id: user.id,
-        organization_name: formData.organizationName,
-        registration_number: formData.registrationNumber,
-        contact_person: formData.contactPerson,
-        contact_email: formData.contactEmail,
-        contact_number: formData.contactNumber,
+        userId: user.id,
+        organizationName: formData.organizationName,
+        registrationNumber: formData.registrationNumber,
+        contactPerson: formData.contactPerson,
+        contactEmail: formData.contactEmail,
+        contactNumber: formData.contactNumber,
         address: formData.address,
-        website_url: formData.websiteURL,
-        document_url: documentUrl,
+        websiteURL: formData.websiteURL,
+        documentURL: documentUrl,
         verified: false, // Reset verification status on updates
         verified_at: null
       };
@@ -207,8 +208,10 @@ const OrganizationProfile = () => {
       const isUpdate = organization !== null;
   
       // 4. Submit to backend API
-      const response = isUpdate
-        await organizationService.createOrganization(organizationData);
+      const response =
+        // await organizationService.createOrganization(organizationData);
+        await axios.post("http://localhost:3001/api/organizations",organizationData)
+        console.log(organizationData)
         // ? await organizationService.updateOrganization(user.id, organizationData)
         // : await organizationService.createOrganization(organizationData);
   
