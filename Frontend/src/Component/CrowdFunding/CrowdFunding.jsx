@@ -16,6 +16,8 @@ import CrowdFundingFeatures from "./Sections/CrowdFundingFeatures";
 import CrowdFundingCTA from "./Sections/CrowdFundingCTA";
 import CrowdFundingTestimonials from "./Sections/CrowdFundingTestimonials";
 import { fundraiserService } from "../../api/fundraiserService";
+import { userService } from "../../api/userService";
+import { useUser } from "@clerk/clerk-react";
 
 // Animation variants
 const fadeIn = {
@@ -41,6 +43,7 @@ const cardVariants = {
 
 const CrowdFunding = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,15 +51,20 @@ const CrowdFunding = () => {
   const [sortBy, setSortBy] = useState("newest");
 
   // Scroll to top when component mounts
-  useEffect(
-    () => async () => {
-      const res = await fundraiserService.getAllFundraisers();
-      window.scrollTo(0, 0);
-      setProjects(res);
-      setFilteredProjects(res);
-    },
-    []
-  );
+  const fetchFundraisers = async () => {
+    const res = await fundraiserService.getAllFundraisers();
+    setProjects(res);
+    setFilteredProjects(res);
+  };
+
+  const getCurrentUserRole = async () => {
+    const user = await userService.getUserRole(user.id);
+  };
+
+  useEffect(() => {
+    fetchFundraisers();
+    getCurrentUserRole()
+  }, []);
 
   // Filter and sort projects when search term, category, or sort option changes
   useEffect(() => {
@@ -99,12 +107,6 @@ const CrowdFunding = () => {
     setFilteredProjects(result);
   }, [searchTerm, selectedCategory, sortBy, projects]);
 
-  const deadlineDate = new Date(projects.deadline);
-  const currentDate = new Date();
-
-  const diffInTime = deadlineDate.getTime() - currentDate.getTime();
-  const daysLeft = Math.ceil(diffInTime / (1000 * 60 * 60 * 24));
-
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -117,10 +119,17 @@ const CrowdFunding = () => {
     setSortBy(e.target.value);
   };
 
+  const calculateDaysLeft = (endDate) => {
+    const end = new Date(endDate);
+    const today = new Date();
+    const timeDiff = end - today;
+    return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  };
+
   return (
     <div className="bg-gradient-to-b from-white to-indigo-50 min-h-screen">
       {/* Hero Section */}
-      <CrowdFundingHero />
+      <CrowdFundingHero role={getCurrentUserRole} />
 
       {/* Features Section */}
       <CrowdFundingFeatures />
@@ -248,52 +257,79 @@ const CrowdFunding = () => {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {filteredProjects?.length > 0 ? (
-              filteredProjects.map((project) => (
-                <motion.div
-                  key={project.id}
-                  variants={cardVariants}
-                  whileHover="hover"
-                  className="bg-white rounded-2xl shadow-md overflow-hidden transition-transform transform hover:shadow-lg"
-                >
-                  <img
-                    src={project.imageUrl}
-                    alt={project.title}
-                    className="h-48 w-full object-cover"
-                  />
-                  <div className="p-5">
-                    <h3 className="text-xl font-semibold mb-2">
-                      {project.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4">
-                      {project.description.slice(0, 100)}...
-                    </p>
-                    <div className="flex justify-between text-sm text-gray-700 mb-3">
-                      <div className="flex items-center gap-1">
-                        <FiDollarSign />
-                        <span>
-                          {project.raisedAmount} / {project.goalAmount}
-                        </span>
+              filteredProjects.map((project) => {
+                const progress =
+                  (project.raisedAmount / project.goalAmount) * 100 || 0;
+
+                return (
+                  <motion.div
+                    key={project.id}
+                    variants={cardVariants}
+                    whileHover="hover"
+                    className="bg-white rounded-2xl shadow-md overflow-hidden transition-transform transform hover:shadow-lg"
+                  >
+                    <img
+                      src={project.imageUrl}
+                      alt={project.title}
+                      className="h-48 w-full object-cover"
+                    />
+                    <div className="p-5">
+                      <h3 className="text-xl font-semibold mb-2">
+                        {project.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-4">
+                        {project.description.slice(0, 100)}...
+                      </p>
+
+                      {/* Progress Bar */}
+                      <div className="mb-3">
+                        <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                          <div
+                            className="bg-indigo-600 h-full transition-all duration-300"
+                            style={{ width: `${Math.min(progress, 100)}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {Math.floor(progress)}% funded
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <FiUsers />
-                        <span>{project.donations?.length}</span>
+
+                      <div className="flex justify-between text-sm text-gray-700 mb-3">
+                        <div className="flex items-center gap-1">
+                          <FiDollarSign />
+                          <span>
+                            {project.raisedAmount} / {project.goalAmount}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <FiUsers />
+                          <span>{project.donations?.length}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <FiBookOpen />
+                          <span>
+                            {(() => {
+                              const daysLeft = calculateDaysLeft(
+                                project.deadline
+                              );
+                              return daysLeft > 0
+                                ? `${daysLeft} days left`
+                                : "Expired";
+                            })()}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <FiBookOpen />
-                        <span>
-                          {daysLeft > 0 ? `${daysLeft} d left` : "Expired"}
-                        </span>
-                      </div>
+
+                      <button
+                        onClick={() => navigate(`/fundraiser/${project.id}`)}
+                        className="mt-2 text-indigo-600 hover:underline font-medium flex items-center gap-1"
+                      >
+                        View Campaign <FiArrowRight />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => navigate(`/fundraiser/${project.id}`)}
-                      className="mt-2 text-indigo-600 hover:underline font-medium flex items-center gap-1"
-                    >
-                      View Campaign <FiArrowRight />
-                    </button>
-                  </div>
-                </motion.div>
-              ))
+                  </motion.div>
+                );
+              })
             ) : (
               <div className="col-span-full text-center py-12">
                 <FiSearch className="mx-auto h-12 w-12 text-gray-400 mb-4" />
