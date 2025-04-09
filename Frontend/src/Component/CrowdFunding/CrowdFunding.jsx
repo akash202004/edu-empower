@@ -59,8 +59,8 @@ const CrowdFunding = () => {
   };
 
   const getCurrentUserRole = async () => {
-    const user = await userService.getUserRole(user?.id);
-    setUserRole(user);
+    const currentUser = await userService.getUserById(user?.id);
+    setUserRole(currentUser.role);
   };
 
   useEffect(() => {
