@@ -30,7 +30,9 @@ export const createOrganizationDetails = async (
       documentURL,
     } = validationResult.data;
 
-    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
     if (!existingUser) {
       res.status(403).json({ error: "User dosen't exists" });
@@ -46,7 +48,7 @@ export const createOrganizationDetails = async (
       where: { userId },
     });
 
-    if(existingOrganization){
+    if (existingOrganization) {
       res.status(400).json({ error: "Organization details already exist" });
       return;
     }
@@ -111,7 +113,7 @@ export const getOrganizationDetails = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const organizationDetails = await prisma.organizationDetails.findUnique({
-      where: { id },
+      where: { userId: id },
       include: { user: true },
     });
 

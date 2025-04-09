@@ -9,7 +9,8 @@ export const organizationService = {
   // create a new organization
   createOrganization: async (data) => {
     try {
-      if (getExistingOrganizationDetails.data.id) {
+      const existingOrg = getExistingOrganizationDetails.data.id;
+      if (existingOrg) {
         const response = await API.put(
           API_CONFIG.ENDPOINTS.ORGANIZATIONS.UPDATE(id),
           data
