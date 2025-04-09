@@ -24,57 +24,94 @@ const OrganizationProfile = () => {
 
   useEffect(() => {
     const fetchOrganizationProfile = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        console.log("No user ID found");
+        return;
+      }
+  
       try {
-        const { data, error } = await supabase
+        console.log("Fetching organization for user ID:", user.id);
+        
+        // ===== 1. FIRST TRY SUPABASE =====
+        const { data: supabaseData, error: supabaseError } = await supabase
           .from('organizations')
           .select('*')
           .eq('user_id', user.id)
           .single();
-
-        console.log("Supabase fetch result:", { data, error });
-
-        if (error && error.code !== 'PGRST116') throw error;
-
-        if (data) {
-          const orgData = {
-            organizationName: data.organization_name,
-            registrationNumber: data.registration_number,
-            contactPerson: data.contact_person,
-            contactEmail: data.contact_email,
-            contactNumber: data.contact_number,
-            address: data.address,
-            websiteURL: data.website_url,
-            documentURL: data.document_url,
-            verified: data.verified,
-            verifiedAt: data.verified_at
+  
+        console.log("Supabase response:", { supabaseData, supabaseError });
+  
+        // ===== 2. IF SUPABASE HAS DATA, USE IT =====
+        if (supabaseData) {
+          const profileData = {
+            organizationName: supabaseData.organization_name || '',
+            registrationNumber: supabaseData.registration_number || '',
+            contactPerson: supabaseData.contact_person || user.fullName || '',
+            contactEmail: supabaseData.contact_email || user.primaryEmailAddress?.emailAddress || '',
+            contactNumber: supabaseData.contact_number || '',
+            address: supabaseData.address || '',
+            websiteURL: supabaseData.website_url || '',
+            documentURL: supabaseData.document_url || '',
+            verified: supabaseData.verified || false,
+            verifiedAt: supabaseData.verified_at || null,
           };
-          setOrganization(orgData);
-          setFormData(orgData);
-        } else {
-          const defaultData = {
-            organizationName: user.fullName || 'Organization Name',
-            registrationNumber: '',
-            contactPerson: user.fullName || 'Contact Person',
-            contactEmail: user.primaryEmailAddress?.emailAddress || '',
-            contactNumber: '',
-            address: '',
-            websiteURL: '',
-            documentURL: '',
-            verified: false,
-            verifiedAt: null
-          };
-          setOrganization(defaultData);
-          setFormData(defaultData);
+          setOrganization(profileData);
+          setFormData(profileData);
+          return; // Exit if Supabase data exists
         }
+  
+        // ===== 3. IF SUPABASE FAILS, FALLBACK TO API =====
+        console.log("Falling back to API fetch...");
+        const apiResponse = await organizationService.getExistingOrganizationDetails(user.id)
+        
+        if (!apiResponse.ok) {
+          throw new Error(`API error! Status: ${apiResponse.status}`);
+        }
+  
+        const apiData = await apiResponse.json();
+        console.log("API response:", apiData);
+  
+        // ===== 4. TRANSFORM API DATA TO MATCH STRUCTURE =====
+        const apiProfileData = {
+          organizationName: apiData.organizationName || user.fullName || 'Organization Name',
+          registrationNumber: apiData.registrationNumber || '',
+          contactPerson: apiData.contactPerson || user.fullName || 'Contact Person',
+          contactEmail: apiData.contactEmail || user.primaryEmailAddress?.emailAddress || '',
+          contactNumber: apiData.contactNumber || '',
+          address: apiData.address || '',
+          websiteURL: apiData.websiteURL || '',
+          documentURL: apiData.documentURL || '',
+          verified: apiData.verified || false,
+          verifiedAt: apiData.verifiedAt || null,
+        };
+  
+        setOrganization(apiProfileData);
+        setFormData(apiProfileData);
+  
       } catch (err) {
-        console.error("Error fetching organization profile:", err);
-        setApiError("Failed to load organization profile");
+        console.error("Fetch error:", err);
+        setApiError(err.message || "Failed to load profile");
+  
+        // ===== 5. ULTIMATE FALLBACK: DEFAULT DATA =====
+        const defaultData = {
+          organizationName: user.fullName || 'Organization Name',
+          registrationNumber: '',
+          contactPerson: user.fullName || 'Contact Person',
+          contactEmail: user.primaryEmailAddress?.emailAddress || '',
+          contactNumber: '',
+          address: '',
+          websiteURL: '',
+          documentURL: '',
+          verified: false,
+          verifiedAt: null,
+        };
+        setOrganization(defaultData);
+        setFormData(defaultData);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchOrganizationProfile();
   }, [user]);
 
@@ -93,35 +130,44 @@ const OrganizationProfile = () => {
 
   const uploadDocumentToSupabase = async (file) => {
     if (!file) return null;
-
+  
+    // Check file size (5MB max example)
     const fileSizeInMB = file.size / (1024 * 1024);
     if (fileSizeInMB > 5) {
       setApiError(`File is too large (${fileSizeInMB.toFixed(2)}MB). Max size is 5MB.`);
       return null;
     }
-
+  
+    // Generate a unique filename
     const fileExt = file.name.split('.').pop();
     const fileName = `org-docs/${user.id}/${Date.now()}.${fileExt}`;
-
+  
     try {
-      const { error } = await supabase.storage
-        .from('organization-documents')
+      // ===== UPLOAD TO SUPABASE STORAGE =====
+      const { data, error: uploadError } = await supabase.storage
+        .from('organization-documents') // 🚀 MUST match your bucket name
         .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: file.type
+          cacheControl: '3600', // Cache for 1 hour
+          upsert: false, // Don't overwrite existing files
+          contentType: file.type // Set correct MIME type
         });
-
-      if (error) throw error;
-
-      const { data: { publicUrl } } = supabase.storage
+  
+      if (uploadError) throw uploadError;
+  
+      // ===== GET PUBLIC URL =====
+      const { data: { publicUrl } } = await supabase.storage
         .from('organization-documents')
         .getPublicUrl(fileName);
-
+  
       return publicUrl;
+  
     } catch (error) {
-      console.error('Error uploading document:', error);
-      setApiError(`Failed to upload document: ${error.message}`);
+      console.error('Supabase Storage Error:', error);
+      setApiError(
+        error.message.includes('Bucket not found') 
+          ? 'Storage bucket not found. Contact support.' 
+          : `Upload failed: ${error.message}`
+      );
       return null;
     }
   };
@@ -130,13 +176,19 @@ const OrganizationProfile = () => {
     try {
       setLoading(true);
       setApiError(null);
-
+      setSaveStatus({ show: false, success: false, message: '' });
+  
+      // 1. Upload document if a new file was selected
       let documentUrl = formData.documentURL;
       if (documentFile) {
         documentUrl = await uploadDocumentToSupabase(documentFile);
-        if (!documentUrl) return;
+        if (!documentUrl) {
+          setApiError('Document upload failed');
+          return;
+        }
       }
-
+  
+      // 2. Prepare the organization data payload
       const organizationData = {
         user_id: user.id,
         organization_name: formData.organizationName,
@@ -147,39 +199,64 @@ const OrganizationProfile = () => {
         address: formData.address,
         website_url: formData.websiteURL,
         document_url: documentUrl,
-        verified: false,
+        verified: false, // Reset verification status on updates
         verified_at: null
       };
-
-      const response = await organizationService.createOrganization(organizationData);
-      const data = await response.json();
-
+  
+      // 3. Check if we're creating new or updating existing
+      const isUpdate = organization !== null;
+  
+      // 4. Submit to backend API
+      const response = isUpdate
+        await organizationService.createOrganization(organizationData);
+        // ? await organizationService.updateOrganization(user.id, organizationData)
+        // : await organizationService.createOrganization(organizationData);
+  
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to save organization data');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'API request failed');
       }
-
-      setOrganization({
-        organizationName: data.organization_name,
-        registrationNumber: data.registration_number,
-        contactPerson: data.contact_person,
-        contactEmail: data.contact_email,
-        contactNumber: data.contact_number,
-        address: data.address,
-        websiteURL: data.website_url,
-        documentURL: data.document_url,
-        verified: data.verified,
-        verifiedAt: data.verified_at
-      });
-
+  
+      const responseData = await response.json();
+  
+      // 5. Update local state with new data
+      const updatedProfile = {
+        organizationName: responseData.organization_name,
+        registrationNumber: responseData.registration_number,
+        contactPerson: responseData.contact_person,
+        contactEmail: responseData.contact_email,
+        contactNumber: responseData.contact_number,
+        address: responseData.address,
+        websiteURL: responseData.website_url,
+        documentURL: responseData.document_url,
+        verified: responseData.verified,
+        verifiedAt: responseData.verified_at
+      };
+  
+      setOrganization(updatedProfile);
+      setFormData(updatedProfile);
       setIsEditing(false);
       setDocumentFile(null);
-      setSaveStatus({ show: true, success: true, message: 'Profile updated successfully!' });
+      
+      // 6. Show success message
+      setSaveStatus({
+        show: true,
+        success: true,
+        message: isUpdate ? 'Profile updated successfully!' : 'Profile created successfully!'
+      });
+  
     } catch (err) {
-      console.error("Error saving organization profile:", err);
+      console.error('Save operation failed:', err);
       setApiError(err.message || 'Failed to save organization profile');
-      setSaveStatus({ show: true, success: false, message: 'Failed to update profile. Please try again.' });
+      setSaveStatus({
+        show: true,
+        success: false,
+        message: err.message || 'Failed to save changes'
+      });
     } finally {
       setLoading(false);
+      
+      // Auto-hide status message after 3 seconds
       setTimeout(() => {
         setSaveStatus(prev => ({ ...prev, show: false }));
       }, 3000);
@@ -302,13 +379,13 @@ const OrganizationProfile = () => {
                     <input
                       type="text"
                       name="organizationName"
-                      value={formData.organizationName}
+                      value={formData?.organizationName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   ) : (
                     <div className="bg-gray-50 px-3 py-2 rounded-md">
-                      {organization.organizationName}
+                      {organization?.organizationName}
                     </div>
                   )}
                 </motion.div>
@@ -322,13 +399,13 @@ const OrganizationProfile = () => {
                     <input
                       type="text"
                       name="registrationNumber"
-                      value={formData.registrationNumber}
+                      value={formData?.registrationNumber}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   ) : (
                     <div className="bg-gray-50 px-3 py-2 rounded-md">
-                      {organization.registrationNumber}
+                      {organization?.registrationNumber}
                     </div>
                   )}
                 </motion.div>
@@ -342,13 +419,13 @@ const OrganizationProfile = () => {
                     <input
                       type="text"
                       name="contactPerson"
-                      value={formData.contactPerson}
+                      value={formData?.contactPerson}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   ) : (
                     <div className="bg-gray-50 px-3 py-2 rounded-md">
-                      {organization.contactPerson}
+                      {organization?.contactPerson}
                     </div>
                   )}
                 </motion.div>
@@ -362,13 +439,13 @@ const OrganizationProfile = () => {
                     <input
                       type="email"
                       name="contactEmail"
-                      value={formData.contactEmail}
+                      value={formData?.contactEmail}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   ) : (
                     <div className="bg-gray-50 px-3 py-2 rounded-md">
-                      {organization.contactEmail}
+                      {organization?.contactEmail}
                     </div>
                   )}
                 </motion.div>
@@ -382,13 +459,13 @@ const OrganizationProfile = () => {
                     <input
                       type="text"
                       name="contactNumber"
-                      value={formData.contactNumber}
+                      value={formData?.contactNumber}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   ) : (
                     <div className="bg-gray-50 px-3 py-2 rounded-md">
-                      {organization.contactNumber}
+                      {organization?.contactNumber}
                     </div>
                   )}
                 </motion.div>
@@ -402,14 +479,14 @@ const OrganizationProfile = () => {
                     <input
                       type="text"
                       name="websiteURL"
-                      value={formData.websiteURL}
+                      value={formData?.websiteURL}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   ) : (
                     <div className="bg-gray-50 px-3 py-2 rounded-md flex items-center justify-between">
-                      {organization.websiteURL}
-                      {organization.websiteURL && (
+                      {organization?.websiteURL}
+                      {organization?.websiteURL && (
                         <a 
                           href={organization.websiteURL.startsWith('http') ? organization.websiteURL : `https://${organization.websiteURL}`} 
                           target="_blank" 
@@ -431,14 +508,14 @@ const OrganizationProfile = () => {
                   {isEditing ? (
                     <textarea
                       name="address"
-                      value={formData.address}
+                      value={formData?.address}
                       onChange={handleInputChange}
                       rows="3"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   ) : (
                     <div className="bg-gray-50 px-3 py-2 rounded-md">
-                      {organization.address}
+                      {organization?.address}
                     </div>
                   )}
                 </motion.div>
@@ -467,7 +544,7 @@ const OrganizationProfile = () => {
                     </div>
                   ) : (
                     <div className="bg-gray-50 px-3 py-2 rounded-md">
-                      {organization.documentURL ? (
+                      {organization?.documentURL ? (
                         <a 
                           href={organization.documentURL} 
                           target="_blank" 
@@ -486,14 +563,14 @@ const OrganizationProfile = () => {
                 {/* Verification Status */}
                 <motion.div className="col-span-2" variants={cardVariants}>
                   <div className="flex items-center mt-4">
-                    <div className={`w-3 h-3 rounded-full mr-2 ${organization.verified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                    <div className={`w-3 h-3 rounded-full mr-2 ${organization?.verified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
                     <span className="text-sm font-medium">
-                      {organization.verified ? 'Verified Organization' : 'Verification Pending'}
+                      {organization?.verified ? 'Verified Organization' : 'Verification Pending'}
                     </span>
                   </div>
-                  {organization.verifiedAt && (
+                  {organization?.verifiedAt && (
                     <div className="text-xs text-gray-500 mt-1">
-                      Verified on {new Date(organization.verifiedAt).toLocaleDateString()}
+                      Verified on {new Date(organization?.verifiedAt).toLocaleDateString()}
                     </div>
                   )}
                 </motion.div>
