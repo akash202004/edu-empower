@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
-
+import axios from "axios";
 // Create Application with a new scholarship reason
 export const createApplication = async (req: Request, res: Response) => {
   try {
@@ -25,6 +25,15 @@ export const createApplication = async (req: Request, res: Response) => {
     const application = await prisma.application.create({
       data: { studentId, scholarshipId, scholarshipReason, status: "PENDING" },
     });
+    try {
+      await axios.post(`${process.env.AI_SERVER_URL}`);
+
+      console.log("✅ AI triggered successfully.");
+    } catch (aiError: any) {
+      console.error("❌ Failed to trigger AI:");
+    
+      console.error(aiError.message);
+    } 
 
     res.status(201).json(application);
   } catch (error) {
