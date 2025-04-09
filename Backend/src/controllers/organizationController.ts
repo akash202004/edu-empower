@@ -30,12 +30,12 @@ export const createOrganizationDetails = async (
       documentURL,
     } = validationResult.data;
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
       where: { id: userId },
     });
 
     if (!existingUser) {
-      res.status(403).json({ error: "User dosen't exists" });
+      res.status(403).json({ error: "User doesn't exist" });
       return;
     }
 
@@ -87,7 +87,7 @@ export const updateOrganizationDetails = async (
     }
 
     const organizationDetails = await prisma.organizationDetails.findUnique({
-      where: { id },
+      where: { userId: id },
     });
 
     if (!organizationDetails) {
@@ -96,7 +96,7 @@ export const updateOrganizationDetails = async (
     }
 
     const updatedOrganization = await prisma.organizationDetails.update({
-      where: { id },
+      where: { userId: id },
       data: { ...req.body, verifiedAt: req.body.verified ? new Date() : null },
     });
 
