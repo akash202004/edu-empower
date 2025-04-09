@@ -165,7 +165,7 @@ function App() {
           
           {/* Add the crowdfunding routes */}
           <Route path="/crowdfunding" element={<MainLayout><CrowdFunding /></MainLayout>} />
-          <Route path="/crowdfunding/project/:id" element={<MainLayout><ProjectDetail /></MainLayout>} />
+          <Route path="/crowdfunding/:id" element={<MainLayout><ProjectDetail /></MainLayout>} />
           <Route path="/crowdfunding/start-campaign" element={<MainLayout><CrowdFundingForm /></MainLayout>} />
           {/* Removed start-campaign route */}
           

@@ -58,15 +58,14 @@ const CrowdFunding = () => {
   };
 
   const getCurrentUserRole = async () => {
-    const user = await userService.getUserRole(user.id);
+    const user = await userService.getUserRole(user?.id);
   };
 
   useEffect(() => {
     fetchFundraisers();
-    getCurrentUserRole()
+    getCurrentUserRole();
   }, []);
 
-  // Filter and sort projects when search term, category, or sort option changes
   useEffect(() => {
     let result = [...projects];
 
@@ -321,7 +320,7 @@ const CrowdFunding = () => {
                       </div>
 
                       <button
-                        onClick={() => navigate(`/fundraiser/${project.id}`)}
+                        onClick={() => navigate(`/crowdfunding/${project.id}`)}
                         className="mt-2 text-indigo-600 hover:underline font-medium flex items-center gap-1"
                       >
                         View Campaign <FiArrowRight />

@@ -38,10 +38,10 @@ const API_CONFIG = {
     },
     FUNDRAISERS: {
       GET_ALL: "/fundraiser",
-      GET_BY_ID: (id) => `/fundraisers/${id}`,
+      GET_BY_ID: (id) => `/fundraiser/${id}`,
       CREATE: "/fundraisers",
-      UPDATE: (id) => `/fundraisers/${id}`,
-      DELETE: (id) => `/fundraisers/${id}`,
+      UPDATE: (id) => `/fundraiser/${id}`,
+      DELETE: (id) => `/fundraiser/${id}`,
     },
     DONATIONS: "/donations",
   },
