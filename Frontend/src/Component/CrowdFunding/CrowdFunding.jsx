@@ -49,6 +49,7 @@ const CrowdFunding = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [userRole, setUserRole] = useState("");
 
   // Scroll to top when component mounts
   const fetchFundraisers = async () => {
@@ -59,6 +60,7 @@ const CrowdFunding = () => {
 
   const getCurrentUserRole = async () => {
     const user = await userService.getUserRole(user?.id);
+    setUserRole(user);
   };
 
   useEffect(() => {
@@ -128,7 +130,7 @@ const CrowdFunding = () => {
   return (
     <div className="bg-gradient-to-b from-white to-indigo-50 min-h-screen">
       {/* Hero Section */}
-      <CrowdFundingHero role={getCurrentUserRole} />
+      <CrowdFundingHero userRole={userRole} />
 
       {/* Features Section */}
       <CrowdFundingFeatures />

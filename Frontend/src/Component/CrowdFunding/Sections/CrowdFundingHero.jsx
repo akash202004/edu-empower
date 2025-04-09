@@ -10,9 +10,8 @@ const fadeIn = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-const CrowdFundingHero = ({ role: getCurrentUserRole }) => {
+const CrowdFundingHero = ({ userRole }) => {
   const navigate = useNavigate();
-  const currentUserRole = userService.getUserRole();
 
   return (
     <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -56,7 +55,7 @@ const CrowdFundingHero = ({ role: getCurrentUserRole }) => {
               to help you achieve your academic goals.
             </p>
             <div className="flex flex-wrap gap-4">
-              {currentUserRole === "ORGANIZATION" && (
+              {userRole === "ORGANIZATION" && (
                 <motion.button
                   onClick={() => navigate("/crowdfunding/start-campaign")}
                   className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2"

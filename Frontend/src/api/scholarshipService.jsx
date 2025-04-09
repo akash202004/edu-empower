@@ -55,7 +55,8 @@ const scholarshipService = {
   // Create a new scholarship
   createAndUpdateScholarship: async (data) => {
     try {
-      if (getExistingScholarshipById.data.id) {
+      const existingScolarshipId = getExistingScholarshipById.data.id;
+      if (existingScolarshipId) {
         const response = await API.put(
           API_CONFIG.ENDPOINTS.SCHOLARSHIPS.UPDATE(id),
           data
