@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prismaClient";
-import axios from "axios";
+
 import {
   validateStudentData,
   validateStudentDataForUpdate,
@@ -92,13 +92,7 @@ export const createStudentDetails = async (req: Request, res: Response) => {
     };
 
     const student = await prisma.studentDetails.create({ data: studentData });
-    try {
-      console.log("📡 Sending trigger request...");
-      await axios.post(`${process.env.AI_SERVER_URL}`);
-      console.log("✅ AI triggered successfully");
-    } catch (aiError: any) {
-      console.error("⚠️ Failed to trigger AI:", aiError.message);
-    }
+    
 
     res
       .status(201)
