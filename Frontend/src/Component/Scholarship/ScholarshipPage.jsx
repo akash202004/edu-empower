@@ -26,7 +26,6 @@ import {
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import CountUp from 'react-countup';
 
-// Keep only one ScholarshipPage component
 const ScholarshipPage = () => {
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
@@ -48,39 +47,58 @@ const ScholarshipPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
-    educationLevel: "",
+    maxFamilyIncome: "",
     amount: "",
-    sponsored: false,
+    deadline: "",
   });
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
 
-  // Fetch scholarships from the JSON file
+  // Format date to readable format
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Fetch scholarships from the API
   useEffect(() => {
     const fetchScholarships = async () => {
       setLoading(true);
       try {
-        // First check if we have scholarships in local storage
-        const storedScholarships = localStorage.getItem('allScholarships');
-        
-        if (storedScholarships) {
-          const parsedScholarships = JSON.parse(storedScholarships);
-          setScholarships(parsedScholarships);
-          setLoading(false);
-        } else {
-          // Fallback to API or JSON file
-          const response = await fetch('/data/scholarship.json');
-          if (!response.ok) {
-            throw new Error('Failed to fetch scholarships');
-          }
-          const data = await response.json();
-          
-          // Store in local storage for future use
-          localStorage.setItem('allScholarships', JSON.stringify(data));
-          
-          setScholarships(data);
-          setLoading(false);
+        const response = await fetch('http://localhost:3001/api/scholarships');
+        if (!response.ok) {
+          throw new Error('Failed to fetch scholarships');
         }
+        const data = await response.json();
+        
+        // Transform the API data to match our frontend structure
+        const transformedData = data.map(scholarship => ({
+          id: scholarship.id,
+          title: scholarship.title,
+          description: scholarship.description,
+          amount: formatCurrency(scholarship.totalAmount),
+          totalAmount: scholarship.totalAmount,
+          fundedBy: scholarship.organization?.name || 'Unknown Organization',
+          educationLevel: 'Any Level', // Default since API doesn't provide this
+          scholarshipsAwarded: `${scholarship.applications?.length || 0} awarded`,
+          deadline: formatDate(scholarship.expiredAt),
+          maxFamilyIncome: scholarship.maxFamilyIncome,
+          sponsored: false, // Default since API doesn't provide this
+          createdAt: scholarship.createdAt,
+          organization: scholarship.organization
+        }));
+        
+        setScholarships(transformedData);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching scholarships:', error);
         setError('Failed to load scholarships. Please try again later.');
@@ -100,23 +118,28 @@ const ScholarshipPage = () => {
       scholarship.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       scholarship.fundedBy.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // Education level filter
-    const matchesEducationLevel =
-      filters.educationLevel === "" ||
-      scholarship.educationLevel === filters.educationLevel;
+    // Family income filter
+    const matchesFamilyIncome =
+      filters.maxFamilyIncome === "" ||
+      scholarship.maxFamilyIncome <= parseFloat(filters.maxFamilyIncome);
 
-    // Amount filter (simplified for demo)
-    const matchesAmount = filters.amount === "" || true;
+    // Amount filter
+    const matchesAmount = 
+      filters.amount === "" ||
+      (filters.amount === "low" && scholarship.totalAmount < 50000) ||
+      (filters.amount === "medium" && scholarship.totalAmount >= 50000 && scholarship.totalAmount <= 75000) ||
+      (filters.amount === "high" && scholarship.totalAmount > 75000);
 
-    // Sponsored filter
-    const matchesSponsored = !filters.sponsored || scholarship.sponsored;
+    // Deadline filter (upcoming only)
+    const matchesDeadline = 
+      filters.deadline !== "expired" || 
+      new Date(scholarship.deadline) > new Date();
 
-    return matchesSearch && matchesEducationLevel && matchesAmount && matchesSponsored;
+    return matchesSearch && matchesFamilyIncome && matchesAmount && matchesDeadline;
   });
 
   // Handle apply button click
   const handleApplyClick = (scholarshipId) => {
-    console.log("Navigating to details with ID:", scholarshipId);
     navigate("/scholarship/details", { 
       state: { scholarshipId: scholarshipId } 
     });
@@ -126,9 +149,9 @@ const ScholarshipPage = () => {
   const resetFilters = () => {
     setSearchQuery("");
     setFilters({
-      educationLevel: "",
+      maxFamilyIncome: "",
       amount: "",
-      sponsored: false,
+      deadline: "",
     });
   };
 
@@ -171,9 +194,21 @@ const ScholarshipPage = () => {
 
   // Stats for the enhanced stats section
   const stats = [
-    { value: 33, suffix: "M+", label: "Awarded" },
-    { value: 12, suffix: "K+", label: "Students" },
-    { value: 5, suffix: "K+", label: "Scholarships" }
+    { 
+      value: scholarships.reduce((sum, s) => sum + s.totalAmount, 0) / 1000000, 
+      suffix: "M+", 
+      label: "Total Funds" 
+    },
+    { 
+      value: scholarships.reduce((sum, s) => sum + (s.applications?.length || 0), 0), 
+      suffix: "+", 
+      label: "Applications" 
+    },
+    { 
+      value: scholarships.length, 
+      suffix: "+", 
+      label: "Scholarships" 
+    }
   ];
 
   return (
@@ -267,7 +302,12 @@ const ScholarshipPage = () => {
                   />
                   <div className="relative">
                     <p className="text-2xl sm:text-3xl font-bold text-indigo-600">
-                      <CountUp end={stat.value} suffix={stat.suffix} duration={2.5} />
+                      <CountUp 
+                        end={stat.value} 
+                        suffix={stat.suffix} 
+                        duration={2.5} 
+                        decimals={stat.value < 1 ? 1 : 0}
+                      />
                     </p>
                     <p className="text-xs sm:text-sm text-gray-600">{stat.label}</p>
                   </div>
@@ -329,19 +369,18 @@ const ScholarshipPage = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Education Level</label>
+                    <label className="block text-sm font-medium text-gray-700">Max Family Income</label>
                     <select
                       className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      value={filters.educationLevel}
+                      value={filters.maxFamilyIncome}
                       onChange={(e) =>
-                        setFilters({ ...filters, educationLevel: e.target.value })
+                        setFilters({ ...filters, maxFamilyIncome: e.target.value })
                       }
                     >
-                      <option value="">All Education Levels</option>
-                      <option value="Undergraduate">Undergraduate</option>
-                      <option value="Graduate">Graduate</option>
-                      <option value="MBA">MBA</option>
-                      <option value="Any Level">Any Level</option>
+                      <option value="">Any Income</option>
+                      <option value="100000">Under ₹1,00,000</option>
+                      <option value="50000">Under ₹50,000</option>
+                      <option value="25000">Under ₹25,000</option>
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -359,25 +398,20 @@ const ScholarshipPage = () => {
                       <option value="high">Over ₹75,000</option>
                     </select>
                   </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Deadline</label>
+                    <select
+                      className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      value={filters.deadline}
+                      onChange={(e) =>
+                        setFilters({ ...filters, deadline: e.target.value })
+                      }
+                    >
+                      <option value="">All Deadlines</option>
+                      <option value="expired">Upcoming Only</option>
+                    </select>
+                  </div>
                   <div className="flex items-center space-x-4">
-                    <div className="flex items-center">
-                      <input
-                        id="sponsored"
-                        name="sponsored"
-                        type="checkbox"
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                        checked={filters.sponsored}
-                        onChange={(e) =>
-                          setFilters({ ...filters, sponsored: e.target.checked })
-                        }
-                      />
-                      <label
-                        htmlFor="sponsored"
-                        className="ml-2 block text-sm text-gray-700"
-                      >
-                        Sponsored Only
-                      </label>
-                    </div>
                     <motion.button
                       onClick={resetFilters}
                       className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
@@ -519,6 +553,12 @@ const ScholarshipPage = () => {
                         <FiCalendar className="mr-2 h-4 w-4 text-red-500" />
                         <span>Deadline: {scholarship.deadline}</span>
                       </div>
+                      {scholarship.maxFamilyIncome && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <FiInfo className="mr-2 h-4 w-4 text-yellow-500" />
+                          <span>Max Family Income: {formatCurrency(scholarship.maxFamilyIncome)}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="mt-6">
                       <motion.button
@@ -541,13 +581,9 @@ const ScholarshipPage = () => {
             ))}
           </motion.div>
         )}
-        
-        
-        
       </div>
     </>
   );
 };
 
 export default ScholarshipPage;
- 

@@ -25,6 +25,21 @@ const ScholarshipDetails = () => {
   
   const scholarshipId = location.state?.scholarshipId;
   
+  // Format date to readable format
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
   useEffect(() => {
     const fetchScholarshipDetails = async () => {
       if (!scholarshipId) {
@@ -35,21 +50,35 @@ const ScholarshipDetails = () => {
       
       try {
         console.log("Fetching scholarship with ID:", scholarshipId);
-        // Fetch from the JSON file
-        const response = await fetch("/data/scholarship.json");
+        // Fetch from the API endpoint
+        const response = await fetch(`http://localhost:3001/api/scholarships/${scholarshipId}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
         }
         
-        const scholarships = await response.json();
-        console.log("All scholarships:", scholarships);
+        const scholarshipData = await response.json();
+        console.log("Found scholarship:", scholarshipData);
         
-        // Don't convert to number, compare as strings
-        const selectedScholarship = scholarships.find(s => s.id === scholarshipId);
-        console.log("Found scholarship:", selectedScholarship);
-        
-        if (selectedScholarship) {
-          setScholarship(selectedScholarship);
+        if (scholarshipData) {
+          // Transform the API data to match our frontend structure
+          const transformedData = {
+            id: scholarshipData.id,
+            title: scholarshipData.title,
+            description: scholarshipData.description,
+            amount: formatCurrency(scholarshipData.totalAmount),
+            totalAmount: scholarshipData.totalAmount,
+            fundedBy: scholarshipData.organization?.name || 'Unknown Organization',
+            educationLevel: 'Any Level', // Default since API doesn't provide this
+            scholarshipsAwarded: `${scholarshipData.applications?.length || 0} awarded`,
+            deadline: formatDate(scholarshipData.expiredAt),
+            maxFamilyIncome: scholarshipData.maxFamilyIncome,
+            sponsored: false, // Default since API doesn't provide this
+            organization: scholarshipData.organization,
+            applications: scholarshipData.applications,
+            disbursements: scholarshipData.disbursements
+          };
+          
+          setScholarship(transformedData);
         } else {
           setError("Scholarship not found. Please try again.");
         }
@@ -67,7 +96,8 @@ const ScholarshipDetails = () => {
   const handleProceedToApplication = () => {
     navigate("/scholarship/apply", { 
       state: { 
-        scholarshipId: scholarshipId
+        scholarshipId: scholarshipId,
+        scholarshipDetails: scholarship
       } 
     });
   };
@@ -229,19 +259,6 @@ const ScholarshipDetails = () => {
             </motion.h2>
             
             <motion.div 
-              className="mb-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              {scholarship.sponsored && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 mr-2">
-                  <FiAward className="mr-1" /> Sponsored
-                </span>
-              )}
-            </motion.div>
-            
-            <motion.div 
               className="prose max-w-none mb-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -331,7 +348,27 @@ const ScholarshipDetails = () => {
               <motion.div 
                 variants={cardVariants}
                 whileHover="hover"
-                className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group md:col-span-2"
+                className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group"
+              >
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-br from-yellow-50 to-yellow-100 transform scale-0 group-hover:scale-100 rounded-xl"
+                  transition={{ duration: 0.3 }}
+                />
+                <div className="relative">
+                  <div className="flex items-center text-gray-700 mb-2">
+                    <FiInfo className="mr-2 h-5 w-5 text-yellow-600" />
+                    <span className="font-medium">Max Family Income</span>
+                  </div>
+                  <p className="text-gray-800 font-medium">
+                    {scholarship.maxFamilyIncome ? formatCurrency(scholarship.maxFamilyIncome) : 'Not specified'}
+                  </p>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                variants={cardVariants}
+                whileHover="hover"
+                className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group"
               >
                 <motion.div 
                   className="absolute inset-0 bg-gradient-to-br from-purple-50 to-purple-100 transform scale-0 group-hover:scale-100 rounded-xl"
@@ -340,7 +377,7 @@ const ScholarshipDetails = () => {
                 <div className="relative">
                   <div className="flex items-center text-gray-700 mb-2">
                     <FiAward className="mr-2 h-5 w-5 text-purple-600" />
-                    <span className="font-medium">Scholarships Awarded</span>
+                    <span className="font-medium">Applications Received</span>
                   </div>
                   <p className="text-gray-800 font-medium">{scholarship.scholarshipsAwarded}</p>
                 </div>
@@ -365,6 +402,11 @@ const ScholarshipDetails = () => {
                     <p>
                       Before applying, please ensure you have all required documents ready. The application process takes approximately 15-20 minutes to complete.
                     </p>
+                    {scholarship.maxFamilyIncome && (
+                      <p className="mt-2">
+                        <strong>Eligibility:</strong> This scholarship is available for students with family income under {formatCurrency(scholarship.maxFamilyIncome)}.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -419,8 +461,15 @@ const ScholarshipDetails = () => {
               transition={{ duration: 0.3 }}
             />
             <div className="relative">
-              <p className="text-3xl font-bold text-indigo-600"><CountUp end={33} suffix="M+" duration={2.5} /></p>
-              <p className="text-sm text-gray-600">Awarded</p>
+              <p className="text-3xl font-bold text-indigo-600">
+                <CountUp 
+                  end={scholarship.totalAmount / 1000000} 
+                  suffix="M+" 
+                  duration={2.5} 
+                  decimals={1}
+                />
+              </p>
+              <p className="text-sm text-gray-600">Total Value</p>
             </div>
           </motion.div>
           <motion.div 
@@ -433,8 +482,13 @@ const ScholarshipDetails = () => {
               transition={{ duration: 0.3 }}
             />
             <div className="relative">
-              <p className="text-3xl font-bold text-indigo-600"><CountUp end={12} suffix="K+" duration={2} /></p>
-              <p className="text-sm text-gray-600">Students</p>
+              <p className="text-3xl font-bold text-indigo-600">
+                <CountUp 
+                  end={scholarship.applications?.length || 0} 
+                  duration={2} 
+                />
+              </p>
+              <p className="text-sm text-gray-600">Applications</p>
             </div>
           </motion.div>
           <motion.div 
@@ -447,8 +501,13 @@ const ScholarshipDetails = () => {
               transition={{ duration: 0.3 }}
             />
             <div className="relative">
-              <p className="text-3xl font-bold text-indigo-600"><CountUp end={5} suffix="K+" duration={1.5} /></p>
-              <p className="text-sm text-gray-600">Scholarships</p>
+              <p className="text-3xl font-bold text-indigo-600">
+                <CountUp 
+                  end={scholarship.disbursements?.length || 0} 
+                  duration={1.5} 
+                />
+              </p>
+              <p className="text-sm text-gray-600">Awarded</p>
             </div>
           </motion.div>
         </motion.div>
