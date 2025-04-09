@@ -64,10 +64,9 @@ const CustomButton = ({ children, variant = "primary", icon, ...props }) => {
   );
 };
 
-export const EditFundraiserFormComponent = () => {
+export const EditFundraiserFormComponent = ({ id }) => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { id } = useParams();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -90,7 +89,10 @@ export const EditFundraiserFormComponent = () => {
         const res = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/fundraiser/${id}`
         );
-        setFormData(res.data);
+        setFormData({
+          ...res.data,
+          deadline: res.data.deadline?.split("T")[0] || "",
+        });
       } catch (err) {
         console.error("Failed to fetch fundraiser:", err);
         setError("Failed to load fundraiser.");
@@ -117,7 +119,7 @@ export const EditFundraiserFormComponent = () => {
     const payload = {
       ...formData,
       goalAmount: Number(formData.goalAmount),
-      raisedAmount: Number(formData.raisedAmount) || 0,
+      deadline: new Date(formData.deadline).toISOString().split("T")[0], // ✅ Format correctly
     };
 
     try {
@@ -147,9 +149,7 @@ export const EditFundraiserFormComponent = () => {
           >
             <ArrowLeftIcon size={20} />
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Edit Fundraiser
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">Edit Fundraiser</h1>
         </div>
 
         <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
@@ -213,7 +213,7 @@ export const EditFundraiserFormComponent = () => {
                 label="Deadline"
                 name="deadline"
                 type="date"
-                value={formData.deadline?.split("T")[0] || ""}
+                value={formData.deadline}
                 onChange={handleChange}
                 required
               />

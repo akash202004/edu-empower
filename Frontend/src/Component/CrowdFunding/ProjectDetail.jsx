@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -6,11 +8,11 @@ import {
   FiCalendar,
   FiDollarSign,
   FiUsers,
-  FiShare2,
   FiHeart,
-  FiBookmark,
+  FiEdit,
 } from "react-icons/fi";
 import { fundraiserService } from "../../api/fundraiserService";
+import { EditFundraiserFormComponent } from "./EditFundraiserForm";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -24,6 +26,7 @@ const ProjectDetail = () => {
   const [loading, setLoading] = useState(true);
   const [donationAmount, setDonationAmount] = useState(50);
   const [activeTab, setActiveTab] = useState("about");
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -79,145 +82,95 @@ const ProjectDetail = () => {
     );
   }
 
+  if (isEditing) {
+    return <EditFundraiserFormComponent id={id} />;
+  }
+
   return (
     <div className="bg-gradient-to-b from-white to-indigo-50 min-h-screen py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8 flex justify-between items-center">
           <button
             onClick={() => navigate("/crowdfunding")}
             className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition font-medium"
           >
             <FiArrowLeft className="h-5 w-5" /> Back to Projects
           </button>
+          <button
+            onClick={() => setIsEditing(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+          >
+            <FiEdit /> Edit
+          </button>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <motion.div initial="hidden" animate="visible" variants={fadeIn}>
-              <div className="bg-white rounded-2xl overflow-hidden border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-8">
-                <div className="h-96 overflow-hidden">
-                  <img
-                    src={project.imageUrl}
-                    alt={project.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
+        <motion.div
+          className="bg-white p-6 rounded-xl shadow-md"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+        >
+          <h2 className="text-3xl font-bold mb-4">{project.title}</h2>
+          <img
+            src={project.imageUrl}
+            alt={project.title}
+            className="w-full h-64 object-cover rounded-xl mb-6"
+          />
+          <p className="text-gray-700 mb-4">{project.description}</p>
 
-              <div className="mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  {project.title}
-                </h1>
-                <p className="text-xl text-gray-700 mb-6">
-                  {project.description}
-                </p>
-
-                <div className="flex flex-wrap gap-6 mb-6">
-                  <div className="flex items-center">
-                    <FiDollarSign className="h-5 w-5 text-indigo-600 mr-2" />
-                    <span className="font-semibold">
-                      ${project.raisedAmount.toLocaleString()}
-                    </span>
-                    <span className="text-gray-500 ml-1">
-                      raised of ${project.goalAmount.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <FiUsers className="h-5 w-5 text-indigo-600 mr-2" />
-                    <span className="font-semibold">
-                      {project.donations.length}
-                    </span>
-                    <span className="text-gray-500 ml-1">backers</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FiCalendar className="h-5 w-5 text-indigo-600 mr-2" />
-                    <span className="font-semibold">
-                      {(() => {
-                        const daysLeft = calculateDaysLeft(project.deadline);
-                        return daysLeft > 0
-                          ? `${daysLeft} days left`
-                          : "Expired";
-                      })()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="w-full bg-gray-200 rounded-full h-4 mb-6">
-                  <div
-                    className="bg-indigo-600 h-4 rounded-full"
-                    style={{
-                      width: `${Math.min(
-                        (project.raisedAmount / project.goalAmount) * 100,
-                        100
-                      )}%`,
-                    }}
-                  ></div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button className="flex items-center gap-1 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                    <FiShare2 className="h-4 w-4" /> Share
-                  </button>
-                  <button className="flex items-center gap-1 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                    <FiHeart className="h-4 w-4" /> Like
-                  </button>
-                  <button className="flex items-center gap-1 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                    <FiBookmark className="h-4 w-4" /> Save
-                  </button>
-                </div>
-              </div>
-
-              <div className="mb-8">
-                <div className="flex border-b border-gray-200">
-                  <button
-                    className={`px-6 py-3 font-medium ${
-                      activeTab === "about"
-                        ? "text-indigo-600 border-b-2 border-indigo-600"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    onClick={() => setActiveTab("about")}
-                  >
-                    About
-                  </button>
-                  <button
-                    className={`px-6 py-3 font-medium ${
-                      activeTab === "updates"
-                        ? "text-indigo-600 border-b-2 border-indigo-600"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    onClick={() => setActiveTab("updates")}
-                  >
-                    Updates ({project.updates?.length || 0})
-                  </button>
-                  <button
-                    className={`px-6 py-3 font-medium ${
-                      activeTab === "comments"
-                        ? "text-indigo-600 border-b-2 border-indigo-600"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    onClick={() => setActiveTab("comments")}
-                  >
-                    Comments ({project.comments?.length || 0})
-                  </button>
-                </div>
-
-                <div className="py-6">
-                  {activeTab === "about" && (
-                    <div className="prose prose-indigo max-w-none">
-                      <p>{project.about}</p>
-                    </div>
-                  )}
-                  {activeTab === "updates" && (
-                    <div className="text-gray-600">No updates available.</div>
-                  )}
-                  {activeTab === "comments" && (
-                    <div className="text-gray-600">No comments yet.</div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <FiDollarSign className="text-indigo-600" />
+              <span>${project.goalAmount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FiCalendar className="text-indigo-600" />
+              <span>{calculateDaysLeft(project.deadline)} days left</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FiUsers className="text-indigo-600" />
+              <span>100 supporters</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FiHeart className="text-indigo-600" />
+              <span>Favorites</span>
+            </div>
           </div>
-        </div>
+
+          <div className="tabs mb-4 flex gap-4 border-b border-gray-200">
+            <button
+              className={`pb-2 font-medium ${
+                activeTab === "about"
+                  ? "text-indigo-600 border-b-2 border-indigo-600"
+                  : "text-gray-500"
+              }`}
+              onClick={() => setActiveTab("about")}
+            >
+              About
+            </button>
+            <button
+              className={`pb-2 font-medium ${
+                activeTab === "updates"
+                  ? "text-indigo-600 border-b-2 border-indigo-600"
+                  : "text-gray-500"
+              }`}
+              onClick={() => setActiveTab("updates")}
+            >
+              Updates
+            </button>
+          </div>
+
+          {activeTab === "about" && (
+            <div>
+              <p className="text-gray-700">{project.about}</p>
+            </div>
+          )}
+          {activeTab === "updates" && (
+            <div>
+              <p className="text-gray-500 italic">No updates yet.</p>
+            </div>
+          )}
+        </motion.div>
       </div>
     </div>
   );
