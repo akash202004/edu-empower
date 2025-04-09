@@ -55,10 +55,11 @@ const scholarshipService = {
   // Create a new scholarship
   createAndUpdateScholarship: async (data) => {
     try {
-      const existingScolarshipId = getExistingScholarshipById.data.id;
-      if (existingScolarshipId) {
+      const existingScholarship = await scholarshipService.getExistingScholarshipById(data.id);
+  
+      if (existingScholarship) {
         const response = await API.put(
-          API_CONFIG.ENDPOINTS.SCHOLARSHIPS.UPDATE(id),
+          API_CONFIG.ENDPOINTS.SCHOLARSHIPS.UPDATE(data.id),
           data
         );
         return response.data;
@@ -70,11 +71,11 @@ const scholarshipService = {
         return response.data;
       }
     } catch (error) {
-      console.error("Error creating scholarship:", error);
+      console.error("Error creating/updating scholarship:", error);
       throw error;
     }
   },
-
+  
   // Delete scholarship
   deleteScholarship: async (id) => {
     try {
