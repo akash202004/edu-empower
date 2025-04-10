@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import { fundraiserService } from "../../api/fundraiserService";
 import { EditFundraiserFormComponent } from "./EditFundraiserForm";
+import { useUser } from "@clerk/clerk-react";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -38,12 +39,15 @@ const cardVariants = {
 
 const ProjectDetail = () => {
   const { id } = useParams();
+  const { user } = useUser();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [donationAmount, setDonationAmount] = useState(50);
   const [activeTab, setActiveTab] = useState("about");
   const [isEditing, setIsEditing] = useState(false);
+  const currentOrganizationId = user?.id;
+  const isOwner = project?.organizationId === currentOrganizationId;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -355,6 +359,7 @@ const ProjectDetail = () => {
       </div>
     </div>
   );
-};
+
+}; 
 
 export default ProjectDetail;
