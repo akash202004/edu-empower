@@ -51,7 +51,7 @@ const ScholarshipDetails = () => {
       try {
         console.log("Fetching scholarship with ID:", scholarshipId);
         // Fetch from the API endpoint
-        const response = await fetch(`http://localhost:3001/api/scholarships/${scholarshipId}`);
+        const response = await fetch(`http://localhost:3000/api/scholarships/${scholarshipId}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
         }

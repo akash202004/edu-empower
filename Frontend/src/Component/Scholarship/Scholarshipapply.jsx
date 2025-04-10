@@ -59,9 +59,15 @@ const Scholarshipapply = () => {
       return;
     }
     
-    // Redirect directly to the ScholarshipApplicationForm page
-    navigate("/ScholarshipApplicationForm", { 
-      state: { 
+    // Store data in sessionStorage for persistence
+    sessionStorage.setItem('scholarshipApplicationData', JSON.stringify({
+      scholarshipId: scholarshipId,
+      scholarshipTitle: scholarship?.title
+    }));
+    
+    // Use React Router's navigate instead of window.location.href
+    navigate(`/scholarship/${scholarshipId}/application-form`, {
+      state: {
         scholarshipId: scholarshipId,
         scholarshipTitle: scholarship?.title
       }
