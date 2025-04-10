@@ -16,8 +16,10 @@ const AuthRedirect = () => {
           navigate("/student"); // Changed from "/student/details" to "/student"
         } else if (role === "ORGANIZATION") {
           navigate("/organization");
+        } else if (role === "DONOR") {
+          navigate("/donation"); // Updated to match the correct route
         } else {
-          navigate("/home"); // Changed from "/donation" to "/home"
+          navigate("/home");
         }
       } else {
         // If not signed in, redirect to home page or login

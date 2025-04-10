@@ -25,7 +25,7 @@ const RoleSelection = () => {
     if (role === "STUDENT") {
       navigate("/student", { state: { role: "STUDENT" } });
     } else if (role === "DONOR") {
-      navigate("/donor", { state: { role: "DONOR" } });
+      navigate("/donation", { state: { role: "DONOR" } });
     } else if (role === "ORGANIZATION") {
       navigate("/organization", { state: { role: "ORGANIZATION" } });
     } else {
