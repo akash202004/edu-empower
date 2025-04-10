@@ -68,7 +68,6 @@ const ProjectDetail = () => {
   const handleDonate = (e) => {
     e.preventDefault();
     console.log(`Donating ₹${donationAmount} to project ${id}`);
-    // In a real implementation, you would handle payment processing here
   };
 
   const calculateDaysLeft = (endDate) => {
@@ -147,12 +146,14 @@ const ProjectDetail = () => {
                   <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
                     {project.title}
                   </h1>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
-                  >
-                    <FiEdit /> Edit
-                  </button>
+                  {isOwner && (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+                    >
+                      <FiEdit /> Edit
+                    </button>
+                  )}
                 </div>
                 <p className="text-xl text-gray-700 mb-6">
                   {project.description}
@@ -160,11 +161,10 @@ const ProjectDetail = () => {
 
                 <div className="flex flex-wrap gap-6 mb-6">
                   <div className="flex items-center">
-                    <FiDollarSign className="h-5 w-5 text-indigo-600 mr-2" />
                     <span className="font-semibold">
                       ₹{project.raisedAmount?.toLocaleString() || 0}
                     </span>
-                    <span className="text-gray-500 ml-1">
+                    <span className=" ml-1 font-semibold">
                       raised of ₹{project.goalAmount?.toLocaleString()}
                     </span>
                   </div>
@@ -175,7 +175,9 @@ const ProjectDetail = () => {
                   </div>
                   <div className="flex items-center">
                     <FiCalendar className="h-5 w-5 text-indigo-600 mr-2" />
-                    <span className="font-semibold">{calculateDaysLeft(project.deadline)}</span>
+                    <span className="font-semibold">
+                      {calculateDaysLeft(project.deadline)}
+                    </span>
                     <span className="text-gray-500 ml-1">days left</span>
                   </div>
                 </div>
@@ -359,7 +361,6 @@ const ProjectDetail = () => {
       </div>
     </div>
   );
-
-}; 
+};
 
 export default ProjectDetail;

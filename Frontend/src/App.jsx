@@ -10,7 +10,6 @@ import { ClerkProvider, useUser } from "@clerk/clerk-react";
 import useSmoothScroll from "./hooks/useSmoothScroll";
 import LoadingScreen from "./Component/Common/LoadingScreen";
 import OrganizationProfile from "./Component/Organization/OrganizationProfile";
-import { Toaster } from "react-hot-toast";
 
 // Import components
 import Login from "./Component/Auth/Login";
@@ -155,7 +154,6 @@ function App() {
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
       <Router>
-        <Toaster position="top-center" />
         <Routes>
           <Route path="/" element={<AuthRedirect />} />
           <Route path="/home" element={<HomePage />} />

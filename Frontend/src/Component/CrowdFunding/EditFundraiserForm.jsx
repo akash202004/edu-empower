@@ -13,6 +13,7 @@ import {
   SaveIcon,
   ArrowLeftIcon,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import { useUser } from "@clerk/clerk-react";
 
 // Reusable Components
@@ -97,7 +98,8 @@ export const EditFundraiserFormComponent = ({ id }) => {
         setFormData(fetchedData);
         setOriginalData(fetchedData);
       } catch (err) {
-        console.error("Failed to fetch fundraiser:", err);
+        console.error("Failed to fetch Crowdfunding details:", err);
+        toast.error("Failed to fetch Crowdfunding details");
         setError("Failed to load fundraiser.");
       } finally {
         setIsLoading(false);
@@ -142,7 +144,7 @@ export const EditFundraiserFormComponent = ({ id }) => {
 
     if (Object.keys(changedFields).length === 0) {
       setIsSubmitting(false);
-      return navigate("/crowdfunding");
+      return navigate(`/crowdfunding/${id}`);
     }
 
     try {
@@ -151,10 +153,12 @@ export const EditFundraiserFormComponent = ({ id }) => {
         changedFields
       );
       console.log("Updated:", res.data);
-      navigate("/crowdfunding");
+      toast.success("Crowdfunding updated successfully!");
+      navigate(`/crowdfunding/${id}`);
     } catch (err) {
       console.error("Update failed:", err);
       setError("Failed to update fundraiser.");
+      toast.error("Failed to update fundraiser.");
     } finally {
       setIsSubmitting(false);
     }

@@ -50,12 +50,19 @@ const CrowdFunding = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [userRole, setUserRole] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showNoProjects, setShowNoProjects] = useState(false);
 
-  // Scroll to top when component mounts
   const fetchFundraisers = async () => {
-    const res = await fundraiserService.getAllFundraisers();
-    setProjects(res);
-    setFilteredProjects(res);
+    try {
+      const res = await fundraiserService.getAllFundraisers();
+      setProjects(res);
+      setFilteredProjects(res);
+    } catch (err) {
+      console.error("Error fetching fundraisers:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getCurrentUserRole = async () => {
@@ -66,6 +73,15 @@ const CrowdFunding = () => {
   useEffect(() => {
     fetchFundraisers();
     getCurrentUserRole();
+
+    const timeout = setTimeout(() => {
+      if (!projects.length) {
+        setShowNoProjects(true);
+        setLoading(false);
+      }
+    }, 4000);
+
+    return () => clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
@@ -257,7 +273,11 @@ const CrowdFunding = () => {
             viewport={{ once: true, amount: 0.1 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {filteredProjects?.length > 0 ? (
+            {loading ? (
+              <div className="col-span-full flex justify-center items-center h-40">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-indigo-600 border-solid"></div>
+              </div>
+            ) : filteredProjects?.length > 0 ? (
               filteredProjects.map((project) => {
                 const progress =
                   (project.raisedAmount / project.goalAmount) * 100 || 0;
@@ -297,7 +317,7 @@ const CrowdFunding = () => {
 
                       <div className="flex justify-between text-sm text-gray-700 mb-3">
                         <div className="flex items-center gap-1">
-                          <FiDollarSign />
+                          <span>₹</span>
                           <span>
                             {project.raisedAmount} / {project.goalAmount}
                           </span>
@@ -331,18 +351,11 @@ const CrowdFunding = () => {
                   </motion.div>
                 );
               })
-            ) : (
-              <div className="col-span-full text-center py-12">
-                <FiSearch className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-xl font-medium text-gray-900 mb-2">
-                  No projects found
-                </h3>
-                <p className="text-gray-600">
-                  Try adjusting your search or filter criteria to find what
-                  you're looking for.
-                </p>
+            ) : showNoProjects ? (
+              <div className="col-span-full text-center text-gray-500 text-lg mt-6">
+                No campaigns found.
               </div>
-            )}
+            ) : null}
           </motion.div>
 
           {/* Load More Button */}
