@@ -78,6 +78,7 @@ export const EditFundraiserFormComponent = ({ id }) => {
     organizationId: user.id,
   });
 
+  const [originalData, setOriginalData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -89,10 +90,12 @@ export const EditFundraiserFormComponent = ({ id }) => {
         const res = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/fundraiser/${id}`
         );
-        setFormData({
+        const fetchedData = {
           ...res.data,
           deadline: res.data.deadline?.split("T")[0] || "",
-        });
+        };
+        setFormData(fetchedData);
+        setOriginalData(fetchedData);
       } catch (err) {
         console.error("Failed to fetch fundraiser:", err);
         setError("Failed to load fundraiser.");
@@ -116,19 +119,39 @@ export const EditFundraiserFormComponent = ({ id }) => {
     setIsSubmitting(true);
     setError(null);
 
-    const payload = {
-      ...formData,
-      goalAmount: Number(formData.goalAmount),
-      deadline: new Date(formData.deadline).toISOString().split("T")[0], // ✅ Format correctly
-    };
+    const changedFields = {};
+    for (const key in formData) {
+      const newValue =
+        key === "goalAmount"
+          ? Number(formData[key])
+          : key === "deadline"
+          ? new Date(formData[key]).toISOString().split("T")[0]
+          : formData[key];
+
+      const originalValue =
+        key === "goalAmount"
+          ? Number(originalData[key])
+          : key === "deadline"
+          ? new Date(originalData[key]).toISOString().split("T")[0]
+          : originalData[key];
+
+      if (newValue !== originalValue) {
+        changedFields[key] = newValue;
+      }
+    }
+
+    if (Object.keys(changedFields).length === 0) {
+      setIsSubmitting(false);
+      return navigate("/crowdfunding");
+    }
 
     try {
       const res = await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/fundraiser/${id}`,
-        payload
+        changedFields
       );
       console.log("Updated:", res.data);
-      navigate("/fundraisers");
+      navigate("/crowdfunding");
     } catch (err) {
       console.error("Update failed:", err);
       setError("Failed to update fundraiser.");

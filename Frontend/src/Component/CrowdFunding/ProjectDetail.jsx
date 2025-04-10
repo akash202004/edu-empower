@@ -13,6 +13,7 @@ import {
 } from "react-icons/fi";
 import { fundraiserService } from "../../api/fundraiserService";
 import { EditFundraiserFormComponent } from "./EditFundraiserForm";
+import { useUser } from "@clerk/clerk-react";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -21,12 +22,15 @@ const fadeIn = {
 
 const ProjectDetail = () => {
   const { id } = useParams();
+  const { user } = useUser();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [donationAmount, setDonationAmount] = useState(50);
   const [activeTab, setActiveTab] = useState("about");
   const [isEditing, setIsEditing] = useState(false);
+  const currentOrganizationId = user?.id;
+  const isOwner = project?.organizationId === currentOrganizationId;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -96,12 +100,14 @@ const ProjectDetail = () => {
           >
             <FiArrowLeft className="h-5 w-5" /> Back to Projects
           </button>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
-          >
-            <FiEdit /> Edit
-          </button>
+          {isOwner && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+            >
+              <FiEdit /> Edit
+            </button>
+          )}
         </div>
 
         <motion.div
