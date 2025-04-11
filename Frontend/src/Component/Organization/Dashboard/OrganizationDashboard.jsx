@@ -30,6 +30,7 @@ const OrganizationDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('current');
+  const [fetchAttempts, setFetchAttempts] = useState(0);
   
   // Check for success message from location state
   const successMessage = location.state?.message;
@@ -42,12 +43,17 @@ const OrganizationDashboard = () => {
     setError(null);
     
     try {
+      // Increment fetch attempts counter
+      setFetchAttempts(prev => prev + 1);
+      
       const response = await fetch('http://localhost:3001/api/scholarships', {
         headers: {
           'Content-Type': 'application/json',
           // Add authorization header if needed
-          // 'Authorization': `Bearer ${user?.id}`
-        }
+          'Authorization': `Bearer ${user?.id || ''}`
+        },
+        // Add timeout to prevent hanging requests
+        signal: AbortSignal.timeout(10000) // 10 second timeout
       });
       
       if (!response.ok) {
@@ -93,12 +99,16 @@ const OrganizationDashboard = () => {
       setScholarships(categorizedScholarships);
     } catch (err) {
       console.error('Error fetching scholarships:', err);
-      setError('Failed to load scholarships. Please try again later.');
+      setError(`Failed to load scholarships: ${err.message}. Please try again later.`);
       
       // Fallback to local storage if API fails
       const storedScholarships = localStorage.getItem('organizationScholarships');
       if (storedScholarships) {
-        setScholarships(JSON.parse(storedScholarships));
+        try {
+          setScholarships(JSON.parse(storedScholarships));
+        } catch (parseError) {
+          console.error('Error parsing stored scholarships:', parseError);
+        }
       }
     } finally {
       setLoading(false);
@@ -125,6 +135,13 @@ const OrganizationDashboard = () => {
       // Initial data load
       fetchScholarships();
     }
+    
+    // Set up periodic refresh (every 5 minutes)
+    const refreshInterval = setInterval(() => {
+      fetchScholarships();
+    }, 5 * 60 * 1000);
+    
+    return () => clearInterval(refreshInterval);
   }, [isSignedIn, navigate, newScholarship, showSuccess]);
   
   // Format currency
@@ -163,13 +180,52 @@ const OrganizationDashboard = () => {
     }
   };
 
-  // Stats data
+  // Stats data - with fallback to prevent errors
   const statsData = [
-    { icon: <FiUsers className="text-blue-500" />, title: "Total Applicants", value: scholarships.current.reduce((sum, s) => sum + (s.applications?.length || 0), 0), change: "+12%" },
-    { icon: <FiAward className="text-green-500" />, title: "Active Scholarships", value: scholarships.current.length, change: "+5%" },
-    { icon: <FiTrendingUp className="text-purple-500" />, title: "Funds Allocated", value: formatCurrency(scholarships.current.reduce((sum, s) => sum + s.allocatedAmount, 0)), change: "+18%" },
-    { icon: <FiPieChart className="text-orange-500" />, title: "Total Funding", value: formatCurrency(scholarships.current.reduce((sum, s) => sum + s.totalAmount, 0)), change: "+8%" }
+    { 
+      icon: <FiUsers className="text-blue-500" />, 
+      title: "Total Applicants", 
+      value: scholarships.current.reduce((sum, s) => sum + (s.applications?.length || 0), 0), 
+      change: "+12%" 
+    },
+    { 
+      icon: <FiAward className="text-green-500" />, 
+      title: "Active Scholarships", 
+      value: scholarships.current.length, 
+      change: "+5%" 
+    },
+    { 
+      icon: <FiTrendingUp className="text-purple-500" />, 
+      title: "Funds Allocated", 
+      value: formatCurrency(scholarships.current.reduce((sum, s) => sum + (s.allocatedAmount || 0), 0)), 
+      change: "+18%" 
+    },
+    { 
+      icon: <FiPieChart className="text-orange-500" />, 
+      title: "Total Funding", 
+      value: formatCurrency(scholarships.current.reduce((sum, s) => sum + (s.totalAmount || 0), 0)), 
+      change: "+8%" 
+    }
   ];
+
+  // Render a fallback UI when no data is available
+  const renderEmptyState = () => (
+    <div className="text-center py-16 px-4">
+      <FiAward className="mx-auto text-gray-300 text-5xl mb-4" />
+      <h3 className="text-xl font-medium text-gray-700 mb-2">No Scholarships Found</h3>
+      <p className="text-gray-500 mb-6 max-w-md mx-auto">
+        {fetchAttempts > 1 
+          ? "We're having trouble connecting to the server. Please try again later." 
+          : "You haven't created any scholarships yet. Get started by creating your first scholarship."}
+      </p>
+      <button
+        onClick={() => navigate('/organization/dashboard/create-scholarship')}
+        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <FiPlus className="mr-2" /> Create Scholarship
+      </button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -199,95 +255,108 @@ const OrganizationDashboard = () => {
             <p className="text-red-700">{error}</p>
             <button 
               onClick={fetchScholarships}
-              className="ml-auto text-sm bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-3 rounded-md transition-colors"
+              className="ml-auto text-sm bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-3 rounded-md transition-colors flex items-center"
             >
-              Retry
+              <FiRefreshCw className="mr-1" /> Retry
             </button>
           </motion.div>
         )}
         
+        {/* Dashboard header */}
         <motion.div 
           className="max-w-7xl mx-auto mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">Welcome, {user?.firstName || 'Organization'}</h1>
-                <p className="text-indigo-100">Manage your scholarships and track applications</p>
-              </div>
-              <div className="mt-4 md:mt-0 flex flex-wrap gap-4">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate('/organization/dashboard/create-scholarship')}
-                  className="flex items-center bg-white text-indigo-600 font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-50 transition-colors"
-                >
-                  <FiPlus className="mr-2" /> Create Scholarship
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate('/organization/analytics')}
-                  className="flex items-center bg-indigo-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-900 transition-colors"
-                >
-                  <FiPieChart className="mr-2" /> Analytics
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={fetchScholarships}
-                  className="flex items-center bg-indigo-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-900 transition-colors"
-                >
-                  <FiRefreshCw className="mr-2" /> Refresh
-                </motion.button>
-              </div>
+          <div className="md:flex md:items-center md:justify-between">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Organization Dashboard
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Manage your scholarships and track applications
+              </p>
+            </div>
+            <div className="mt-4 flex md:mt-0 md:ml-4">
+              <button
+                onClick={() => navigate('/organization/dashboard/create-scholarship')}
+                className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <FiPlus className="mr-2" /> Create Scholarship
+              </button>
             </div>
           </div>
         </motion.div>
         
         {/* Stats section */}
-        <motion.div 
-          className="max-w-7xl mx-auto mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
+          className="max-w-7xl mx-auto mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
         >
           {statsData.map((stat, index) => (
-            <motion.div 
+            <motion.div
               key={index}
               variants={itemVariants}
-              className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow"
+              className="bg-white overflow-hidden shadow rounded-lg"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gray-50 rounded-lg">{stat.icon}</div>
-                <span className="text-green-500 text-sm font-medium">{stat.change}</span>
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    {stat.icon}
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">
+                        {stat.title}
+                      </dt>
+                      <dd>
+                        <div className="text-lg font-medium text-gray-900">
+                          {stat.value}
+                        </div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-gray-500 text-sm font-medium">{stat.title}</h3>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{stat.value}</p>
+              <div className="bg-gray-50 px-5 py-3">
+                <div className="text-sm">
+                  <span className="font-medium text-green-600">
+                    {stat.change}
+                  </span>{' '}
+                  <span className="text-gray-500">from last month</span>
+                </div>
+              </div>
             </motion.div>
           ))}
         </motion.div>
         
+        {/* Loading state */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+          </div>
+        )}
+        
         {/* Scholarship tabs */}
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        {!loading && (
+          <div className="max-w-7xl mx-auto">
             <div className="border-b border-gray-200">
-              <nav className="flex -mb-px">
+              <nav className="-mb-px flex space-x-8">
                 {['current', 'upcoming', 'past'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`py-4 px-6 text-center border-b-2 font-medium text-sm flex-1 md:flex-none ${
+                    className={`${
                       activeTab === tab
                         ? 'border-indigo-500 text-indigo-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm capitalize`}
                   >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)} Scholarships
-                    <span className="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+                    {tab} Scholarships
+                    <span className="ml-2 py-0.5 px-2.5 text-xs rounded-full bg-gray-100">
                       {scholarships[tab]?.length || 0}
                     </span>
                   </button>
@@ -295,87 +364,82 @@ const OrganizationDashboard = () => {
               </nav>
             </div>
             
-            <div className="p-6">
-              {loading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-                </div>
-              ) : (
-                <motion.div 
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            {/* Scholarship list */}
+            <div className="mt-6">
+              {scholarships[activeTab]?.length > 0 ? (
+                <motion.div
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
+                  className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
                 >
-                  {scholarships[activeTab]?.length > 0 ? (
-                    scholarships[activeTab].map((scholarship) => (
-                      <motion.div
-                        key={scholarship.id}
-                        variants={itemVariants}
-                        className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
-                      >
-                        <div className="h-3 bg-indigo-600"></div>
-                        <div className="p-5">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
-                            {scholarship.title}
-                          </h3>
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                            {scholarship.description}
-                          </p>
-                          
-                          <div className="flex items-center text-sm text-gray-500 mb-3">
-                            <FiCalendar className="mr-2" />
-                            <span>
-                              Deadline: {formatDate(scholarship.expiredAt)}
-                            </span>
+                  {scholarships[activeTab].map((scholarship) => (
+                    <motion.div
+                      key={scholarship.id}
+                      variants={itemVariants}
+                      className="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200"
+                    >
+                      <div className="px-4 py-5 sm:px-6">
+                        <h3 className="text-lg font-medium text-gray-900 truncate">
+                          {scholarship.title}
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                          {scholarship.description}
+                        </p>
+                      </div>
+                      <div className="px-4 py-4 sm:px-6">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-xs text-gray-500">Total Amount</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {formatCurrency(scholarship.totalAmount || 0)}
+                            </p>
                           </div>
-                          
-                          <div className="flex items-center text-sm text-gray-500 mb-3">
-                            <FiUsers className="mr-2" />
-                            <span>
-                              {scholarship.applications?.length || 0} Applicants
-                            </span>
+                          <div>
+                            <p className="text-xs text-gray-500">Allocated</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {formatCurrency(scholarship.allocatedAmount || 0)}
+                            </p>
                           </div>
-                          
-                          <div className="flex items-center text-sm text-gray-500 mb-4">
-                            <FiDollarSign className="mr-2" />
-                            <span>
-                              Allocated: {formatCurrency(scholarship.allocatedAmount)} of {formatCurrency(scholarship.totalAmount)}
-                            </span>
+                          <div>
+                            <p className="text-xs text-gray-500">Applicants</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {scholarship.applications?.length || 0}
+                            </p>
                           </div>
-                          
-                          <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                            <span className="text-indigo-600 font-semibold">
-                              Max Income: ₹{scholarship.maxFamilyIncome.toLocaleString('en-IN')}
-                            </span>
-                            <button 
-                              onClick={() => navigate(`/organization/scholarships/${scholarship.id}`)}
-                              className="text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium py-1.5 px-3 rounded-md transition-colors"
-                            >
-                              View Details
-                            </button>
+                          <div>
+                            <p className="text-xs text-gray-500">Deadline</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {formatDate(scholarship.expiredAt)}
+                            </p>
                           </div>
                         </div>
-                      </motion.div>
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-12">
-                      <p className="text-gray-500">No {activeTab} scholarships found.</p>
-                      {activeTab === 'upcoming' && (
-                        <button 
-                          onClick={() => navigate('/organization/create-scholarship')}
-                          className="mt-4 inline-flex items-center text-indigo-600 hover:text-indigo-800"
-                        >
-                          <FiPlus className="mr-1" /> Create a new scholarship
-                        </button>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                      <div className="px-4 py-4 sm:px-6 bg-gray-50">
+                        <div className="flex justify-between">
+                          <button
+                            onClick={() => navigate(`/scholarship/${scholarship.id}`)}
+                            className="text-sm text-indigo-600 hover:text-indigo-900"
+                          >
+                            View Details
+                          </button>
+                          <button
+                            onClick={() => navigate(`/organization/dashboard/scholarship-analytics`)}
+                            className="text-sm text-indigo-600 hover:text-indigo-900"
+                          >
+                            View Analytics
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </motion.div>
+              ) : (
+                renderEmptyState()
               )}
             </div>
           </div>
-        </div>
+        )}
       </div>
       
       <Footer />

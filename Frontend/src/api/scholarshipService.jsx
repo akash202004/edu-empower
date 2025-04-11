@@ -52,24 +52,37 @@ const scholarshipService = {
     }
   },
 
-  // Create a new scholarship
+  // Create a new scholarship or update existing one
   createAndUpdateScholarship: async (data) => {
     try {
-      const existingScholarship = await scholarshipService.getExistingScholarshipById(data.id);
-  
-      if (existingScholarship) {
-        const response = await API.put(
-          API_CONFIG.ENDPOINTS.SCHOLARSHIPS.UPDATE(data.id),
-          data
-        );
-        return response.data;
-      } else {
-        const response = await API.post(
-          API_CONFIG.ENDPOINTS.SCHOLARSHIPS.CREATE,
-          data
-        );
-        return response.data;
+      // Check if we have an ID and it's not undefined or null
+      if (data.id) {
+        try {
+          // Try to get the existing scholarship
+          const existingScholarship = await scholarshipService.getExistingScholarshipById(data.id);
+          
+          if (existingScholarship) {
+            // Update existing scholarship
+            const response = await API.put(
+              API_CONFIG.ENDPOINTS.SCHOLARSHIPS.UPDATE(data.id),
+              data
+            );
+            return response.data;
+          }
+        } catch (error) {
+          // If error is not found (404), we'll create a new one
+          if (error.response && error.response.status !== 404) {
+            throw error; // Re-throw if it's not a 404 error
+          }
+        }
       }
+      
+      // If no ID or scholarship not found, create a new one
+      const response = await API.post(
+        API_CONFIG.ENDPOINTS.SCHOLARSHIPS.CREATE,
+        data
+      );
+      return response.data;
     } catch (error) {
       console.error("Error creating/updating scholarship:", error);
       throw error;

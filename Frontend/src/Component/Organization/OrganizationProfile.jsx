@@ -191,7 +191,7 @@ const OrganizationProfile = () => {
   
       // 2. Prepare the organization data payload
       const organizationData = {
-        userId: user.id,
+        userId: user.id, // Changed from user_id to userId to match backend expectations
         organizationName: formData.organizationName,
         registrationNumber: formData.registrationNumber,
         contactPerson: formData.contactPerson,
@@ -201,39 +201,27 @@ const OrganizationProfile = () => {
         websiteURL: formData.websiteURL,
         documentURL: documentUrl,
         verified: false, // Reset verification status on updates
-        verified_at: null
       };
   
-      // 3. Check if we're creating new or updating existing
-      const isUpdate = organization !== null;
-  
-      // 4. Submit to backend API
-      const response =
-        // await organizationService.createOrganization(organizationData);
-        await axios.post("http://localhost:3001/api/organizations",organizationData)
-        console.log(organizationData)
-        // ? await organizationService.updateOrganization(user.id, organizationData)
-        // : await organizationService.createOrganization(organizationData);
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'API request failed');
-      }
-  
-      const responseData = await response.json();
+      console.log("Saving organization data:", organizationData);
+      
+      // 3. Use the organizationService instead of direct axios call
+      const responseData = await organizationService.createOrganization(organizationData);
+      
+      console.log("API response:", responseData);
   
       // 5. Update local state with new data
       const updatedProfile = {
-        organizationName: responseData.organization_name,
-        registrationNumber: responseData.registration_number,
-        contactPerson: responseData.contact_person,
-        contactEmail: responseData.contact_email,
-        contactNumber: responseData.contact_number,
+        organizationName: responseData.organizationName,
+        registrationNumber: responseData.registrationNumber,
+        contactPerson: responseData.contactPerson,
+        contactEmail: responseData.contactEmail,
+        contactNumber: responseData.contactNumber,
         address: responseData.address,
-        websiteURL: responseData.website_url,
-        documentURL: responseData.document_url,
+        websiteURL: responseData.websiteURL,
+        documentURL: responseData.documentURL,
         verified: responseData.verified,
-        verifiedAt: responseData.verified_at
+        verifiedAt: responseData.verifiedAt
       };
   
       setOrganization(updatedProfile);
@@ -245,7 +233,7 @@ const OrganizationProfile = () => {
       setSaveStatus({
         show: true,
         success: true,
-        message: isUpdate ? 'Profile updated successfully!' : 'Profile created successfully!'
+        message: 'Profile updated successfully!'
       });
   
     } catch (err) {

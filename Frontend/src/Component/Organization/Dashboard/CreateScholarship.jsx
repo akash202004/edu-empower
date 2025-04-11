@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { FiArrowLeft, FiSave, FiAlertCircle } from 'react-icons/fi';
-import axios from 'axios';
+import scholarshipService from '../../../api/scholarshipService';
 import Navbar from '../../Navbar/Navbar';
 import Footer from '../../Footer/Footer';
 
@@ -29,6 +29,8 @@ const CreateScholarship = () => {
     }));
   };
   
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -49,22 +51,26 @@ const CreateScholarship = () => {
         organizationId: user.id,
         maxFamilyIncome: parseFloat(formData.maxFamilyIncome) || 0,
         expiredAt: new Date(formData.expiredAt).toISOString(),
+        status: "ACTIVE", 
+        createdAt: new Date().toISOString() // Add creation date
       };
       
-      // Send data to backend API
-      const response = await axios.post('http://localhost:3001/api/scholarships', scholarshipData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.sessionToken}`
-        }
-      });
+      console.log("Submitting scholarship data:", scholarshipData);
       
-      // Navigate back to dashboard with success message
+      // Use scholarshipService instead of direct axios call
+      const response = await scholarshipService.createAndUpdateScholarship(scholarshipData);
+      console.log("Scholarship created successfully:", response);
+      
+      // Force refresh scholarships in localStorage to ensure it appears in the dashboard
+      localStorage.removeItem('scholarships_cache');
+      
+      // Navigate back to dashboard with success message and force a refresh
       navigate('/organization/dashboard', { 
         state: { 
           success: true, 
           message: 'Scholarship created successfully!',
-          scholarship: response.data
+          scholarship: response,
+          refresh: true // Add a flag to force refresh
         } 
       });
     } catch (err) {

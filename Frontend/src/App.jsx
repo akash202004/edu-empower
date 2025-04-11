@@ -79,13 +79,25 @@ const AuthRedirect = () => {
 
 // Require Authentication Component
 const RequireAuth = ({ children }) => {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, isLoaded } = useUser();
+  const navigate = useNavigate();
 
-  if (!isSignedIn) {
-    // return <Navigate to="/auth/login" replace />;
+  useEffect(() => {
+    // Only redirect after Clerk has loaded authentication state
+    if (isLoaded && !isSignedIn) {
+      navigate("/auth/login", { replace: true });
+    }
+  }, [isSignedIn, isLoaded, navigate]);
+
+  // Show loading state while checking authentication
+  if (!isLoaded) {
+    return <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+    </div>;
   }
 
-  return children;
+  // Only render children if signed in
+  return isSignedIn ? children : null;
 };
 
 // Custom Organization Route
@@ -165,7 +177,6 @@ function App() {
           <Route path="/crowdfunding" element={<MainLayout><CrowdFunding /></MainLayout>} />
           <Route path="/crowdfunding/:id" element={<MainLayout><ProjectDetail /></MainLayout>} />
           <Route path="/crowdfunding/start-campaign" element={<MainLayout><CrowdFundingForm /></MainLayout>} />
-          {/* Removed start-campaign route */}
           
           {/* Other existing routes */}
           <Route path="/student" element={<RequireAuth><Student /></RequireAuth>} />
@@ -178,9 +189,9 @@ function App() {
           <Route path="/scholarship-application-form" element={<MainLayout><ScholarshipApplicationForm /></MainLayout>} />
           <Route path="/scholarship/application-success" element={<MainLayout><ApplicationSuccess /></MainLayout>} />
           <Route path="/donation" element={<MainLayout><DonarPage /></MainLayout>} />
-          <Route path="/organization" element={<Organization />} />
           
-          <Route path="/organization" element={<RequireAuth><Organization /></RequireAuth>} />
+          {/* Remove duplicate organization route */}
+          <Route path="/organization" element={<Organization />} />
           <Route path="/organization/profile" element={<RequireAuth><OrganizationProfile /></RequireAuth>} />
           <Route path="/organization/dashboard" element={<RequireAuth><OrganizationDashboard /></RequireAuth>} />
           <Route path="/organization/dashboard/create-scholarship" element={<RequireAuth><CreateScholarship /></RequireAuth>} />

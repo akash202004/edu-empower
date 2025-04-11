@@ -11,6 +11,25 @@ const Login = () => {
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
 
+  // Add this code to your existing Login component
+  // This assumes you have a Login component that uses Clerk for authentication
+  
+  // Inside your Login component, add this effect:
+  useEffect(() => {
+    // Check if there's a redirect destination after successful login
+    const redirectTo = location.state?.redirectTo || localStorage.getItem('auth_redirect');
+    
+    if (isSignedIn && redirectTo) {
+      // Clear the stored redirect
+      localStorage.removeItem('auth_redirect');
+      // Navigate to the destination
+      navigate(redirectTo);
+    } else if (isSignedIn) {
+      // Default redirect if no specific destination
+      navigate('/home');
+    }
+  }, [isSignedIn, navigate, location]);
+
   useEffect(() => {
     if (isSignedIn && user) {
       const role = user?.publicMetadata?.role || "STUDENT";
