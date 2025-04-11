@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom"; 
 import { useUser, useClerk, SignedIn, SignedOut } from "@clerk/clerk-react";
-import { FiMenu, FiX, FiChevronDown, FiLogOut, FiUser, FiHome, FiBookOpen, FiDollarSign, FiHeart, FiInfo, FiMail } from "react-icons/fi";
+import { FiMenu, FiX, FiChevronDown, FiLogOut, FiUser, FiHome, FiBookOpen, FiDollarSign, FiHeart, FiInfo, FiMail, FiAward } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
@@ -13,13 +13,18 @@ const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  // Check if user is an organization or donor
+  const isOrganization = user?.publicMetadata?.role === "ORGANIZATION";
+  const isDonor = user?.publicMetadata?.role === "DONOR";
+
   // Navigation links with icons
   const navLinks = [
     { name: "Home", path: "/", icon: <FiHome className="mr-2" /> },
     { name: "About", path: "/about-edu-empower", icon: <FiInfo className="mr-2" /> },
     { name: "Scholarships", path: "/scholarship", icon: <FiBookOpen className="mr-2" /> },
     { name: "Crowdfunding", path: "/crowdfunding", icon: <FiDollarSign className="mr-2" /> },
-    // Donation link removed
+    { name: "Organization", path: "/organization", icon: <FiAward className="mr-2" /> },
+    { name: "Donate", path: "/donation", icon: <FiHeart className="mr-2" /> },
     { name: "Contact", path: "/contact", icon: <FiMail className="mr-2" /> },
   ];
 
@@ -40,11 +45,19 @@ const Navbar = () => {
       navigate("/organization/profile");
     } else if (role === "STUDENT") {
       navigate("/student/profile");
+    } else if (role === "DONOR") {
+      navigate("/donor/profile");
     } else {
       navigate("/donation");
     }
     setIsProfileOpen(false);
     setIsMenuOpen(false); // Close mobile menu when navigating
+  };
+
+  // Handle quick navigation to role-specific dashboards
+  const handleQuickNavigation = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
   };
 
   // Handle scroll effect
@@ -215,7 +228,7 @@ const Navbar = () => {
           </div>
 
           {/* Right side buttons */}
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
             {/* Auth buttons */}
             {isSignedIn ? (
               <div className="relative ml-3">
@@ -343,6 +356,7 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
+              
               {!isSignedIn && (
                 <div className="pt-4 pb-2 border-t border-gray-200">
                   <div className="flex items-center px-3">
