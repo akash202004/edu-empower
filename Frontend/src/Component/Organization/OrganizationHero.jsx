@@ -36,7 +36,7 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
   const handleUserSync = async () => {
     if (isSignedIn && user) {
       try {
-        await axios.post("http://localhost:3001/api/users/registerorupdate", {
+        await axios.post("http://localhost:3000/api/users/registerorupdate", {
           userId: user.id,
           name: user.fullName,
           email: user.primaryEmailAddress?.emailAddress || null,

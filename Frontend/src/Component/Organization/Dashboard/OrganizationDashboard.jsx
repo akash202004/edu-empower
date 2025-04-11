@@ -46,7 +46,7 @@ const OrganizationDashboard = () => {
       // Increment fetch attempts counter
       setFetchAttempts(prev => prev + 1);
       
-      const response = await fetch('http://localhost:3001/api/scholarships', {
+      const response = await fetch('http://localhost:3000/api/scholarships', {
         headers: {
           'Content-Type': 'application/json',
           // Add authorization header if needed
