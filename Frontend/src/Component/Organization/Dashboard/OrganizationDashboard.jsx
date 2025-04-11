@@ -76,40 +76,27 @@ const OrganizationDashboard = () => {
         const expiredAt = new Date(scholarship.expiredAt);
         
         if (expiredAt > now) {
-          upcoming.push(scholarship);
+          // All non-expired scholarships should be considered "current"
+          current.push(scholarship);
         } else {
           past.push(scholarship);
         }
       });
       
-      // Current scholarships are those where allocatedAmount > 0
-      const currentScholarships = data.filter(scholarship => 
-        scholarship.allocatedAmount > 0
-      );
       
       const categorizedScholarships = { 
-        upcoming, 
-        current: currentScholarships, 
+        upcoming: [],
+        current, 
         past 
       };
       
-      // Save to local storage as fallback
-      localStorage.setItem('organizationScholarships', JSON.stringify(categorizedScholarships));
       
       setScholarships(categorizedScholarships);
     } catch (err) {
       console.error('Error fetching scholarships:', err);
       setError(`Failed to load scholarships: ${err.message}. Please try again later.`);
       
-      // Fallback to local storage if API fails
-      const storedScholarships = localStorage.getItem('organizationScholarships');
-      if (storedScholarships) {
-        try {
-          setScholarships(JSON.parse(storedScholarships));
-        } catch (parseError) {
-          console.error('Error parsing stored scholarships:', parseError);
-        }
-      }
+
     } finally {
       setLoading(false);
     }
