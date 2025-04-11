@@ -65,9 +65,81 @@ const ProjectDetail = () => {
     fetchProject();
   }, [id]);
 
-  const handleDonate = (e) => {
+  const handleDonate = async (e) => {
     e.preventDefault();
-    console.log(`Donating ₹${donationAmount} to project ${id}`);
+
+    if (!donationAmount || donationAmount < 1) {
+      toast.error("Please enter a valid donation amount.");
+      return;
+    }
+
+    try {
+      toast.loading("Creating payment order...");
+
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/payment/create-order`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: donationAmount }),
+        }
+      );
+
+      const data = await res.json();
+      toast.dismiss();
+
+      if (!res.ok) {
+        toast.error(data.message || "Order creation failed");
+        return;
+      }
+
+      const options = {
+        key: process.env.VITE_PUBLIC_RAZORPAY_KEY,
+        amount: data.amount,
+        currency: "INR",
+        name: "Edu-Empower",
+        description: "Donation for fundraiser",
+        order_id: data.id,
+        handler: async (response) => {
+          const verifyRes = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/payment/verify`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                donorId: user?.id,
+                fundraiserId: project?.id,
+                amount: donationAmount,
+              }),
+            }
+          );
+
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            toast.success("Donation successful");
+          } else {
+            toast.error("Payment verification failed");
+          }
+        },
+        prefill: {
+          name: user?.fullName || "",
+          email: user?.primaryEmailAddress?.emailAddress || "",
+        },
+        theme: {
+          color: "#6366f1",
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error(error);
+      toast.dismiss();
+      toast.error("Something went wrong");
+    }
   };
 
   const calculateDaysLeft = (endDate) => {
