@@ -5,7 +5,7 @@ import { FiArrowLeft, FiArrowRight, FiAward, FiInfo, FiCheckCircle } from "react
 import { motion } from "framer-motion";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5001/api";
+const API_BASE_URL = "http://localhost:3000/api";
 
 const ScholarshipApplicationForm = () => {
   const location = useLocation();
@@ -18,7 +18,8 @@ const ScholarshipApplicationForm = () => {
   // Form state
   const [formData, setFormData] = useState({
     whyNeedScholarship: "",
-    whyPerfectFit: ""
+    whyPerfectFit: "",
+    otherScholarships: false
   });
   
   const [charCount, setCharCount] = useState({
@@ -32,51 +33,59 @@ const ScholarshipApplicationForm = () => {
   
   const MAX_CHARS = 2500;
   
-  // Redirect if not signed in
+  // Redirect if not signed in or missing scholarship data
   useEffect(() => {
     if (!isSignedIn) {
-      navigate("/auth/login", { state: { returnUrl: location.pathname } });
+      navigate("/auth/login", { 
+        state: { 
+          returnUrl: location.pathname,
+          scholarshipData: { scholarshipId, scholarshipTitle }
+        } 
+      });
+      return;
     }
     
     if (!scholarshipId) {
+      const storedData = sessionStorage.getItem('scholarshipApplicationData');
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        if (parsedData.scholarshipId) {
+          return;
+        }
+      }
       navigate("/scholarship");
-    }
-    
-    // Retrieve data from sessionStorage
-    const storedData = sessionStorage.getItem('scholarshipApplicationData');
-    if (storedData) {
-      const { scholarshipId: storedId, scholarshipTitle: storedTitle } = JSON.parse(storedData);
-      // Use the data to initialize your component if needed
-      console.log("Retrieved from sessionStorage:", storedId, storedTitle);
-      
-      // Optionally clear the data after using it
-      sessionStorage.removeItem('scholarshipApplicationData');
     }
   }, [isSignedIn, scholarshipId, navigate, location.pathname]);
   
-  // Handle text input
+  // Handle input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     
-    // Only update if within character limit
-    if (value.length <= MAX_CHARS) {
-      setFormData({
-        ...formData,
+    if (type === 'checkbox') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: checked
+      }));
+    } else if (value.length <= MAX_CHARS) {
+      setFormData(prev => ({
+        ...prev,
         [name]: value
-      });
+      }));
       
-      setCharCount({
-        ...charCount,
-        [name]: value.length
-      });
+      if (name === 'whyNeedScholarship' || name === 'whyPerfectFit') {
+        setCharCount(prev => ({
+          ...prev,
+          [name]: value.length
+        }));
+      }
     }
   };
   
-  // Form submission
+  // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form
+    // Validate form fields
     if (formData.whyNeedScholarship.trim().length < 100) {
       setError("Please provide a detailed explanation of why you need this scholarship (minimum 100 characters).");
       return;
@@ -91,50 +100,90 @@ const ScholarshipApplicationForm = () => {
     setError(null);
     
     try {
-      // Combine both answers into the scholarshipReason field
+      // Combine answers for the backend
       const scholarshipReason = `
         Why I Need This Scholarship:
-        ${formData.whyNeedScholarship}
+        ${formData.whyNeedScholarship.trim()}
         
-        Why I'm a Perfect Fit and How I'll Use This Scholarship:
-        ${formData.whyPerfectFit}
-      `;
+        Why I'm a Perfect Fit:
+        ${formData.whyPerfectFit.trim()}
+      `.trim();
       
-      // Submit application
-      await axios.post(`${API_BASE_URL}/applications`, {
+      // Prepare request data according to Prisma schema
+      const requestData = {
         studentId: user.id,
-        scholarshipId: scholarshipId,
-        scholarshipReason: scholarshipReason.trim()
+        scholarshipId,
+        scholarshipReason,
+        otherScholarships: formData.otherScholarships,
+        // Status will be set to PENDING by default in the backend
+      };
+      
+      // Make POST request to backend API
+      const response = await axios.post("http://localhost:3000/api/applications", requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${userToken}`
+        },
+        validateStatus: (status) => status < 500
       });
       
-      setSuccess(true);
-      
-      // Navigate to success page after a short delay
-      setTimeout(() => {
-        navigate("/scholarship/application/success", { 
-          state: { 
-            fullName: user.fullName,
-            email: user.primaryEmailAddress?.emailAddress,
-            scholarshipTitle
-          }
-        });
-      }, 1500);
-      
-    } catch (error) {
-      console.error("Error submitting application:", error);
-      
-      if (error.response?.status === 400 && error.response?.data?.error?.includes("already applied")) {
+      // Handle response statuses
+      if (response.status === 201) {
+        setSuccess(true);
+        
+        setTimeout(() => {
+          navigate("/scholarship/application-success", { 
+            state: { 
+              fullName: user.fullName,
+              email: user.primaryEmailAddress?.emailAddress,
+              scholarshipTitle,
+              applicationId: response.data.id, // Using 'id' from Prisma schema
+              submissionDate: new Date().toLocaleDateString()
+            }
+          });
+        }, 1500);
+      } else if (response.status === 409) {
         setError("You have already applied for this scholarship.");
+      } else if (response.status === 400) {
+        const errorMessage = response.data.errors 
+          ? Object.values(response.data.errors).join(', ')
+          : "Please check your application details and try again.";
+        setError(errorMessage);
       } else {
-        setError(error.response?.data?.error || "Failed to submit application. Please try again.");
+        throw new Error(response.data.message || "Application submission failed");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      
+      if (error.response) {
+        if (error.response.status === 401) {
+          setError("Please log in to submit an application.");
+        } else if (error.response.status === 403) {
+          setError("You don't have permission to perform this action.");
+        } else if (error.response.status === 404) {
+          setError("The scholarship could not be found.");
+        } else if (error.response.data?.message) {
+          setError(error.response.data.message);
+        } else {
+          setError("An error occurred while processing your application.");
+        }
+      } else if (error.request) {
+        setError("Network error. Please check your internet connection and try again.");
+      } else {
+        setError("An unexpected error occurred. Please try again later.");
       }
     } finally {
       setIsSubmitting(false);
     }
   };
   
-  // Go back to previous page
   const handleBack = () => {
+    sessionStorage.setItem('scholarshipApplicationData', JSON.stringify({
+      ...formData,
+      scholarshipId,
+      scholarshipTitle
+    }));
     navigate(-1);
   };
   
@@ -180,7 +229,15 @@ const ScholarshipApplicationForm = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            {error}
+            <div className="flex items-start">
+              <svg className="h-5 w-5 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="font-medium">Application Error</h4>
+                <p className="mt-1 text-sm">{error}</p>
+              </div>
+            </div>
           </motion.div>
         )}
         
@@ -211,13 +268,15 @@ const ScholarshipApplicationForm = () => {
                   name="whyNeedScholarship"
                   value={formData.whyNeedScholarship}
                   onChange={handleChange}
-                  rows="6"
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  rows={6}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:opacity-70"
                   placeholder="Explain your financial situation, challenges, and how this scholarship would help you..."
                   disabled={isSubmitting || success}
-                ></textarea>
+                  required
+                  minLength={100}
+                />
                 <div className="mt-1 text-sm text-gray-500 flex justify-between">
-                  <span>Be specific about your financial needs and educational goals</span>
+                  <span>Minimum 100 characters</span>
                   <span className={charCount.whyNeedScholarship > MAX_CHARS * 0.9 ? "text-red-500" : ""}>
                     {charCount.whyNeedScholarship}/{MAX_CHARS}
                   </span>
@@ -228,24 +287,49 @@ const ScholarshipApplicationForm = () => {
             {/* Question 2 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Why are you a perfect fit for this scholarship and how will you use it? <span className="text-red-500">*</span>
+                Why are you a perfect fit for this scholarship? <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <textarea
                   name="whyPerfectFit"
                   value={formData.whyPerfectFit}
                   onChange={handleChange}
-                  rows="6"
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  rows={6}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:opacity-70"
                   placeholder="Describe your qualifications, achievements, and how you plan to use this scholarship..."
                   disabled={isSubmitting || success}
-                ></textarea>
+                  required
+                  minLength={100}
+                />
                 <div className="mt-1 text-sm text-gray-500 flex justify-between">
-                  <span>Highlight your achievements and future plans</span>
+                  <span>Minimum 100 characters</span>
                   <span className={charCount.whyPerfectFit > MAX_CHARS * 0.9 ? "text-red-500" : ""}>
                     {charCount.whyPerfectFit}/{MAX_CHARS}
                   </span>
                 </div>
+              </div>
+            </div>
+            
+            {/* Other Scholarships Question */}
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="otherScholarships"
+                  name="otherScholarships"
+                  type="checkbox"
+                  checked={formData.otherScholarships}
+                  onChange={handleChange}
+                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                  disabled={isSubmitting || success}
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="otherScholarships" className="font-medium text-gray-700">
+                  Are you currently receiving or applying for other scholarships?
+                </label>
+                <p className="text-gray-500">
+                  This information helps us understand your full financial aid situation.
+                </p>
               </div>
             </div>
             
@@ -260,6 +344,7 @@ const ScholarshipApplicationForm = () => {
                     <li>Highlight relevant achievements and experiences</li>
                     <li>Explain how this scholarship aligns with your career goals</li>
                     <li>Describe how you'll use the funds to advance your education</li>
+                    <li>Be honest about other scholarship applications</li>
                   </ul>
                 </div>
               </div>
@@ -270,7 +355,7 @@ const ScholarshipApplicationForm = () => {
               <button
                 type="button"
                 onClick={handleBack}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                 disabled={isSubmitting || success}
               >
                 <FiArrowLeft className="mr-2 -ml-1 h-5 w-5" />
@@ -279,8 +364,8 @@ const ScholarshipApplicationForm = () => {
               
               <button
                 type="submit"
-                className={`inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                  (isSubmitting || success) ? "opacity-50 cursor-not-allowed" : ""
+                className={`inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
+                  isSubmitting || success ? "opacity-70 cursor-not-allowed" : ""
                 }`}
                 disabled={isSubmitting || success}
               >
@@ -305,7 +390,10 @@ const ScholarshipApplicationForm = () => {
         
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>
-            Your application will be reviewed by our scholarship committee. You'll be notified of the decision via email.
+            Your application will be reviewed by our scholarship committee. You'll be notified via email.
+          </p>
+          <p className="mt-1">
+            Need help? Contact <a href="mailto:scholarships@example.com" className="text-indigo-600 hover:underline">scholarships@example.com</a>
           </p>
         </div>
       </div>

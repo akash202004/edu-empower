@@ -94,7 +94,7 @@ const ScholarshipDetails = () => {
   }, [scholarshipId]);
   
   const handleProceedToApplication = () => {
-    navigate("/scholarship/apply", { 
+    navigate(`/scholarship/${scholarshipId}/application-form`, { 
       state: { 
         scholarshipId: scholarshipId,
         scholarshipDetails: scholarship
