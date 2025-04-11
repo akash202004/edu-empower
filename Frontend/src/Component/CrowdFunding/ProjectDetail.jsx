@@ -65,10 +65,81 @@ const ProjectDetail = () => {
     fetchProject();
   }, [id]);
 
-  const handleDonate = (e) => {
+  const handleDonate = async (e) => {
     e.preventDefault();
-    console.log(`Donating ₹${donationAmount} to project ${id}`);
-    // In a real implementation, you would handle payment processing here
+
+    if (!donationAmount || donationAmount < 1) {
+      toast.error("Please enter a valid donation amount.");
+      return;
+    }
+
+    try {
+      toast.loading("Creating payment order...");
+
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/payment/create-order`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: donationAmount }),
+        }
+      );
+
+      const data = await res.json();
+      toast.dismiss();
+
+      if (!res.ok) {
+        toast.error(data.message || "Order creation failed");
+        return;
+      }
+
+      const options = {
+        key: process.env.VITE_PUBLIC_RAZORPAY_KEY,
+        amount: data.amount,
+        currency: "INR",
+        name: "Edu-Empower",
+        description: "Donation for fundraiser",
+        order_id: data.id,
+        handler: async (response) => {
+          const verifyRes = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/payment/verify`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                donorId: user?.id,
+                fundraiserId: project?.id,
+                amount: donationAmount,
+              }),
+            }
+          );
+
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            toast.success("Donation successful");
+          } else {
+            toast.error("Payment verification failed");
+          }
+        },
+        prefill: {
+          name: user?.fullName || "",
+          email: user?.primaryEmailAddress?.emailAddress || "",
+        },
+        theme: {
+          color: "#6366f1",
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error(error);
+      toast.dismiss();
+      toast.error("Something went wrong");
+    }
   };
 
   const calculateDaysLeft = (endDate) => {
@@ -147,12 +218,14 @@ const ProjectDetail = () => {
                   <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
                     {project.title}
                   </h1>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
-                  >
-                    <FiEdit /> Edit
-                  </button>
+                  {isOwner && (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+                    >
+                      <FiEdit /> Edit
+                    </button>
+                  )}
                 </div>
                 <p className="text-xl text-gray-700 mb-6">
                   {project.description}
@@ -160,11 +233,10 @@ const ProjectDetail = () => {
 
                 <div className="flex flex-wrap gap-6 mb-6">
                   <div className="flex items-center">
-                    <FiDollarSign className="h-5 w-5 text-indigo-600 mr-2" />
                     <span className="font-semibold">
                       ₹{project.raisedAmount?.toLocaleString() || 0}
                     </span>
-                    <span className="text-gray-500 ml-1">
+                    <span className=" ml-1 font-semibold">
                       raised of ₹{project.goalAmount?.toLocaleString()}
                     </span>
                   </div>
@@ -175,7 +247,9 @@ const ProjectDetail = () => {
                   </div>
                   <div className="flex items-center">
                     <FiCalendar className="h-5 w-5 text-indigo-600 mr-2" />
-                    <span className="font-semibold">{calculateDaysLeft(project.deadline)}</span>
+                    <span className="font-semibold">
+                      {calculateDaysLeft(project.deadline)}
+                    </span>
                     <span className="text-gray-500 ml-1">days left</span>
                   </div>
                 </div>
@@ -359,7 +433,6 @@ const ProjectDetail = () => {
       </div>
     </div>
   );
-
-}; 
+};
 
 export default ProjectDetail;

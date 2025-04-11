@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import {
   CalendarIcon,
   ImageIcon,
@@ -115,9 +116,11 @@ export const FundraiserFormComponent = () => {
         payload
       );
       console.log("Success:", res.data);
+      toast.success("Crowdfunding created successfully!");
       navigate(`/crowdfunding/${res.data.id}`);
     } catch (err) {
       console.error("Failed to save fundraiser:", err);
+      toast.error("Failed to create Crowdfunding. Please try again.");
       setError("Failed to save fundraiser. Please try again.");
     } finally {
       setIsSubmitting(false);
