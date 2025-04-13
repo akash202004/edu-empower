@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { SignInButton, SignedOut, useUser } from "@clerk/clerk-react";
+import Navbar from '../Navbar/Navbar';
 import { useNavigate } from "react-router-dom";
 import {
   motion,
@@ -242,6 +243,7 @@ export default function ScholarshipHero() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+      <Navbar />
       {/* Hero Section with Parallax */}
       <div
         ref={heroRef}

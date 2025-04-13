@@ -179,7 +179,7 @@ function App() {
           <Route path="/crowdfunding/start-campaign" element={<MainLayout><CrowdFundingForm /></MainLayout>} />
           
           {/* Other existing routes */}
-          <Route path="/student" element={<RequireAuth><Student /></RequireAuth>} />
+          <Route path="/student" element={<Student />} />
           <Route path="/student/details" element={<RequireAuth><StudentDetailsForm /></RequireAuth>} />
           <Route path="/student/profile" element={<RequireAuth><StudentProfile /></RequireAuth>} />
           <Route path="/scholarship" element={<MainLayout><ScholarshipPage /></MainLayout>} />

@@ -1,12 +1,40 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { motion } from "framer-motion";
 import { FiHeart } from "react-icons/fi";
-import { SignInButton, SignedOut } from "@clerk/clerk-react";
+import { SignInButton, SignedOut, useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import { userService } from "../../../api/userService"
 
 const DonarHero = () => {
+  const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
 
+   const handleUserSync = async () => {
+      if (isSignedIn && user) {
+        try {
+          const response =  userService.registerOrUpdateUser(
+            {
+              userId: user.id,
+              name: user.fullName,
+              email: user.primaryEmailAddress?.emailAddress || null,
+              role: "DONOR",
+            }
+          )
+        } catch (error) {
+          console.error(
+            "Error syncing user data:",
+            error.response?.data || error.message
+          );
+        }
+      }
+    };
+  
+    useEffect(() => {
+      handleUserSync();
+      if (isSignedIn) {
+        navigate("/donation");
+      }
+    }, [isSignedIn, navigate]);
   return (
     <div className="relative pt-20 overflow-hidden">
       {/* Animated Background Elements */}
@@ -35,6 +63,7 @@ const DonarHero = () => {
             <SignedOut>
               <SignInButton mode="modal" redirectUrl="/donation">
                 <motion.button
+                 onClick={handleUserSync()}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200"
