@@ -189,34 +189,34 @@ const StudentDetailsForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submission started");
-  
+
     if (!validateForm()) {
       console.log("Form validation failed");
       return;
     }
-  
+
     setIsSubmitting(true);
     setApiError(null);
-  
+
     try {
       // Upload documents
       const documentUrls = {};
       const uploadPromises = [];
-  
+
       const documentTypes = [
         { key: "domicileCertificate", name: "domicile-certificate" },
         { key: "incomeCertificate", name: "income-certificate" },
         { key: "marksheet10", name: "marksheet-10" },
         { key: "marksheet12", name: "marksheet-12" },
       ];
-  
+
       for (const { key, name } of documentTypes) {
         if (formData.documents[key]) {
           const url = await uploadFileToSupabase(formData.documents[key], name);
           documentUrls[key] = url;
         }
       }
-  
+
       // Prepare student data
       const studentData = {
         userId: user.id,
@@ -237,11 +237,11 @@ const StudentDetailsForm = () => {
         tenthResult: documentUrls.marksheet10 || null,
         twelfthResult: documentUrls.marksheet12 || null,
       };
-  
+
       console.log("Submitting student data:", studentData);
       const response = await studentService.createAndUpdateNewStudentDetails(studentData);
       console.log("API response:", response);
-  
+
       navigate("/student/profile");
     } catch (error) {
       console.error("Full error:", error);
@@ -260,6 +260,12 @@ const StudentDetailsForm = () => {
           <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
             Student Details Form
           </h1>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200"
+          >
+            Home
+          </button>
           <p className="text-gray-600 text-center mb-8">
             Please fill in your details to complete your profile
           </p>
