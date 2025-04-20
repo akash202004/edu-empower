@@ -1,35 +1,44 @@
-import React, {useEffect} from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/clerk-react";
-import { FiArrowRight, FiCheck } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { fadeIn, staggerContainer, cardVariants, floatAnimation } from '../Utils/AnimationUtils';
+import { FiArrowRight, FiCheck } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import {
+  fadeIn,
+  staggerContainer,
+  cardVariants,
+  floatAnimation,
+} from "../Utils/AnimationUtils";
 
-const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => {
+const OrganizationHero = ({
+  handleImageError,
+  IMAGES,
+  scholarshipPrograms,
+}) => {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
-  
+
   // Updated to navigate to the dashboard
   const handleCreateScholarship = () => {
     if (isSignedIn) {
-      navigate('/organization/dashboard');
+      navigate("/organization/dashboard");
     } else {
       // If not signed in, redirect to login with organization role and redirectTo parameter
-      navigate('/auth/login', { 
-        state: { 
-          role: 'ORGANIZATION',
-          redirectTo: '/organization/dashboard' 
-        } 
+      navigate("/auth/login", {
+        state: {
+          role: "ORGANIZATION",
+          redirectTo: "/organization/dashboard",
+        },
       });
     }
   };
-  
+
   // Check if user is already signed in on component mount
   React.useEffect(() => {
-    if (isSignedIn && user?.publicMetadata?.role === 'ORGANIZATION') {
+    if (isSignedIn && user?.publicMetadata?.role === "ORGANIZATION") {
       // If already signed in as organization, redirect to dashboard
-      navigate('/organization/dashboard');
+      navigate("/organization/dashboard");
     }
   }, [isSignedIn, user, navigate]);
 
@@ -49,7 +58,10 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
 
         navigate("/organization/dashboard"); // Redirect after successful sync
       } catch (error) {
-        console.error("Error syncing user data:", error.response?.data || error.message);
+        console.error(
+          "Error syncing user data:",
+          error.response?.data || error.message
+        );
       }
     }
   };
@@ -58,18 +70,14 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
   useEffect(() => {
     handleUserSync();
   }, [isSignedIn, user]);
-  
+
   return (
     <div className="relative bg-white min-h-screen flex items-center">
       <div className="container mx-auto px-4 py-16">
         <div className="flex flex-col md:flex-row items-center">
           {/* Left content */}
           <div className="md:w-1/2 md:pr-12">
-            <motion.div
-              variants={fadeIn}
-              initial="hidden"
-              animate="visible"
-            >
+            <motion.div variants={fadeIn} initial="hidden" animate="visible">
               <h1 className="text-5xl md:text-6xl font-bold text-indigo-600 mb-4">
                 Empower Education,
               </h1>
@@ -78,17 +86,25 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
               </h2>
               <div className="w-full h-1 bg-indigo-600 mb-6"></div>
               <p className="text-lg text-gray-700 mb-8">
-                Our platform helps organizations create, manage, and measure the impact of scholarship programs with 
-                <span className="text-indigo-600 font-semibold"> up to 60% less administrative overhead</span>.
+                Our platform helps organizations create, manage, and measure the
+                impact of scholarship programs with
+                <span className="text-indigo-600 font-semibold">
+                  {" "}
+                  up to 60% less administrative overhead
+                </span>
+                .
               </p>
-              
+
               <motion.div
                 variants={staggerContainer}
                 initial="hidden"
                 animate="visible"
               >
                 <SignedOut>
-                  <SignInButton mode="modal" redirectUrl="/organization/dashboard">
+                  <SignInButton
+                    mode="modal"
+                    redirectUrl="/organization/dashboard"
+                  >
                     <motion.button
                       onClick={handleUserSync}
                       variants={cardVariants}
@@ -100,7 +116,7 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
                     </motion.button>
                   </SignInButton>
                 </SignedOut>
-                
+
                 <SignedIn>
                   <motion.button
                     variants={cardVariants}
@@ -113,13 +129,13 @@ const OrganizationHero = ({ handleImageError, IMAGES, scholarshipPrograms }) => 
                   </motion.button>
                 </SignedIn>
               </motion.div>
-              
+
               {/* Rest of the component remains the same */}
             </motion.div>
           </div>
-          
+
           {/* Right content - Add animation */}
-          <motion.div 
+          <motion.div
             className="md:w-1/2 mt-12 md:mt-0"
             variants={floatAnimation}
             initial="initial"

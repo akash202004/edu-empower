@@ -6,7 +6,6 @@ import {
   FiFilter,
   FiArrowRight,
   FiBookOpen,
-  FiDollarSign,
   FiUsers,
 } from "react-icons/fi";
 
@@ -18,6 +17,7 @@ import CrowdFundingTestimonials from "./Sections/CrowdFundingTestimonials";
 import { fundraiserService } from "../../api/fundraiserService";
 import { userService } from "../../api/userService";
 import { useUser } from "@clerk/clerk-react";
+import { organizationService } from "../../api/organizationService";
 
 // Animation variants
 const fadeIn = {
@@ -50,6 +50,8 @@ const CrowdFunding = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [userRole, setUserRole] = useState("");
+  const [organizationDetails, setOrganizationDetails] = useState(null);
+  const [verificationStatus, setVerificationStatus] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showNoProjects, setShowNoProjects] = useState(false);
 
@@ -70,9 +72,24 @@ const CrowdFunding = () => {
     setUserRole(currentUser.role);
   };
 
+  const getOrganizationDetails = async () => {
+    const organizationDetails =
+      await organizationService.getExistingOrganizationDetails(user?.id);
+    setOrganizationDetails(organizationDetails);
+  };
+
+  const orgVerificationStatus = async () => {
+    const status = await organizationService.getOrganizationVerificationStatus(
+      user?.id
+    );
+    setVerificationStatus(status);
+  };
+
   useEffect(() => {
     fetchFundraisers();
     getCurrentUserRole();
+    getOrganizationDetails();
+    orgVerificationStatus();
 
     const timeout = setTimeout(() => {
       if (!projects.length) {
@@ -146,7 +163,11 @@ const CrowdFunding = () => {
   return (
     <div className="bg-gradient-to-b from-white to-indigo-50 min-h-screen">
       {/* Hero Section */}
-      <CrowdFundingHero userRole={userRole} />
+      <CrowdFundingHero
+        userRole={userRole}
+        organizationDetails={organizationDetails}
+        verificationStatus={verificationStatus}
+      />
 
       {/* Features Section */}
       <CrowdFundingFeatures />

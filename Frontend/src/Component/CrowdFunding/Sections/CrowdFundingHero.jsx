@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiArrowRight } from "react-icons/fi";
-import { userService } from "../../../api/userService";
+import toast from "react-hot-toast";
 
 // Animation variants
 const fadeIn = {
@@ -10,8 +10,28 @@ const fadeIn = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-const CrowdFundingHero = ({ userRole }) => {
+const CrowdFundingHero = ({ userRole,  organizationDetails, verificationStatus }) => {
   const navigate = useNavigate();
+
+  const handleStartCampaign = () => {
+    if (userRole !== "ORGANIZATION") {
+      toast.error("Only organizations can start a campaign.");
+      return;
+    }
+
+    if (!organizationDetails) {
+      toast.error("Please complete your organization profile first.");
+      return;
+    }
+
+    if (!verificationStatus || verificationStatus !== true) {
+      toast.error("Your organization must be verified to start a campaign.");
+      return;
+    }
+
+    navigate("/crowdfunding/start-campaign");
+  };
+
 
   return (
     <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -57,7 +77,7 @@ const CrowdFundingHero = ({ userRole }) => {
             <div className="flex flex-wrap gap-4">
               {userRole === "ORGANIZATION" && (
                 <motion.button
-                  onClick={() => navigate("/crowdfunding/start-campaign")}
+                  onClick={handleStartCampaign}
                   className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2"
                   whileHover={{
                     y: -5,

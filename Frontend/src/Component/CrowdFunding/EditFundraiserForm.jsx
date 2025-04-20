@@ -109,6 +109,15 @@ export const EditFundraiserFormComponent = ({ id }) => {
     fetchFundraiser();
   }, [id]);
 
+  const isFutureDate = (dateString) => {
+    const today = new Date();
+    const selectedDate = new Date(dateString);
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+    return selectedDate >= today;
+  };
+  
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -120,33 +129,73 @@ export const EditFundraiserFormComponent = ({ id }) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-
+  
+    if (!formData.deadline) {
+      toast.error("Please select a deadline.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    if (!isFutureDate(formData.deadline)) {
+      toast.error("Deadline cannot be in the past.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    const amount = Number(formData.goalAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Goal amount must be a positive number.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    const imageUrlPattern = /\.(jpeg|jpg|gif|png|webp|bmp)(\?.*)?$/i;
+    if (!imageUrlPattern.test(formData.imageUrl)) {
+      toast.error("Please enter a valid image URL.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    const descriptionLength = formData.description.length;
+    if (descriptionLength < 10 || descriptionLength > 500) {
+      toast.error("Description must be between 10 and 500 characters long.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    const aboutLength = formData.about.length;
+    if (aboutLength < 10 || aboutLength > 1000) {
+      toast.error("About section must be between 10 and 1000 characters long.");
+      setIsSubmitting(false);
+      return;
+    }
+  
     const changedFields = {};
     for (const key in formData) {
       const newValue =
         key === "goalAmount"
           ? Number(formData[key])
           : key === "deadline"
-          ? new Date(formData[key]).toISOString().split("T")[0]
+          ? new Date(formData[key]).toISOString()
           : formData[key];
-
+  
       const originalValue =
         key === "goalAmount"
           ? Number(originalData[key])
           : key === "deadline"
           ? new Date(originalData[key]).toISOString().split("T")[0]
           : originalData[key];
-
+  
       if (newValue !== originalValue) {
         changedFields[key] = newValue;
       }
     }
-
+  
     if (Object.keys(changedFields).length === 0) {
       setIsSubmitting(false);
       return navigate(`/crowdfunding/${id}`);
     }
-
+  
     try {
       const res = await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/fundraiser/${id}`,
@@ -163,6 +212,7 @@ export const EditFundraiserFormComponent = ({ id }) => {
       setIsSubmitting(false);
     }
   };
+  
 
   if (isLoading) return <p className="p-10">Loading fundraiser...</p>;
 

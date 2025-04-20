@@ -2,13 +2,14 @@ import { string, z } from "zod";
 
 const createFundraiserDetailsSchema = z.object({
   title: string().min(1, "Title is required"),
-  description: string().min(10, "Description is required"),
+  description: string().min(
+    10,
+    "Description is required and min 10 Characters"
+  ),
   imageUrl: string().url("Invalid URL format"),
-  about: string().min(10, "About is required"),
+  about: string().min(10, "About is required and min 10 Characters"),
   goalAmount: z.number().min(1, "Goal amount must be greater than 0"),
-  deadline: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+  deadline: z.string().datetime("Invalid date format"),
   organizationId: string().min(1, "Organization ID is required"),
 });
 

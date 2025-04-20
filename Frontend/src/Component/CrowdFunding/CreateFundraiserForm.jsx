@@ -11,7 +11,6 @@ import {
   InfoIcon,
   PencilIcon,
   DollarSignIcon,
-  TargetIcon,
   SaveIcon,
   ArrowLeftIcon,
 } from "lucide-react";
@@ -26,6 +25,15 @@ const fadeIn = {
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
+
+// Utility to validate future date
+const isFutureDate = (dateString) => {
+  const today = new Date();
+  const selectedDate = new Date(dateString);
+  today.setHours(0, 0, 0, 0);
+  selectedDate.setHours(0, 0, 0, 0);
+  return selectedDate >= today;
 };
 
 // Reusable Inputs
@@ -80,6 +88,7 @@ const CustomButton = ({ children, variant = "primary", icon, ...props }) => {
 export const FundraiserFormComponent = () => {
   const navigate = useNavigate();
   const { user } = useUser();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -105,6 +114,47 @@ export const FundraiserFormComponent = () => {
     setIsSubmitting(true);
     setError(null);
 
+    if (!formData.deadline) {
+      toast.error("Please select a deadline.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!isFutureDate(formData.deadline)) {
+      toast.error("Deadline cannot be in the past.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const amount = Number(formData.goalAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Goal amount must be a positive number.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const imageUrlPattern = /\.(jpeg|jpg|gif|png|webp|bmp)(\?.*)?$/i;
+    if (!imageUrlPattern.test(formData.imageUrl)) {
+      toast.error("Please enter a valid image URL.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const descriptionLength = formData.description.length;
+    if (descriptionLength < 10 || descriptionLength > 500) {
+      toast.error("Description must be between 10 and 500 characters long.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const aboutLength = formData.about.length;
+    if (aboutLength < 10 || aboutLength > 1000) {
+      toast.error("About section must be between 10 and 1000 characters long.");
+      setIsSubmitting(false);
+      return;
+      s;
+    }
+
     const payload = {
       ...formData,
       goalAmount: Number(formData.goalAmount),
@@ -115,6 +165,7 @@ export const FundraiserFormComponent = () => {
         `${import.meta.env.VITE_BACKEND_URL}/fundraiser`,
         payload
       );
+      console.log(payload);
       console.log("Success:", res.data);
       toast.success("Crowdfunding created successfully!");
       navigate(`/crowdfunding/${res.data.id}`);
@@ -213,6 +264,7 @@ export const FundraiserFormComponent = () => {
                 type="date"
                 value={formData.deadline}
                 onChange={handleChange}
+                min={new Date().toISOString().split("T")[0]}
                 required
               />
             </div>

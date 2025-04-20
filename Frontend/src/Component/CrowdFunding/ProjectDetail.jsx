@@ -94,7 +94,7 @@ const ProjectDetail = () => {
       }
 
       const options = {
-        key: process.env.VITE_PUBLIC_RAZORPAY_KEY,
+        key: import.meta.env.VITE_PUBLIC_RAZORPAY_KEY,
         amount: data.amount,
         currency: "INR",
         name: "Edu-Empower",
