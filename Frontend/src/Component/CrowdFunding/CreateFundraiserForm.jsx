@@ -152,7 +152,6 @@ export const FundraiserFormComponent = () => {
       toast.error("About section must be between 10 and 1000 characters long.");
       setIsSubmitting(false);
       return;
-      s;
     }
 
     const payload = {

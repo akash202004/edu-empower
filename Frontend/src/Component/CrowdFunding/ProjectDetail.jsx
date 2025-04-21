@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import {
   FiArrowLeft,
   FiCalendar,
-  FiDollarSign,
   FiUsers,
   FiHeart,
   FiEdit,
@@ -16,25 +15,11 @@ import {
 import { fundraiserService } from "../../api/fundraiserService";
 import { EditFundraiserFormComponent } from "./EditFundraiserForm";
 import { useUser } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
 const ProjectDetail = () => {
@@ -73,15 +58,18 @@ const ProjectDetail = () => {
       return;
     }
 
+    const amount = Number(donationAmount);
+
     try {
       toast.loading("Creating payment order...");
+      console.log(donationAmount);
 
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/payment/create-order`,
+        `${import.meta.env.VITE_BACKEND_URL}/transaction/createorder`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: donationAmount }),
+          body: JSON.stringify({ amount: amount }),
         }
       );
 
@@ -102,7 +90,7 @@ const ProjectDetail = () => {
         order_id: data.id,
         handler: async (response) => {
           const verifyRes = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL}/payment/verify`,
+            `${import.meta.env.VITE_BACKEND_URL}/transaction/verifypayment`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -343,7 +331,7 @@ const ProjectDetail = () => {
                     </div>
                     <input
                       type="number"
-                      min="5"
+                      min="1"
                       value={donationAmount}
                       onChange={(e) => setDonationAmount(e.target.value)}
                       className="w-full pl-10 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
