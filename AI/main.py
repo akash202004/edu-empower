@@ -1,96 +1,67 @@
-import uuid
-from datetime import datetime
-from analyzer import analyze_emotion
-from extractor import extract_marks_and_income
-from helpers import fetch_applications, fetch_student, save_to_json
-from push_to_db import push_data, already_exists
-from extractor import extract_marks_and_income
+import os
+import google.generativeai as genai
+from typing import Optional, Dict
 
-def score_student(student, app):
-    data = extract_marks_and_income(student)
-    emotion_score = analyze_emotion(student.get("aboutMe", "")) * 10
+# Set up Gemini API
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEY is not configured. Check your .env file in the 'ai' folder.")
+genai.configure(api_key=api_key)
 
-    income = data["incomeAmount"]
-    if income <= 100000:
-        income_score = 30
-    elif income <= 150000:
-        income_score = 25
-    elif income <= 200000:
-        income_score = 20
-    elif income <= 250000:
-        income_score = 15
-    elif income <= 300000:
-        income_score = 10
-    else:
-        income_score = 5
+# Define valid service keywords
+SERVICE_KEYWORDS = [
+    "plumber", "mechanic", "diesel_mechanic", "motorcycle_mechanic",
+    "heavy_vehicle_mechanic", "transmission_specialist", "brake_and_suspension_mechanic",
+    "auto_body_mechanic", "auto_electrician", "tire_and_wheel_technician",
+    "fleet_mechanic", "home_salon_men", "home_salon_female", "home_appliance_worker"
+]
 
-    avg_marks = (data["tenthMarks"] + data["twelfthMarks"]) / 2
-    marks_score = min(max((avg_marks / 100) * 40, 0), 40)
-    emotion_score = min(max(emotion_score * 3, 0), 30)
+def get_service_keyword_from_gemini(user_prompt: str, file_path: Optional[str] = None) -> Dict[str, str]:
+    """
+    Detects the most relevant service keyword based on the user's prompt using Gemini.
+    
+    Parameters:
+        user_prompt (str): The user's request in any language.
+        file_path (Optional[str]): Optional path to an uploaded file (e.g. image or PDF).
+    
+    Returns:
+        dict: { "keyword": matched_keyword }
+    
+    Raises:
+        ValueError: If the AI output is invalid or unmatchable.
+    """
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
-    total_score = round(income_score + marks_score + emotion_score, 2)
+        # Prompt to Gemini
+        prompt = [
+            (
+                "You are a multilingual AI that does two things:\n"
+                "1. Detect the language of the input and translate it to English.\n"
+                "2. Based on the English version, choose ONLY ONE matching keyword from the list:\n"
+                f"{', '.join(SERVICE_KEYWORDS)}\n"
+                "Return just the keyword in lowercase with no explanation, no punctuation, and no additional text.\n\n"
+                f"User request: {user_prompt}"
+            )
+        ]
 
-    return {
-        "id": f"student-{uuid.uuid4()}",
-        "applicationId": app["id"],
-        "scholarshipId": app.get("scholarshipId", ""),
-        "userId": student.get("userId", ""),
-        "name": student.get("fullName", "Unnamed Student"),  # Use fullName here
-        "aboutMe": student.get("aboutMe", ""),
-        "incomeAmount": data["incomeAmount"],
-        "tenthMarks": data["tenthMarks"],
-        "twelfthMarks": data["twelfthMarks"],
-        "incomeScore": income_score,
-        "marksScore": marks_score,
-        "emotionScore": round(emotion_score, 2),
-        "score": total_score,
-        "rank": 0
-    }
+        if file_path:
+            uploaded_file = genai.upload_file(path=file_path)
+            prompt.append(uploaded_file)
 
-def main():
-    applications = fetch_applications()
-    print(f"\n🎯 Total Applications: {len(applications)}\n")
+        # Call Gemini model
+        response = model.generate_content(prompt)
+        generated_keyword = response.text.strip().lower().replace('.', '').replace('\n', '')
 
-    students = []
+        # Exact or partial match
+        if generated_keyword in SERVICE_KEYWORDS:
+            return {"keyword": generated_keyword}
+        for keyword in SERVICE_KEYWORDS:
+            if keyword in generated_keyword:
+                return {"keyword": keyword}
 
-    for app in applications:
-        if already_exists(app["id"]):
-            print(f"⚠️ Skipped: {app['id']} already ranked.")
-            continue
+        raise ValueError(f"Gemini returned an unrecognized keyword: '{generated_keyword}'")
 
-        student = fetch_student(app.get("studentId"))
-        if student:
-            result = score_student(student, app)
-            students.append(result)
-
-    students.sort(key=lambda x: (x["scholarshipId"], -x["score"]))
-
-    current_scholarship = None
-    current_rank = 0
-
-    for s in students:
-        if s["scholarshipId"] != current_scholarship:
-            current_scholarship = s["scholarshipId"]
-            current_rank = 1
-        else:
-            current_rank += 1
-        s["rank"] = current_rank
-
-    save_to_json(students)
-
-    simplified = [
-        {
-            "applicationId": s["applicationId"],
-            "scholarshipId": s["scholarshipId"],
-            "score": s["score"],
-            "rank": s["rank"],
-            "createdAt": datetime.now().isoformat(),
-            "name": s["name"]  # Include name for logging
-        }
-        for s in students
-    ]
-
-    push_data(simplified)
-
-if __name__ == "__main__":
-    main()
+    except Exception as e:
+        print(f"[ERROR] Gemini processing failed: {e}")
+        raise
